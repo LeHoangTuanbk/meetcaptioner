@@ -173,3 +173,4 @@ infrastructure/**/terraform.tfvars
 node_modules
 dist
 build
+.output

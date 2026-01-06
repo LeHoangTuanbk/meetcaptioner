@@ -45,7 +45,7 @@
   function createOverlay() {
     if (overlay) return;
 
-    // Styles
+    // Styles - Simple Design
     const styles = document.createElement('style');
     styles.textContent = `
       #meetcaptioner-overlay {
@@ -53,30 +53,34 @@
         top: 80px;
         right: 20px;
         width: 320px;
-        max-height: 300px;
-        background: rgba(26, 26, 46, 0.92);
+        height: 360px;
+        background: #1a1a2e;
         border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-        font-family: 'Google Sans', Roboto, sans-serif;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         z-index: 999999;
+        display: flex;
+        flex-direction: column;
         overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.15);
       }
       #meetcaptioner-overlay.minimized {
-        max-height: 40px;
+        height: auto;
         width: 140px;
       }
-      #meetcaptioner-overlay.minimized .mc-content {
+      #meetcaptioner-overlay.minimized .mc-content,
+      #meetcaptioner-overlay.minimized .mc-resize {
         display: none;
       }
       .mc-header {
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        padding: 8px 12px;
-        background: rgba(60, 60, 90, 0.9);
+        justify-content: space-between;
+        padding: 14px 16px;
+        background: #252540;
         cursor: grab;
         user-select: none;
+        flex-shrink: 0;
+        border-radius: 12px 12px 0 0;
       }
       .mc-header:active {
         cursor: grabbing;
@@ -86,87 +90,108 @@
         font-size: 14px;
         font-weight: 500;
       }
-      .mc-controls {
-        display: flex;
-        gap: 8px;
-      }
       .mc-btn {
         background: none;
         border: none;
         cursor: pointer;
-        font-size: 16px;
-        padding: 4px;
-        opacity: 0.7;
+        font-size: 20px;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0.6;
         transition: opacity 0.2s;
+        color: #fff;
+        border-radius: 6px;
       }
       .mc-btn:hover {
         opacity: 1;
+        background: rgba(255,255,255,0.1);
       }
       .mc-content {
-        max-height: 250px;
+        flex: 1;
         overflow-y: auto;
-        padding: 6px;
+        padding: 16px;
+        min-height: 0;
       }
       .mc-content::-webkit-scrollbar {
-        width: 6px;
+        width: 4px;
+      }
+      .mc-content::-webkit-scrollbar-track {
+        background: transparent;
       }
       .mc-content::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 3px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 2px;
       }
       .mc-list {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 16px;
       }
       .mc-caption {
-        padding: 10px 12px;
-        background: rgba(42, 42, 62, 0.6);
-        border-radius: 8px;
-        animation: mcFadeIn 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .mc-caption.mc-new {
+        animation: mcFadeIn 0.2s ease;
       }
       @keyframes mcFadeIn {
-        from { opacity: 0; transform: translateY(10px); }
+        from { opacity: 0; transform: translateY(6px); }
         to { opacity: 1; transform: translateY(0); }
       }
       .mc-speaker {
-        color: #8b8bff;
+        color: #4ade80;
         font-size: 12px;
-        font-weight: 500;
-        margin-bottom: 4px;
+        font-weight: 600;
       }
       .mc-text {
-        color: #fff;
-        font-size: 14px;
-        line-height: 1.4;
+        color: #e4e4e7;
+        font-size: 13px;
+        line-height: 1.45;
       }
       .mc-time {
-        color: rgba(255, 255, 255, 0.4);
+        color: #6b7280;
         font-size: 10px;
-        margin-top: 4px;
+        margin-top: 2px;
       }
       .mc-empty {
-        color: rgba(255, 255, 255, 0.5);
+        color: #6b7280;
         text-align: center;
-        padding: 20px;
-        font-size: 13px;
+        padding: 32px 16px;
+        font-size: 12px;
+        line-height: 1.5;
+      }
+      .mc-resize {
+        height: 10px;
+        cursor: ns-resize;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        opacity: 0.3;
+        transition: opacity 0.2s;
+      }
+      .mc-resize:hover {
+        opacity: 0.8;
+      }
+      .mc-resize::after {
+        content: '';
+        width: 36px;
+        height: 4px;
+        background: rgba(255,255,255,0.4);
+        border-radius: 2px;
       }
     `;
     document.head.appendChild(styles);
 
-    // Build DOM
-    const clearBtn = createElement('button', {
-      className: 'mc-btn mc-clear',
-      title: 'Clear',
-      textContent: '🗑️',
-      onClick: () => {
-        captions.length = 0;
-        renderCaptions();
-      }
-    });
+    // Build DOM - Simple: Title + Minimize + Content + Resize
+    const title = createElement('span', { className: 'mc-title', textContent: 'Captions' });
 
     const minimizeBtn = createElement('button', {
-      className: 'mc-btn mc-minimize',
+      className: 'mc-btn',
       title: 'Minimize',
       textContent: '−',
       onClick: () => {
@@ -176,19 +201,59 @@
       }
     });
 
-    const controls = createElement('div', { className: 'mc-controls' }, [clearBtn, minimizeBtn]);
-    const title = createElement('span', { className: 'mc-title', textContent: '📝 Captions' });
-    const header = createElement('div', { className: 'mc-header' }, [title, controls]);
+    const header = createElement('div', { className: 'mc-header' }, [title, minimizeBtn]);
 
     captionList = createElement('div', { className: 'mc-list' });
     const content = createElement('div', { className: 'mc-content' }, [captionList]);
+    const resizeHandle = createElement('div', { className: 'mc-resize' });
 
-    overlay = createElement('div', { id: 'meetcaptioner-overlay' }, [header, content]);
+    overlay = createElement('div', { id: 'meetcaptioner-overlay' }, [header, content, resizeHandle]);
     document.body.appendChild(overlay);
 
     // Make draggable
     makeDraggable(overlay, header);
+
+    // Make resizable
+    makeResizable(overlay, resizeHandle);
+
     renderCaptions();
+  }
+
+  // Make element resizable (vertical)
+  function makeResizable(element, handle) {
+    let startY = 0, startHeight = 0;
+    let isResizing = false;
+
+    handle.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      isResizing = true;
+      startY = e.clientY;
+      startHeight = element.offsetHeight;
+
+      document.body.style.cursor = 'ns-resize';
+      document.body.style.userSelect = 'none';
+
+      document.addEventListener('mousemove', resize);
+      document.addEventListener('mouseup', stopResize);
+    });
+
+    function resize(e) {
+      if (!isResizing) return;
+      e.preventDefault();
+      const delta = e.clientY - startY;
+      const newHeight = Math.max(150, Math.min(600, startHeight + delta));
+      element.style.maxHeight = newHeight + 'px';
+      element.style.height = newHeight + 'px';
+    }
+
+    function stopResize() {
+      isResizing = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      document.removeEventListener('mousemove', resize);
+      document.removeEventListener('mouseup', stopResize);
+    }
   }
 
   // Make element draggable
@@ -270,12 +335,14 @@
         }
         if (timeEl) timeEl.textContent = c.time;
       } else {
-        // Add new item
+        // Add new item with animation
         const speaker = createElement('div', { className: 'mc-speaker', textContent: c.speaker });
         const text = createElement('div', { className: 'mc-text', textContent: c.text });
         const time = createElement('div', { className: 'mc-time', textContent: c.time });
-        const caption = createElement('div', { className: 'mc-caption' }, [speaker, text, time]);
+        const caption = createElement('div', { className: 'mc-caption mc-new' }, [speaker, text, time]);
         captionList.appendChild(caption);
+        // Remove animation class after it plays
+        setTimeout(() => caption.classList.remove('mc-new'), 200);
       }
     });
 
@@ -294,31 +361,45 @@
     }
   }
 
+  // Check text similarity
+  function isSimilar(text1, text2) {
+    if (!text1 || !text2) return false;
+    const t1 = text1.slice(0, 20);
+    const t2 = text2.slice(0, 20);
+    return t1.includes(t2.slice(0, 10)) || t2.includes(t1.slice(0, 10));
+  }
+
   // Add caption with better deduplication
   function addCaption(speaker, text) {
-    // Exact duplicate check
+    if (!speaker || !text) return;
+
     const last = captions[captions.length - 1];
-    if (last && last.speaker === speaker && last.text === text) return;
 
-    // Find last caption from same speaker
-    const lastFromSameSpeaker = [...captions].reverse().find(c => c.speaker === speaker);
+    // Exact duplicate
+    if (last && last.text === text) return;
 
-    // Check if this is a continuation/update of the same speech
-    if (lastFromSameSpeaker) {
-      const oldText = lastFromSameSpeaker.text;
-      const newText = text;
+    // Same speaker - always update last entry
+    if (last && last.speaker === speaker) {
+      last.text = text;
+      last.time = new Date().toLocaleTimeString();
 
-      // If new text contains old text or vice versa, it's an update
-      const isUpdate = newText.includes(oldText.slice(0, 15)) ||
-                       oldText.includes(newText.slice(0, 15)) ||
-                       (last && last.speaker === speaker);
+      // Direct DOM update
+      const items = captionList?.querySelectorAll('.mc-caption');
+      const lastItem = items?.[items.length - 1];
+      if (lastItem) {
+        const textEl = lastItem.querySelector('.mc-text');
+        const timeEl = lastItem.querySelector('.mc-time');
+        if (textEl) textEl.textContent = text;
+        if (timeEl) timeEl.textContent = last.time;
+      }
+      return;
+    }
 
-      if (isUpdate && last && last.speaker === speaker) {
-        // Update in place if it's the last caption
-        last.text = text;
-        last.time = new Date().toLocaleTimeString();
-        renderCaptions(true); // updateOnly - no flash
-        return;
+    // Check if similar to any recent caption (last 3)
+    const recent = captions.slice(-3);
+    for (const c of recent) {
+      if (isSimilar(c.text, text)) {
+        return; // Skip duplicate
       }
     }
 
@@ -333,7 +414,7 @@
       captions.shift();
     }
 
-    renderCaptions(false); // new caption - with scroll
+    renderCaptions(false);
     console.log('[MeetCaptioner] Caption:', speaker, '-', text);
   }
 
