@@ -62,14 +62,20 @@
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        min-width: 240px;
+        min-height: 150px;
       }
       #meetcaptioner-overlay.minimized {
-        height: auto;
-        width: 140px;
+        height: auto !important;
+        width: 140px !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
       }
       #meetcaptioner-overlay.minimized .mc-content,
-      #meetcaptioner-overlay.minimized .mc-resize {
-        display: none;
+      #meetcaptioner-overlay.minimized .mc-resize-br,
+      #meetcaptioner-overlay.minimized .mc-resize-bl,
+      #meetcaptioner-overlay.minimized .mc-resize-b {
+        display: none !important;
       }
       .mc-header {
         display: flex;
@@ -114,6 +120,12 @@
         overflow-y: auto;
         padding: 16px;
         min-height: 0;
+        user-select: text;
+        cursor: text;
+      }
+      .mc-content *::selection {
+        background: rgba(255, 255, 255, 0.85) !important;
+        color: #1a1a2e !important;
       }
       .mc-content::-webkit-scrollbar {
         width: 4px;
@@ -165,24 +177,74 @@
         line-height: 1.5;
       }
       .mc-resize {
-        height: 10px;
-        cursor: ns-resize;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        opacity: 0.3;
+        position: absolute;
+        bottom: 4px;
+        width: 16px;
+        height: 16px;
+        opacity: 0.4;
         transition: opacity 0.2s;
       }
       .mc-resize:hover {
-        opacity: 0.8;
+        opacity: 0.9;
       }
+      .mc-resize-br {
+        right: 4px;
+        cursor: nwse-resize;
+      }
+      .mc-resize-bl {
+        left: 4px;
+        cursor: nesw-resize;
+      }
+      .mc-resize::before,
       .mc-resize::after {
         content: '';
-        width: 36px;
-        height: 4px;
+        position: absolute;
+        background: rgba(255,255,255,0.5);
+        border-radius: 1px;
+      }
+      .mc-resize-br::before {
+        bottom: 2px;
+        right: 2px;
+        width: 8px;
+        height: 2px;
+      }
+      .mc-resize-br::after {
+        bottom: 2px;
+        right: 2px;
+        width: 2px;
+        height: 8px;
+      }
+      .mc-resize-bl::before {
+        bottom: 2px;
+        left: 2px;
+        width: 8px;
+        height: 2px;
+      }
+      .mc-resize-bl::after {
+        bottom: 2px;
+        left: 2px;
+        width: 2px;
+        height: 8px;
+      }
+      .mc-resize-b {
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        cursor: ns-resize;
+      }
+      .mc-resize-b::before {
+        content: '';
+        position: absolute;
+        bottom: 4px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 24px;
+        height: 3px;
         background: rgba(255,255,255,0.4);
         border-radius: 2px;
+      }
+      .mc-resize-b::after {
+        display: none;
       }
     `;
     document.head.appendChild(styles);
@@ -205,33 +267,42 @@
 
     captionList = createElement('div', { className: 'mc-list' });
     const content = createElement('div', { className: 'mc-content' }, [captionList]);
-    const resizeHandle = createElement('div', { className: 'mc-resize' });
+    const resizeHandleBR = createElement('div', { className: 'mc-resize mc-resize-br' });
+    const resizeHandleBL = createElement('div', { className: 'mc-resize mc-resize-bl' });
+    const resizeHandleB = createElement('div', { className: 'mc-resize mc-resize-b' });
 
-    overlay = createElement('div', { id: 'meetcaptioner-overlay' }, [header, content, resizeHandle]);
+    overlay = createElement('div', { id: 'meetcaptioner-overlay' }, [header, content, resizeHandleBR, resizeHandleBL, resizeHandleB]);
     document.body.appendChild(overlay);
 
     // Make draggable
     makeDraggable(overlay, header);
 
-    // Make resizable
-    makeResizable(overlay, resizeHandle);
+    // Make resizable (corners + bottom)
+    makeResizable(overlay, resizeHandleBR, 'br');
+    makeResizable(overlay, resizeHandleBL, 'bl');
+    makeResizable(overlay, resizeHandleB, 'b');
 
     renderCaptions();
   }
 
-  // Make element resizable (vertical)
-  function makeResizable(element, handle) {
-    let startY = 0, startHeight = 0;
+  // Make element resizable (width + height)
+  // corner: 'br' = bottom-right, 'bl' = bottom-left
+  function makeResizable(element, handle, corner) {
+    let startX = 0, startY = 0, startWidth = 0, startHeight = 0, startLeft = 0;
     let isResizing = false;
 
     handle.addEventListener('mousedown', (e) => {
       e.preventDefault();
       e.stopPropagation();
       isResizing = true;
+      startX = e.clientX;
       startY = e.clientY;
+      startWidth = element.offsetWidth;
       startHeight = element.offsetHeight;
+      startLeft = element.getBoundingClientRect().left;
 
-      document.body.style.cursor = 'ns-resize';
+      const cursors = { br: 'nwse-resize', bl: 'nesw-resize', b: 'ns-resize' };
+      document.body.style.cursor = cursors[corner];
       document.body.style.userSelect = 'none';
 
       document.addEventListener('mousemove', resize);
@@ -241,10 +312,26 @@
     function resize(e) {
       if (!isResizing) return;
       e.preventDefault();
-      const delta = e.clientY - startY;
-      const newHeight = Math.max(150, Math.min(600, startHeight + delta));
-      element.style.maxHeight = newHeight + 'px';
+
+      const deltaX = e.clientX - startX;
+      const deltaY = e.clientY - startY;
+
+      // Height is same for all handles (min 150, no max)
+      const newHeight = Math.max(150, startHeight + deltaY);
       element.style.height = newHeight + 'px';
+
+      if (corner === 'br') {
+        // Bottom-right: drag right to increase width
+        const newWidth = Math.max(240, startWidth + deltaX);
+        element.style.width = newWidth + 'px';
+      } else if (corner === 'bl') {
+        // Bottom-left: drag left to increase width, also move left position
+        const newWidth = Math.max(240, startWidth - deltaX);
+        element.style.width = newWidth + 'px';
+        element.style.left = (startLeft + deltaX) + 'px';
+        element.style.right = 'auto';
+      }
+      // corner === 'b': only height, no width change
     }
 
     function stopResize() {
