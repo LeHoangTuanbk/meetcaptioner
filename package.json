@@ -1,36 +1,21 @@
 {
   "name": "meet-captioner-2",
   "version": "1.0.0",
-  "description": "Capture and translate Google Meet captions in real-time",
+  "description": "Capture Google Meet captions with floating overlay",
   "type": "module",
   "scripts": {
     "dev": "wxt",
-    "dev:firefox": "wxt -b firefox",
     "build": "wxt build",
-    "build:firefox": "wxt build -b firefox",
     "zip": "wxt zip",
-    "zip:firefox": "wxt zip -b firefox",
     "postinstall": "wxt prepare"
   },
-  "keywords": ["chrome-extension", "google-meet", "caption", "translation"],
+  "keywords": ["chrome-extension", "google-meet", "caption"],
   "author": "Le Hoang Tuan",
   "license": "MIT",
   "packageManager": "pnpm@10.18.3",
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.18",
     "@types/chrome": "^0.1.32",
-    "@types/react": "^19.2.7",
-    "@types/react-dom": "^19.2.3",
-    "@wxt-dev/module-react": "^1.1.5",
-    "autoprefixer": "^10.4.23",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.18",
     "typescript": "^5.9.3",
     "wxt": "^0.20.13"
-  },
-  "dependencies": {
-    "protobufjs": "^8.0.0",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3"
   }
 }
