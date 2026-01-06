@@ -6,7 +6,11 @@ export default defineConfig({
     description: 'Capture and translate Google Meet captions in real-time',
     version: '1.0.0',
     permissions: ['storage'],
-    host_permissions: ['https://meet.google.com/*'],
+    host_permissions: [
+      'https://meet.google.com/*',
+      'https://api.anthropic.com/*',
+      'https://api.openai.com/*',
+    ],
     action: {
       default_title: 'MeetCaptioner',
     },
