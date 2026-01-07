@@ -60,6 +60,9 @@
   // Translation debounce timers per caption
   const semanticTimers = new Map();
 
+  // Track if CC is enabled (caption region detected)
+  let isCCEnabled = false;
+
   // ============ Message Bridge ============
   function sendMessage(type, payload) {
     return new Promise((resolve, reject) => {
@@ -558,10 +561,7 @@
         align-items: center;
         gap: 6px;
         cursor: pointer;
-        padding: 4px 10px;
-        border-radius: 6px;
         transition: all 0.2s;
-        background: rgba(255,255,255,0.05);
       }
       .mc-toggle:hover {
         background: rgba(255,255,255,0.1);
@@ -829,7 +829,6 @@
       [toggleSwitch]
     );
 
-
     // Settings button - opens options page
     const settingsBtn = createElement("button", {
       className: "mc-btn",
@@ -856,10 +855,11 @@
     ]);
 
     // Translation group: Translations + toggle
-    const translationGroup = createElement("div", { className: "mc-header-translation" }, [
-      translationTitle,
-      translateToggle,
-    ]);
+    const translationGroup = createElement(
+      "div",
+      { className: "mc-header-translation" },
+      [translationTitle, translateToggle]
+    );
 
     // Mini controls: settings + minimize
     const miniControls = createElement("div", { className: "mc-header-mini" }, [
@@ -1024,9 +1024,17 @@
         captionList.removeChild(captionList.firstChild);
       }
       const empty = createElement("div", { className: "mc-empty" });
-      empty.appendChild(document.createTextNode("Waiting for captions..."));
-      empty.appendChild(document.createElement("br"));
-      empty.appendChild(document.createTextNode("Turn on CC in Google Meet"));
+      if (isCCEnabled) {
+        // CC is on, waiting for speech
+        empty.appendChild(document.createTextNode("You're all set!"));
+        empty.appendChild(document.createElement("br"));
+        empty.appendChild(document.createTextNode("Start speaking to see captions"));
+      } else {
+        // CC not enabled yet
+        empty.appendChild(document.createTextNode("Waiting for captions..."));
+        empty.appendChild(document.createElement("br"));
+        empty.appendChild(document.createTextNode("Turn on CC in Google Meet"));
+      }
       captionList.appendChild(empty);
       return;
     }
@@ -1150,25 +1158,44 @@
   // ============ Caption Processing ============
   let captionIdCounter = 0;
 
-  // Normalize text for comparison (remove trailing punctuation)
-  function normalizeForCompare(text) {
-    return text.trim().replace(/[。、！？.!?,\s]+$/g, "");
+  // Remove ALL punctuation and spaces for comparison
+  function stripPunctuation(text) {
+    return text.replace(/[。、！？.!?,\s・「」『』（）()【】\[\]]/g, "");
   }
 
   // Check if newText is a continuation of oldText (handles punctuation changes)
   function isTextGrowing(oldText, newText) {
-    if (newText.length <= oldText.length) return false;
+    // Strip all punctuation for comparison
+    const oldStripped = stripPunctuation(oldText);
+    const newStripped = stripPunctuation(newText);
 
-    const oldNorm = normalizeForCompare(oldText);
-    const newNorm = normalizeForCompare(newText);
+    // New text must be longer (in stripped form)
+    if (newStripped.length <= oldStripped.length) return false;
 
-    // Check if new text starts with old text (after removing punctuation)
-    if (newNorm.startsWith(oldNorm)) return true;
+    // Check if new stripped text contains old stripped text at the start
+    if (newStripped.startsWith(oldStripped)) return true;
 
-    // Check if they share a significant common prefix (80% of shorter)
-    const minLen = Math.min(oldNorm.length, newNorm.length);
-    const checkLen = Math.max(5, Math.floor(minLen * 0.8));
-    return newNorm.slice(0, checkLen) === oldNorm.slice(0, checkLen);
+    // Check if they share a significant common prefix (85% of old text)
+    const checkLen = Math.max(5, Math.floor(oldStripped.length * 0.85));
+    if (newStripped.slice(0, checkLen) === oldStripped.slice(0, checkLen)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  // Check if two texts are similar (for duplicate detection)
+  function isSimilarText(text1, text2) {
+    const s1 = stripPunctuation(text1);
+    const s2 = stripPunctuation(text2);
+
+    // Exact match after stripping
+    if (s1 === s2) return true;
+
+    // One contains the other
+    if (s1.includes(s2) || s2.includes(s1)) return true;
+
+    return false;
   }
 
   function addCaption(speaker, text) {
@@ -1176,9 +1203,30 @@
 
     const normalizedText = text.trim();
 
-    // Check for exact duplicate in ANY recent caption first
-    const exactDup = captions.slice(-10).find((c) => c.text === normalizedText);
-    if (exactDup) return;
+    // Check for similar/duplicate in ANY recent caption (handles punctuation variations)
+    const similarDup = captions.slice(-10).find((c) => isSimilarText(c.text, normalizedText));
+    if (similarDup) {
+      // If found and new text is longer (stripped), update the existing caption
+      const oldStripped = stripPunctuation(similarDup.text);
+      const newStripped = stripPunctuation(normalizedText);
+      if (newStripped.length > oldStripped.length) {
+        similarDup.text = normalizedText;
+        similarDup.time = new Date().toLocaleTimeString();
+        // Update UI
+        const captionEl = document.querySelector(`[data-caption-id="${similarDup.id}"]`);
+        if (captionEl) {
+          const textEl = captionEl.querySelector(".mc-original");
+          const timeEl = captionEl.querySelector(".mc-time");
+          if (textEl) textEl.textContent = normalizedText;
+          if (timeEl) timeEl.textContent = similarDup.time;
+        }
+        // Re-translate if enabled
+        if (settings.translationEnabled && similarDup.speaker === speaker) {
+          scheduleSemanticTranslation(similarDup);
+        }
+      }
+      return;
+    }
 
     // Find the most recent caption from this speaker in last 5 entries
     let speakerCaption = null;
@@ -1201,8 +1249,27 @@
       // Exact duplicate - skip
       if (oldText === newText) return;
 
-      // New text is shorter or equal - likely partial/duplicate, skip
-      if (newText.length <= oldText.length) return;
+      // Similar text (punctuation only difference) - update existing
+      if (isSimilarText(oldText, newText)) {
+        const oldStripped = stripPunctuation(oldText);
+        const newStripped = stripPunctuation(newText);
+        // Update if new text is longer
+        if (newStripped.length > oldStripped.length) {
+          speakerCaption.text = newText;
+          speakerCaption.time = new Date().toLocaleTimeString();
+          const captionEl = document.querySelector(`[data-caption-id="${speakerCaption.id}"]`);
+          if (captionEl) {
+            const textEl = captionEl.querySelector(".mc-original");
+            const timeEl = captionEl.querySelector(".mc-time");
+            if (textEl) textEl.textContent = newText;
+            if (timeEl) timeEl.textContent = speakerCaption.time;
+          }
+          if (settings.translationEnabled) {
+            scheduleSemanticTranslation(speakerCaption);
+          }
+        }
+        return;
+      }
 
       // Check if text is growing (handles punctuation changes during live recognition)
       if (isTextGrowing(oldText, newText)) {
@@ -1307,6 +1374,14 @@
 
       if (captionRegion && !captionRegion._mcObserving) {
         captionRegion._mcObserving = true;
+
+        // Update CC enabled state and re-render empty message
+        if (!isCCEnabled) {
+          isCCEnabled = true;
+          if (captions.length === 0) {
+            renderCaptions();
+          }
+        }
 
         if (observer) observer.disconnect();
 
