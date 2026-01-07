@@ -47,7 +47,8 @@
   const pendingRequests = new Map();
 
   // Default custom prompt for new users
-  const DEFAULT_CUSTOM_PROMPT = "Translate naturally and smoothly. Keep technical terms and abbreviations as-is (API, ML, etc). Use appropriate formality for business context.";
+  const DEFAULT_CUSTOM_PROMPT =
+    "Translate naturally and smoothly. Keep technical terms and abbreviations as-is (API, ML, etc). Use appropriate formality for business context.";
 
   // Settings (loaded from storage)
   let settings = {
@@ -158,6 +159,11 @@
       translateToggle.title = settings.translationEnabled
         ? "Translation ON"
         : "Translation OFF";
+    }
+
+    // Toggle single/dual column mode
+    if (overlay) {
+      overlay.classList.toggle("translation-off", !settings.translationEnabled);
     }
   }
 
@@ -558,6 +564,8 @@
         cursor: pointer;
         outline: none;
         min-width: 100px;
+        transition: all 0.4s ease;
+        transform-origin: right center;
       }
       .mc-lang-select:hover {
         background: rgba(255,255,255,0.12);
@@ -645,6 +653,24 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 12px;
+      }
+      /* Single column mode when translation is OFF */
+      #meetcaptioner-overlay.translation-off .mc-caption-content {
+        grid-template-columns: 1fr;
+      }
+      #meetcaptioner-overlay.translation-off .mc-translation-wrapper,
+      #meetcaptioner-overlay.translation-off .mc-translate-action {
+        display: none !important;
+      }
+      #meetcaptioner-overlay.translation-off .mc-lang-select {
+        opacity: 0;
+        transform: scale(0.9);
+        pointer-events: none;
+        width: 0;
+        min-width: 0;
+        padding: 0;
+        margin: 0;
+        border: none;
       }
       .mc-original {
         color: #e4e4e7;
@@ -796,7 +822,7 @@
     });
 
     const translationTitle = createElement("span", {
-      className: "mc-title",
+      className: "mc-title mc-translation-label",
       textContent: "Translations",
     });
 
@@ -910,6 +936,10 @@
       resizeHandleBL,
       resizeHandleB,
     ]);
+    // Set initial translation mode class
+    if (!settings.translationEnabled) {
+      overlay.classList.add("translation-off");
+    }
     document.body.appendChild(overlay);
 
     makeDraggable(overlay, header);
@@ -1037,7 +1067,9 @@
         // CC is on, waiting for speech
         empty.appendChild(document.createTextNode("You're all set!"));
         empty.appendChild(document.createElement("br"));
-        empty.appendChild(document.createTextNode("Start speaking to see captions"));
+        empty.appendChild(
+          document.createTextNode("Start speaking to see captions")
+        );
       } else {
         // CC not enabled yet
         empty.appendChild(document.createTextNode("Waiting for captions..."));
@@ -1213,7 +1245,9 @@
     const normalizedText = text.trim();
 
     // Check for similar/duplicate in ANY recent caption (handles punctuation variations)
-    const similarDup = captions.slice(-10).find((c) => isSimilarText(c.text, normalizedText));
+    const similarDup = captions
+      .slice(-10)
+      .find((c) => isSimilarText(c.text, normalizedText));
     if (similarDup) {
       // If found and new text is longer (stripped), update the existing caption
       const oldStripped = stripPunctuation(similarDup.text);
@@ -1222,7 +1256,9 @@
         similarDup.text = normalizedText;
         similarDup.time = new Date().toLocaleTimeString();
         // Update UI
-        const captionEl = document.querySelector(`[data-caption-id="${similarDup.id}"]`);
+        const captionEl = document.querySelector(
+          `[data-caption-id="${similarDup.id}"]`
+        );
         if (captionEl) {
           const textEl = captionEl.querySelector(".mc-original");
           const timeEl = captionEl.querySelector(".mc-time");
@@ -1266,7 +1302,9 @@
         if (newStripped.length > oldStripped.length) {
           speakerCaption.text = newText;
           speakerCaption.time = new Date().toLocaleTimeString();
-          const captionEl = document.querySelector(`[data-caption-id="${speakerCaption.id}"]`);
+          const captionEl = document.querySelector(
+            `[data-caption-id="${speakerCaption.id}"]`
+          );
           if (captionEl) {
             const textEl = captionEl.querySelector(".mc-original");
             const timeEl = captionEl.querySelector(".mc-time");
