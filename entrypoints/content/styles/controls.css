@@ -1,0 +1,164 @@
+/* Resize handles */
+.mc-resize {
+  position: absolute;
+  bottom: 4px;
+  width: 16px;
+  height: 16px;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+
+.mc-resize:hover {
+  opacity: 0.9;
+}
+
+.mc-resize-br {
+  right: 4px;
+  cursor: nwse-resize;
+}
+
+.mc-resize-bl {
+  left: 4px;
+  cursor: nesw-resize;
+}
+
+.mc-resize::before,
+.mc-resize::after {
+  content: "";
+  position: absolute;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 1px;
+}
+
+.mc-resize-br::before {
+  bottom: 2px;
+  right: 2px;
+  width: 8px;
+  height: 2px;
+}
+
+.mc-resize-br::after {
+  bottom: 2px;
+  right: 2px;
+  width: 2px;
+  height: 8px;
+}
+
+.mc-resize-bl::before {
+  bottom: 2px;
+  left: 2px;
+  width: 8px;
+  height: 2px;
+}
+
+.mc-resize-bl::after {
+  bottom: 2px;
+  left: 2px;
+  width: 2px;
+  height: 8px;
+}
+
+.mc-resize-b {
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  cursor: ns-resize;
+}
+
+.mc-resize-b::before {
+  content: "";
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 2px;
+}
+
+.mc-resize-b::after {
+  display: none;
+}
+
+/* Export dropdown */
+.mc-export-wrapper {
+  position: relative;
+}
+
+.mc-export-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background: #252540;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 4px;
+  min-width: 160px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+.mc-export-wrapper.open .mc-export-menu {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.mc-export-item {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  color: #e4e4e7;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.mc-export-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.mc-export-item:disabled {
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+/* Tooltip */
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: rgba(0, 0, 0, 0.9);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 400;
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s, visibility 0.15s;
+  pointer-events: none;
+  z-index: 10000;
+}
+
+[data-tooltip]:hover::after {
+  opacity: 1;
+  visibility: visible;
+}

@@ -1,0 +1,83 @@
+/* Main overlay container */
+#meetcaptioner-overlay {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  width: 480px;
+  height: 400px;
+  background: #1a1a2e;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  z-index: 999999;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 520px;
+  min-height: 200px;
+}
+
+/* Minimized state */
+#meetcaptioner-overlay.minimized {
+  height: auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+}
+
+#meetcaptioner-overlay.minimized .mc-content,
+#meetcaptioner-overlay.minimized .mc-resize-br,
+#meetcaptioner-overlay.minimized .mc-resize-bl,
+#meetcaptioner-overlay.minimized .mc-resize-b,
+#meetcaptioner-overlay.minimized .mc-header-left,
+#meetcaptioner-overlay.minimized .mc-header-right,
+#meetcaptioner-overlay.minimized .mc-header-translation,
+#meetcaptioner-overlay.minimized .mc-lang-select {
+  display: none !important;
+}
+
+#meetcaptioner-overlay.minimized .mc-header {
+  padding: 8px 12px;
+  gap: 8px;
+  border-radius: 12px;
+}
+
+#meetcaptioner-overlay.minimized .mc-minimized-controls {
+  display: flex !important;
+}
+
+#meetcaptioner-overlay.minimized [data-tooltip]::after {
+  top: auto;
+  bottom: 100%;
+  left: auto;
+  right: 0;
+  transform: translateY(-4px);
+}
+
+/* Content area */
+.mc-content {
+  flex: 1;
+  overflow: hidden auto;
+  padding: 12px;
+  min-height: 0;
+  user-select: text;
+  cursor: text;
+}
+
+.mc-content *::selection {
+  background: rgba(255, 255, 255, 0.85) !important;
+  color: #1a1a2e !important;
+}
+
+.mc-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.mc-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mc-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+}

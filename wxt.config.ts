@@ -19,11 +19,5 @@ export default defineConfig({
     action: {
       default_title: "MeetCaptioner",
     },
-    web_accessible_resources: [
-      {
-        resources: ["injected.js"],
-        matches: ["https://meet.google.com/*"],
-      },
-    ],
   },
 });
