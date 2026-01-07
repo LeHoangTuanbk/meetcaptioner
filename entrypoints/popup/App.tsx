@@ -58,7 +58,7 @@ export default function App() {
 
       <button
         onClick={openSettings}
-        className="w-full mt-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+        className="w-full mt-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2 hover:cursor-pointer"
       >
         <span>Open Settings</span>
       </button>

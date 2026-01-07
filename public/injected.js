@@ -17,12 +17,22 @@
   const LANGUAGES = [
     { code: "vi", name: "Vietnamese" },
     { code: "en", name: "English" },
+    { code: "zh", name: "Chinese" },
     { code: "ja", name: "Japanese" },
     { code: "ko", name: "Korean" },
-    { code: "zh", name: "Chinese" },
     { code: "es", name: "Spanish" },
     { code: "fr", name: "French" },
     { code: "de", name: "German" },
+    { code: "pt", name: "Portuguese" },
+    { code: "ru", name: "Russian" },
+    { code: "ar", name: "Arabic" },
+    { code: "hi", name: "Hindi" },
+    { code: "it", name: "Italian" },
+    { code: "th", name: "Thai" },
+    { code: "id", name: "Indonesian" },
+    { code: "nl", name: "Dutch" },
+    { code: "pl", name: "Polish" },
+    { code: "tr", name: "Turkish" },
   ];
 
   const MODELS = {
@@ -32,9 +42,9 @@
       { id: "claude-opus-4-5-20251101", name: "Claude Opus 4.5" },
     ],
     openai: [
-      { id: "gpt-5-nano", name: "GPT-5 Nano (Fastest)" },
-      { id: "gpt-5-mini", name: "GPT-5 Mini" },
-      { id: "gpt-5.2", name: "GPT-5.2" },
+      { id: "gpt-4.1-nano", name: "GPT-4.1 Nano (Fastest)" },
+      { id: "gpt-4.1-mini", name: "GPT-4.1 Mini" },
+      { id: "gpt-5-nano", name: "GPT-5 Nano" },
     ],
   };
 
@@ -52,11 +62,11 @@
 
   // Settings (loaded from storage)
   let settings = {
-    provider: "anthropic",
+    provider: "openai",
     anthropicApiKey: "",
     openaiApiKey: "",
-    model: "claude-haiku-4-5-20251001",
-    targetLanguage: "vi",
+    model: "gpt-4.1-nano",
+    targetLanguage: "en",
     translationEnabled: false,
     customPrompt: DEFAULT_CUSTOM_PROMPT,
   };
@@ -66,6 +76,25 @@
 
   // Track if CC is enabled (caption region detected)
   let isCCEnabled = false;
+
+  // Wave indicator state
+  let waveElement = null;
+  let waveTimeout = null;
+
+  function setWaveActive(active) {
+    if (!waveElement) return;
+    if (active) {
+      waveElement.classList.add("mc-active");
+      // Auto-deactivate after 3s of no new captions
+      clearTimeout(waveTimeout);
+      waveTimeout = setTimeout(() => {
+        waveElement.classList.remove("mc-active");
+      }, 3000);
+    } else {
+      waveElement.classList.remove("mc-active");
+      clearTimeout(waveTimeout);
+    }
+  }
 
   // ============ Message Bridge ============
   function sendMessage(type, payload) {
@@ -156,9 +185,10 @@
         "mc-active",
         settings.translationEnabled
       );
-      translateToggle.title = settings.translationEnabled
-        ? "Translation ON"
-        : "Translation OFF";
+      translateToggle.setAttribute(
+        "data-tooltip",
+        settings.translationEnabled ? "Translation ON" : "Translation OFF"
+      );
     }
 
     // Toggle single/dual column mode
@@ -290,7 +320,7 @@
       transEl = createElement("div", {
         className: "mc-translation",
         onClick: () => startEditTranslation(captionObj),
-        title: "Click to edit translation",
+        "data-tooltip": "Click to edit",
       });
       wrapper.appendChild(transEl);
     }
@@ -315,7 +345,10 @@
       // Keep existing translation visible on error
       if (captionObj.translation) {
         transEl.textContent = captionObj.translation + " ⚠";
-        transEl.title = captionObj.translationError || "Error";
+        transEl.setAttribute(
+          "data-tooltip",
+          captionObj.translationError || "Error"
+        );
       } else {
         transEl.textContent = "⚠ " + (captionObj.translationError || "Error");
       }
@@ -323,7 +356,7 @@
     } else if (captionObj.translation) {
       transEl.textContent = captionObj.translation;
       transEl.className = "mc-translation";
-      transEl.title = "Click to edit translation";
+      transEl.setAttribute("data-tooltip", "Click to edit");
     } else {
       transEl.textContent = "";
       transEl.className = "mc-translation";
@@ -338,7 +371,7 @@
       if (!reloadBtn) {
         reloadBtn = createElement("button", {
           className: "mc-action-btn mc-reload-action",
-          title: "Re-translate",
+          "data-tooltip": "Re-translate",
           textContent: "↻",
           onClick: (e) => {
             e.stopPropagation();
@@ -483,7 +516,10 @@
   }
 
   function exportCaptions(type) {
-    const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, "");
+    const timestamp = new Date()
+      .toISOString()
+      .slice(0, 19)
+      .replace(/[:-]/g, "");
     let content, filename;
 
     switch (type) {
@@ -536,7 +572,7 @@
       }
       #meetcaptioner-overlay.minimized {
         height: auto !important;
-        width: 140px !important;
+        width: auto !important;
         min-width: 0 !important;
         min-height: 0 !important;
       }
@@ -545,12 +581,60 @@
       #meetcaptioner-overlay.minimized .mc-resize-bl,
       #meetcaptioner-overlay.minimized .mc-resize-b,
       #meetcaptioner-overlay.minimized .mc-header-left,
+      #meetcaptioner-overlay.minimized .mc-header-right,
       #meetcaptioner-overlay.minimized .mc-header-translation,
       #meetcaptioner-overlay.minimized .mc-lang-select {
         display: none !important;
       }
-      #meetcaptioner-overlay.minimized .mc-header-mini {
-        opacity: 1;
+      #meetcaptioner-overlay.minimized .mc-header {
+        padding: 8px 12px;
+        gap: 8px;
+        border-radius: 12px;
+      }
+      #meetcaptioner-overlay.minimized .mc-minimized-controls {
+        display: flex !important;
+      }
+      /* Tooltip above when minimized - align to right edge */
+      #meetcaptioner-overlay.minimized [data-tooltip]::after {
+        top: auto;
+        bottom: 100%;
+        left: auto;
+        right: 0;
+        transform: translateY(-4px);
+      }
+      /* Wave animation indicator */
+      .mc-wave {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        height: 16px;
+      }
+      .mc-wave-bar {
+        width: 3px;
+        height: 6px;
+        background: rgba(255,255,255,0.3);
+        border-radius: 2px;
+        transition: background 0.3s;
+      }
+      .mc-wave.mc-active .mc-wave-bar {
+        background: #4ade80;
+        animation: mcWave 1s ease-in-out infinite;
+      }
+      .mc-wave.mc-active .mc-wave-bar:nth-child(1) { animation-delay: 0s; }
+      .mc-wave.mc-active .mc-wave-bar:nth-child(2) { animation-delay: 0.15s; }
+      .mc-wave.mc-active .mc-wave-bar:nth-child(3) { animation-delay: 0.3s; }
+      @keyframes mcWave {
+        0%, 100% { height: 4px; }
+        50% { height: 14px; }
+      }
+      .mc-minimized-controls {
+        display: none;
+        align-items: center;
+        gap: 8px;
+      }
+      .mc-minimized-controls .mc-btn {
+        width: 28px;
+        height: 28px;
       }
       .mc-header {
         display: flex;
@@ -621,6 +705,33 @@
       .mc-btn:hover {
         opacity: 1;
         background: rgba(255,255,255,0.1);
+      }
+      /* Custom Tooltip - instant, no delay */
+      [data-tooltip] {
+        position: relative;
+      }
+      [data-tooltip]::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%) translateY(4px);
+        background: rgba(0,0,0,0.9);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 400;
+        padding: 4px 8px;
+        border-radius: 4px;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.15s, visibility 0.15s;
+        pointer-events: none;
+        z-index: 10000;
+      }
+      [data-tooltip]:hover::after {
+        opacity: 1;
+        visibility: visible;
       }
       .mc-lang-select {
         background: rgba(255,255,255,0.08);
@@ -949,6 +1060,7 @@
       {
         id: "mc-lang-select",
         className: "mc-lang-select",
+        "data-tooltip": "Target Language",
         onChange: (e) => saveSettings({ targetLanguage: e.target.value }),
       },
       langOptions
@@ -965,7 +1077,9 @@
         id: "mc-translate-toggle",
         className:
           "mc-toggle" + (settings.translationEnabled ? " mc-active" : ""),
-        title: "Toggle Translation",
+        "data-tooltip": settings.translationEnabled
+          ? "Translation ON"
+          : "Translation OFF",
         onClick: () => {
           settings.translationEnabled = !settings.translationEnabled;
           translateToggle.classList.toggle(
@@ -1008,7 +1122,7 @@
 
     const exportBtn = createElement("button", {
       className: "mc-btn",
-      title: "Export",
+      "data-tooltip": "Export data",
       textContent: "↓",
       onClick: (e) => {
         e.stopPropagation();
@@ -1032,7 +1146,7 @@
     // Settings button - opens options page
     const settingsBtn = createElement("button", {
       className: "mc-btn",
-      title: "Settings",
+      "data-tooltip": "Settings",
       textContent: "⚙",
       onClick: () => sendMessage("OPEN_OPTIONS", {}),
     });
@@ -1040,7 +1154,7 @@
     // Minimize button
     const minimizeBtn = createElement("button", {
       className: "mc-btn",
-      title: "Minimize",
+      "data-tooltip": "Minimize",
       textContent: "−",
       onClick: () => {
         isMinimized = !isMinimized;
@@ -1075,9 +1189,34 @@
       miniControls,
     ]);
 
+    // Minimized controls: wave + expand button (only shown when minimized)
+    const waveIndicator = createElement("div", { className: "mc-wave" }, [
+      createElement("div", { className: "mc-wave-bar" }),
+      createElement("div", { className: "mc-wave-bar" }),
+      createElement("div", { className: "mc-wave-bar" }),
+    ]);
+    waveElement = waveIndicator;
+
+    const expandBtn = createElement("button", {
+      className: "mc-btn",
+      textContent: "+",
+      onClick: () => {
+        isMinimized = false;
+        overlay.classList.remove("minimized");
+        minimizeBtn.textContent = "−";
+      },
+    });
+
+    const minimizedControls = createElement(
+      "div",
+      { className: "mc-minimized-controls" },
+      [waveIndicator, expandBtn]
+    );
+
     const header = createElement("div", { className: "mc-header" }, [
       headerLeft,
       headerRight,
+      minimizedControls,
     ]);
 
     captionList = createElement("div", { className: "mc-list" });
@@ -1283,7 +1422,7 @@
           textContent:
             c.translation || (settings.translationEnabled ? "..." : ""),
           onClick: () => startEditTranslation(c),
-          title: "Click to edit translation",
+          "data-tooltip": "Click to edit",
         });
         translationWrapper.appendChild(translation);
 
@@ -1300,7 +1439,7 @@
         });
         const translateBtn = createElement("button", {
           className: "mc-action-btn mc-translate-action",
-          title: "Translate this caption",
+          "data-tooltip": "Translate",
           textContent: "Translate",
           onClick: (e) => {
             e.stopPropagation();
@@ -1337,7 +1476,7 @@
         ) {
           const reloadBtn = createElement("button", {
             className: "mc-action-btn mc-reload-action",
-            title: "Re-translate",
+            "data-tooltip": "Re-translate",
             textContent: "↻",
             onClick: (e) => {
               e.stopPropagation();
@@ -1421,6 +1560,7 @@
       if (newStripped.length > oldStripped.length) {
         similarDup.text = normalizedText;
         similarDup.time = new Date().toLocaleTimeString();
+        setWaveActive(true);
         // Update UI
         const captionEl = document.querySelector(
           `[data-caption-id="${similarDup.id}"]`
@@ -1468,6 +1608,7 @@
         if (newStripped.length > oldStripped.length) {
           speakerCaption.text = newText;
           speakerCaption.time = new Date().toLocaleTimeString();
+          setWaveActive(true);
           const captionEl = document.querySelector(
             `[data-caption-id="${speakerCaption.id}"]`
           );
@@ -1488,6 +1629,7 @@
       if (isTextGrowing(oldText, newText)) {
         speakerCaption.text = newText;
         speakerCaption.time = new Date().toLocaleTimeString();
+        setWaveActive(true);
 
         // Update the UI element for this caption
         const captionEl = document.querySelector(
@@ -1529,6 +1671,7 @@
     };
 
     captions.push(newCaption);
+    setWaveActive(true);
 
     while (captions.length > MAX_CAPTIONS) {
       captions.shift();
