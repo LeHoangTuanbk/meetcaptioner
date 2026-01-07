@@ -443,6 +443,74 @@
     return el;
   }
 
+  // ============ Export Functions ============
+  function exportToFile(content, filename) {
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function formatCaptionsOnly() {
+    if (captions.length === 0) return "";
+    const lines = captions.map((c) => `[${c.time}] ${c.speaker}: ${c.text}`);
+    return lines.join("\n");
+  }
+
+  function formatTranslationsOnly() {
+    if (captions.length === 0) return "";
+    const lines = captions
+      .filter((c) => c.translation)
+      .map((c) => `[${c.time}] ${c.speaker}: ${c.translation}`);
+    return lines.join("\n");
+  }
+
+  function formatBoth() {
+    if (captions.length === 0) return "";
+    const lines = captions.map((c) => {
+      let line = `[${c.time}] ${c.speaker}:\n  Original: ${c.text}`;
+      if (c.translation) {
+        line += `\n  Translation: ${c.translation}`;
+      }
+      return line;
+    });
+    return lines.join("\n\n");
+  }
+
+  function exportCaptions(type) {
+    const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, "");
+    let content, filename;
+
+    switch (type) {
+      case "captions":
+        content = formatCaptionsOnly();
+        filename = `captions_${timestamp}.txt`;
+        break;
+      case "translations":
+        content = formatTranslationsOnly();
+        filename = `translations_${timestamp}.txt`;
+        break;
+      case "both":
+        content = formatBoth();
+        filename = `captions_translations_${timestamp}.txt`;
+        break;
+      default:
+        return;
+    }
+
+    if (!content) {
+      console.log("[MeetCaptioner] No content to export");
+      return;
+    }
+
+    exportToFile(content, filename);
+  }
+
   // ============ UI: Create Overlay ============
   function createOverlay() {
     if (overlay) return;
@@ -463,7 +531,7 @@
         display: flex;
         flex-direction: column;
         overflow: hidden;
-        min-width: 320px;
+        min-width: 520px;
         min-height: 200px;
       }
       #meetcaptioner-overlay.minimized {
@@ -812,6 +880,52 @@
       .mc-caption:hover .mc-inline-actions {
         opacity: 1;
       }
+      /* Export dropdown */
+      .mc-export-wrapper {
+        position: relative;
+      }
+      .mc-export-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        margin-top: 4px;
+        background: #252540;
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 8px;
+        padding: 4px;
+        min-width: 160px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 100;
+        opacity: 0;
+        transform: translateY(-8px);
+        pointer-events: none;
+        transition: all 0.2s ease;
+      }
+      .mc-export-wrapper.open .mc-export-menu {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+      .mc-export-item {
+        display: block;
+        width: 100%;
+        padding: 8px 12px;
+        background: none;
+        border: none;
+        color: #e4e4e7;
+        font-size: 12px;
+        text-align: left;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: background 0.15s;
+      }
+      .mc-export-item:hover {
+        background: rgba(255,255,255,0.1);
+      }
+      .mc-export-item:disabled {
+        color: #6b7280;
+        cursor: not-allowed;
+      }
     `;
     document.head.appendChild(styles);
 
@@ -864,6 +978,57 @@
       [toggleSwitch]
     );
 
+    // Export button with dropdown
+    const exportMenu = createElement("div", { className: "mc-export-menu" }, [
+      createElement("button", {
+        className: "mc-export-item",
+        textContent: "Export Captions",
+        onClick: () => {
+          exportCaptions("captions");
+          exportWrapper.classList.remove("open");
+        },
+      }),
+      createElement("button", {
+        className: "mc-export-item",
+        textContent: "Export Translations",
+        onClick: () => {
+          exportCaptions("translations");
+          exportWrapper.classList.remove("open");
+        },
+      }),
+      createElement("button", {
+        className: "mc-export-item",
+        textContent: "Export Both",
+        onClick: () => {
+          exportCaptions("both");
+          exportWrapper.classList.remove("open");
+        },
+      }),
+    ]);
+
+    const exportBtn = createElement("button", {
+      className: "mc-btn",
+      title: "Export",
+      textContent: "↓",
+      onClick: (e) => {
+        e.stopPropagation();
+        exportWrapper.classList.toggle("open");
+      },
+    });
+
+    const exportWrapper = createElement(
+      "div",
+      { className: "mc-export-wrapper" },
+      [exportBtn, exportMenu]
+    );
+
+    // Close export menu when clicking outside
+    document.addEventListener("click", (e) => {
+      if (!exportWrapper.contains(e.target)) {
+        exportWrapper.classList.remove("open");
+      }
+    });
+
     // Settings button - opens options page
     const settingsBtn = createElement("button", {
       className: "mc-btn",
@@ -896,8 +1061,9 @@
       [translationTitle, translateToggle]
     );
 
-    // Mini controls: settings + minimize
+    // Mini controls: export + settings + minimize
     const miniControls = createElement("div", { className: "mc-header-mini" }, [
+      exportWrapper,
       settingsBtn,
       minimizeBtn,
     ]);
@@ -988,10 +1154,10 @@
       element.style.height = newHeight + "px";
 
       if (corner === "br") {
-        const newWidth = Math.max(320, startWidth + deltaX);
+        const newWidth = Math.max(520, startWidth + deltaX);
         element.style.width = newWidth + "px";
       } else if (corner === "bl") {
-        const newWidth = Math.max(320, startWidth - deltaX);
+        const newWidth = Math.max(520, startWidth - deltaX);
         element.style.width = newWidth + "px";
         element.style.left = startLeft + deltaX + "px";
         element.style.right = "auto";
