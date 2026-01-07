@@ -1527,9 +1527,20 @@
     // Check if new stripped text contains old stripped text at the start
     if (newStripped.startsWith(oldStripped)) return true;
 
-    // Check if they share a significant common prefix (85% of old text)
-    const checkLen = Math.max(5, Math.floor(oldStripped.length * 0.85));
+    // Check if they share a significant common prefix (80% of old text)
+    const checkLen = Math.max(5, Math.floor(oldStripped.length * 0.8));
     if (newStripped.slice(0, checkLen) === oldStripped.slice(0, checkLen)) {
+      return true;
+    }
+
+    // Handle speech recognition corrections: count matching characters
+    // If 90%+ of old text chars match new text prefix, consider it growing
+    let matchCount = 0;
+    const compareLen = Math.min(oldStripped.length, newStripped.length);
+    for (let i = 0; i < compareLen; i++) {
+      if (oldStripped[i] === newStripped[i]) matchCount++;
+    }
+    if (matchCount >= oldStripped.length * 0.9) {
       return true;
     }
 
@@ -1546,6 +1557,18 @@
 
     // One contains the other
     if (s1.includes(s2) || s2.includes(s1)) return true;
+
+    // Check for high similarity (90%+ matching chars)
+    // This handles speech recognition corrections
+    const shorter = s1.length <= s2.length ? s1 : s2;
+    const longer = s1.length > s2.length ? s1 : s2;
+    if (shorter.length > 5) {
+      let matchCount = 0;
+      for (let i = 0; i < shorter.length; i++) {
+        if (shorter[i] === longer[i]) matchCount++;
+      }
+      if (matchCount >= shorter.length * 0.9) return true;
+    }
 
     return false;
   }

@@ -242,7 +242,10 @@ function buildPrompt(request: TranslateRequest): string {
 
   // Semantic mode with context
   let prompt = `You are a professional translator. Translate naturally to ${langName}.
-Context: This is from a live meeting conversation.`;
+Context: This is from a live meeting conversation.
+Notes:
+- Because this is using live captions, occasionally some text segments might be misinterpreted or appear strange. You will need to rely on the overall meaning to correct those misidentified text segments. Only then will you translate them into the target language.
+`;
 
   if (request.customPrompt) {
     prompt += `\nUser instructions: ${request.customPrompt}`;
@@ -261,14 +264,22 @@ function getLanguageName(code: string): string {
   const languages: Record<string, string> = {
     vi: "Vietnamese",
     en: "English",
+    zh: "Chinese",
     ja: "Japanese",
     ko: "Korean",
-    zh: "Chinese",
     es: "Spanish",
     fr: "French",
     de: "German",
+    pt: "Portuguese",
+    ru: "Russian",
+    ar: "Arabic",
+    hi: "Hindi",
+    it: "Italian",
     th: "Thai",
     id: "Indonesian",
+    nl: "Dutch",
+    pl: "Polish",
+    tr: "Turkish",
   };
   return languages[code] || code;
 }
