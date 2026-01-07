@@ -1087,6 +1087,18 @@
           ? "Translation ON"
           : "Translation OFF",
         onClick: () => {
+          // Check if trying to enable without API key
+          if (!settings.translationEnabled) {
+            const apiKey =
+              settings.provider === "anthropic"
+                ? settings.anthropicApiKey
+                : settings.openaiApiKey;
+            if (!apiKey) {
+              // No API key, open settings
+              sendMessage("OPEN_OPTIONS", {});
+              return;
+            }
+          }
           settings.translationEnabled = !settings.translationEnabled;
           translateToggle.classList.toggle(
             "mc-active",
