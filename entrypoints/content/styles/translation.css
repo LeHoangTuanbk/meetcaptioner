@@ -1,0 +1,48 @@
+/* Translation text */
+.mc-translation {
+  color: #60a5fa;
+  font-size: 13px;
+  line-height: 1.45;
+  font-style: italic;
+  flex: 1;
+  cursor: pointer;
+}
+
+.mc-translation:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.mc-translation.mc-translating {
+  color: #6b7280;
+  animation: mcPulse 1s infinite;
+}
+
+.mc-translation.mc-refining {
+  color: #a78bfa;
+}
+
+.mc-translation.mc-error {
+  color: #f87171;
+  font-style: normal;
+}
+
+/* Translation wrapper */
+.mc-translation-wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.mc-translation-edit {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid #60a5fa;
+  border-radius: 4px;
+  color: #60a5fa;
+  font-size: 13px;
+  padding: 4px 8px;
+  width: 100%;
+  outline: none;
+  font-family: inherit;
+  resize: none;
+}

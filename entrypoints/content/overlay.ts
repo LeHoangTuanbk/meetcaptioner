@@ -1,5 +1,5 @@
 import { LANGUAGES } from "./constants";
-import "./styles.css";
+import "./styles/index.css";
 import {
   settings,
   updateSettings,

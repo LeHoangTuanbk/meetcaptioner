@@ -1,0 +1,7 @@
+/* Main entry - imports all style modules */
+@import "./overlay.css";
+@import "./header.css";
+@import "./caption.css";
+@import "./translation.css";
+@import "./controls.css";
+@import "./animations.css";

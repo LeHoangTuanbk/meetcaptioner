@@ -15,7 +15,9 @@ export function renderCaptions(updateOnly = false): void {
     if (isCCEnabled) {
       empty.appendChild(document.createTextNode("You're all set!"));
       empty.appendChild(document.createElement("br"));
-      empty.appendChild(document.createTextNode("Start speaking to see captions"));
+      empty.appendChild(
+        document.createTextNode("Start speaking to see captions")
+      );
     } else {
       empty.appendChild(document.createTextNode("Waiting for captions..."));
       empty.appendChild(document.createElement("br"));
@@ -42,7 +44,7 @@ export function renderCaptions(updateOnly = false): void {
       updateCaptionTranslation(c);
     } else {
       const captionEl = createCaptionElement(c);
-      captionList.appendChild(captionEl);
+      captionList?.appendChild(captionEl);
       setTimeout(() => captionEl.classList.remove("mc-new"), 200);
 
       if (
@@ -96,7 +98,9 @@ function createCaptionElement(c: Caption): HTMLElement {
   });
 
   const translation = createElement("div", {
-    className: "mc-translation" + (c.translationStatus === "translating" ? " mc-translating" : ""),
+    className:
+      "mc-translation" +
+      (c.translationStatus === "translating" ? " mc-translating" : ""),
     textContent: c.translation || (settings.translationEnabled ? "..." : ""),
     onClick: () => startEditTranslation(c),
     "data-tooltip": "Click to edit",
@@ -123,8 +127,13 @@ function createCaptionElement(c: Caption): HTMLElement {
     },
   });
 
-  const actions = createElement("div", { className: "mc-caption-actions" }, [translateBtn]);
-  const footer = createElement("div", { className: "mc-caption-footer" }, [time, actions]);
+  const actions = createElement("div", { className: "mc-caption-actions" }, [
+    translateBtn,
+  ]);
+  const footer = createElement("div", { className: "mc-caption-footer" }, [
+    time,
+    actions,
+  ]);
 
   return createElement(
     "div",

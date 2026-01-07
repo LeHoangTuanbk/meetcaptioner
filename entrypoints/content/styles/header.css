@@ -1,0 +1,163 @@
+/* Header */
+.mc-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+  background: #252540;
+  cursor: grab;
+  user-select: none;
+  flex-shrink: 0;
+  border-radius: 12px 12px 0 0;
+  gap: 12px;
+}
+
+.mc-header:active {
+  cursor: grabbing;
+}
+
+.mc-title {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.mc-header-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.mc-header-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex: 1;
+}
+
+.mc-header-translation {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mc-header-mini {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.mc-header-mini:hover {
+  opacity: 1;
+}
+
+.mc-header-mini .mc-btn {
+  width: 26px;
+  height: 26px;
+  font-size: 14px;
+}
+
+/* Minimized controls */
+.mc-minimized-controls {
+  display: none;
+  align-items: center;
+  gap: 8px;
+}
+
+.mc-minimized-controls .mc-btn {
+  width: 28px;
+  height: 28px;
+}
+
+/* Buttons */
+.mc-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  transition: all 0.2s;
+  color: #fff;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.mc-btn:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Language select */
+.mc-lang-select {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  outline: none;
+  min-width: 100px;
+  transition: all 0.4s ease;
+  transform-origin: right center;
+}
+
+.mc-lang-select:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.mc-lang-select option {
+  background: #252540;
+  color: #fff;
+}
+
+/* Translation Toggle */
+.mc-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mc-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.mc-toggle-switch {
+  width: 36px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.mc-toggle-switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.mc-toggle.mc-active .mc-toggle-switch {
+  background: #10b981;
+}
+
+.mc-toggle.mc-active .mc-toggle-switch::after {
+  left: 18px;
+}
