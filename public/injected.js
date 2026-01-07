@@ -285,10 +285,15 @@
       clearTimeout(semanticTimers.get(captionObj.id));
     }
 
+    // Store the text length at scheduling time
+    const textLengthAtSchedule = captionObj.text.length;
+
     // Schedule semantic translation after delay
     const timer = setTimeout(() => {
       semanticTimers.delete(captionObj.id);
-      if (captionObj.translationStatus !== "semantic") {
+      // Re-translate if text changed or not yet semantic
+      const textChanged = captionObj.text.length !== textLengthAtSchedule;
+      if (textChanged || captionObj.translationStatus !== "semantic") {
         translateCaption(captionObj, "semantic");
       }
     }, SEMANTIC_DELAY);
@@ -433,7 +438,8 @@
     transEl.textContent = "";
     transEl.appendChild(input);
     input.focus();
-    input.select();
+    // Place cursor at the end instead of selecting all
+    input.setSelectionRange(input.value.length, input.value.length);
   }
 
   // Re-translate a caption
@@ -789,7 +795,7 @@
       }
       .mc-content {
         flex: 1;
-        overflow-y: auto;
+        overflow: hidden auto;
         padding: 12px;
         min-height: 0;
         user-select: text;
@@ -1573,6 +1579,12 @@
         }
         // Re-translate if enabled
         if (settings.translationEnabled && similarDup.speaker === speaker) {
+          // Optimistic if significant growth
+          const growth = normalizedText.length - (similarDup.lastTranslatedLength || 0);
+          if (growth >= 10 || !similarDup.translation) {
+            similarDup.lastTranslatedLength = normalizedText.length;
+            translateCaption(similarDup, "optimistic");
+          }
           scheduleSemanticTranslation(similarDup);
         }
       }
@@ -1619,6 +1631,12 @@
             if (timeEl) timeEl.textContent = speakerCaption.time;
           }
           if (settings.translationEnabled) {
+            // Optimistic if significant growth
+            const growth = newText.length - (speakerCaption.lastTranslatedLength || 0);
+            if (growth >= 10 || !speakerCaption.translation) {
+              speakerCaption.lastTranslatedLength = newText.length;
+              translateCaption(speakerCaption, "optimistic");
+            }
             scheduleSemanticTranslation(speakerCaption);
           }
         }
@@ -1650,8 +1668,8 @@
           // Always schedule semantic
           scheduleSemanticTranslation(speakerCaption);
 
-          // Optimistic if grew by 20+ chars since last translation, or no translation yet
-          if (growth >= 20 || !speakerCaption.translation) {
+          // Optimistic if grew by 10+ chars since last translation, or no translation yet
+          if (growth >= 10 || !speakerCaption.translation) {
             speakerCaption.lastTranslatedLength = newText.length;
             translateCaption(speakerCaption, "optimistic");
           }

@@ -9,8 +9,8 @@ import {
 } from "./components";
 
 const PROVIDERS = [
-  { id: "anthropic", name: "Anthropic (Claude)" },
   { id: "openai", name: "OpenAI (GPT)" },
+  { id: "anthropic", name: "Anthropic (Claude)" },
 ];
 
 export default function App() {
@@ -30,8 +30,6 @@ export default function App() {
       });
       if (response?.success && response.settings) {
         const saved = response.settings;
-        // Only use default customPrompt if key doesn't exist (new user)
-        // If user explicitly cleared it (empty string), keep it empty
         const merged = { ...DEFAULT_SETTINGS, ...saved };
         if (saved.customPrompt !== undefined) {
           merged.customPrompt = saved.customPrompt;
