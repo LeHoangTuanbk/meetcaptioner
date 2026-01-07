@@ -8,6 +8,8 @@ export interface Settings {
   customPrompt: string;
 }
 
+export const DEFAULT_CUSTOM_PROMPT = 'Translate naturally and smoothly. Keep technical terms and abbreviations as-is (API, ML, etc). Use appropriate formality for business context.';
+
 export const DEFAULT_SETTINGS: Settings = {
   provider: 'anthropic',
   anthropicApiKey: '',
@@ -15,5 +17,5 @@ export const DEFAULT_SETTINGS: Settings = {
   model: 'claude-haiku-4-5-20251001',
   targetLanguage: 'vi',
   translationEnabled: false,
-  customPrompt: '',
+  customPrompt: DEFAULT_CUSTOM_PROMPT,
 };

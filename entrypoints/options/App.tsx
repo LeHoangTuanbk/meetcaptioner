@@ -29,7 +29,14 @@ export default function App() {
         action: "getSettings",
       });
       if (response?.success && response.settings) {
-        setSettings({ ...DEFAULT_SETTINGS, ...response.settings });
+        const saved = response.settings;
+        // Only use default customPrompt if key doesn't exist (new user)
+        // If user explicitly cleared it (empty string), keep it empty
+        const merged = { ...DEFAULT_SETTINGS, ...saved };
+        if (saved.customPrompt !== undefined) {
+          merged.customPrompt = saved.customPrompt;
+        }
+        setSettings(merged);
       }
     } catch (e) {
       console.error("Failed to load settings:", e);
@@ -124,7 +131,6 @@ export default function App() {
             label="Custom Instructions"
             value={settings.customPrompt}
             onChange={(v) => updateSetting("customPrompt", v)}
-            placeholder="E.g., 'This is a tech meeting about AI. Use casual tone. Keep acronyms like API, ML.'"
             hint="Add context or instructions to improve translation quality"
             optional
           />
@@ -142,10 +148,6 @@ export default function App() {
             )}
           </div>
         </div>
-
-        <footer className="mt-12 pt-6 border-t border-slate-700/50 text-center text-sm text-slate-500">
-          MeetCaptioner v1.0.0
-        </footer>
       </div>
     </div>
   );

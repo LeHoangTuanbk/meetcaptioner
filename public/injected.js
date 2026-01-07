@@ -46,6 +46,9 @@
   let requestIdCounter = 0;
   const pendingRequests = new Map();
 
+  // Default custom prompt for new users
+  const DEFAULT_CUSTOM_PROMPT = "Translate naturally and smoothly. Keep technical terms and abbreviations as-is (API, ML, etc). Use appropriate formality for business context.";
+
   // Settings (loaded from storage)
   let settings = {
     provider: "anthropic",
@@ -54,7 +57,7 @@
     model: "claude-haiku-4-5-20251001",
     targetLanguage: "vi",
     translationEnabled: false,
-    customPrompt: "",
+    customPrompt: DEFAULT_CUSTOM_PROMPT,
   };
 
   // Translation debounce timers per caption
@@ -107,7 +110,13 @@
     try {
       const response = await sendMessage("GET_SETTINGS", {});
       if (response?.success && response.settings) {
-        settings = { ...settings, ...response.settings };
+        const saved = response.settings;
+        settings = { ...settings, ...saved };
+        // Only use default customPrompt if key doesn't exist (new user)
+        // If user explicitly cleared it (empty string), keep it empty
+        if (saved.customPrompt !== undefined) {
+          settings.customPrompt = saved.customPrompt;
+        }
         updateUIFromSettings();
       }
     } catch (e) {
