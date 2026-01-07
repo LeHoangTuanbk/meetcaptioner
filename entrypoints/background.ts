@@ -22,7 +22,7 @@ const DEFAULT_SETTINGS: Settings = {
 
 // Rate limiting
 const rateLimiter = new Map<string, number[]>();
-const RATE_LIMIT = 30; // requests per minute
+const RATE_LIMIT = 60; // requests per minute
 const RATE_WINDOW = 60000; // 1 minute
 
 export default defineBackground(() => {
@@ -94,9 +94,10 @@ async function translate(request: TranslateRequest): Promise<any> {
   const { settings } = await getSettings();
 
   // Get the correct API key for the selected provider
-  const apiKey = settings.provider === "anthropic"
-    ? settings.anthropicApiKey
-    : settings.openaiApiKey;
+  const apiKey =
+    settings.provider === "anthropic"
+      ? settings.anthropicApiKey
+      : settings.openaiApiKey;
 
   console.log("[MeetCaptioner] Settings:", {
     provider: settings.provider,
@@ -105,7 +106,10 @@ async function translate(request: TranslateRequest): Promise<any> {
 
   if (!apiKey) {
     console.log("[MeetCaptioner] No API key configured for", settings.provider);
-    return { success: false, error: `API key not configured for ${settings.provider}` };
+    return {
+      success: false,
+      error: `API key not configured for ${settings.provider}`,
+    };
   }
 
   if (!settings.translationEnabled) {

@@ -137,7 +137,7 @@
   }
 
   // ============ Translation ============
-  async function translateCaption(captionObj, mode = 'optimistic') {
+  async function translateCaption(captionObj, mode = 'optimistic', force = false) {
     const apiKey = settings.provider === 'anthropic'
       ? settings.anthropicApiKey
       : settings.openaiApiKey;
@@ -147,16 +147,35 @@
       hasApiKey: !!apiKey,
       provider: settings.provider,
       model: settings.model,
+      force,
     });
 
-    if (!settings.translationEnabled || !apiKey) {
-      console.log('[MeetCaptioner] Translation skipped - enabled:', settings.translationEnabled, 'hasKey:', !!apiKey);
+    // Skip if not enabled (unless forced by manual translate)
+    if (!force && !settings.translationEnabled) {
+      console.log('[MeetCaptioner] Translation skipped - not enabled');
       return;
     }
 
-    const context = mode === 'semantic'
-      ? captions.slice(-3).map(c => c.text).join(' ')
-      : undefined;
+    if (!apiKey) {
+      console.log('[MeetCaptioner] Translation skipped - no API key for', settings.provider);
+      captionObj.translationStatus = 'error';
+      captionObj.translationError = 'No API key configured';
+      updateCaptionTranslation(captionObj);
+      return;
+    }
+
+    // Build context with user-edited translations for better accuracy
+    let context = undefined;
+    if (mode === 'semantic') {
+      const recentCaptions = captions.slice(-5);
+      const contextParts = recentCaptions.map(c => {
+        if (c.userEdited && c.translation) {
+          return `"${c.text}" = "${c.translation}"`;
+        }
+        return c.text;
+      });
+      context = contextParts.join(' | ');
+    }
 
     try {
       captionObj.translationStatus = mode === 'optimistic' ? 'translating' : 'refining';
@@ -211,25 +230,135 @@
     const captionEl = document.querySelector(`[data-caption-id="${captionObj.id}"]`);
     if (!captionEl) return;
 
+    let wrapper = captionEl.querySelector('.mc-translation-wrapper');
     let transEl = captionEl.querySelector('.mc-translation');
-    if (!transEl) {
-      transEl = createElement('div', { className: 'mc-translation' });
-      captionEl.querySelector('.mc-original').after(transEl);
+    let reloadBtn = captionEl.querySelector('.mc-reload-action');
+
+    // Create wrapper if not exists
+    if (!wrapper) {
+      wrapper = createElement('div', { className: 'mc-translation-wrapper' });
+      const originalEl = captionEl.querySelector('.mc-original');
+      if (originalEl && originalEl.parentNode) {
+        originalEl.parentNode.appendChild(wrapper);
+      }
     }
 
+    // Create translation element if not exists
+    if (!transEl) {
+      transEl = createElement('div', {
+        className: 'mc-translation',
+        onClick: () => startEditTranslation(captionObj),
+        title: 'Click to edit translation',
+      });
+      wrapper.appendChild(transEl);
+    }
+
+    // Update translation content
+    // Keep existing translation visible while loading new one
     if (captionObj.translationStatus === 'translating') {
-      transEl.textContent = '...';
-      transEl.className = 'mc-translation mc-translating';
+      if (captionObj.translation) {
+        // Keep existing translation, add indicator
+        transEl.textContent = captionObj.translation + ' ...';
+        transEl.className = 'mc-translation mc-translating';
+      } else {
+        transEl.textContent = '...';
+        transEl.className = 'mc-translation mc-translating';
+      }
     } else if (captionObj.translationStatus === 'refining') {
-      transEl.textContent = captionObj.translation + ' ⟳';
+      transEl.textContent = captionObj.translation ? captionObj.translation + ' ↻' : '...';
       transEl.className = 'mc-translation mc-refining';
     } else if (captionObj.translationStatus === 'error') {
-      transEl.textContent = '⚠ ' + (captionObj.translationError || 'Error');
+      // Keep existing translation visible on error
+      if (captionObj.translation) {
+        transEl.textContent = captionObj.translation + ' ⚠';
+        transEl.title = captionObj.translationError || 'Error';
+      } else {
+        transEl.textContent = '⚠ ' + (captionObj.translationError || 'Error');
+      }
       transEl.className = 'mc-translation mc-error';
     } else if (captionObj.translation) {
       transEl.textContent = captionObj.translation;
       transEl.className = 'mc-translation';
+      transEl.title = 'Click to edit translation';
+    } else {
+      transEl.textContent = '';
+      transEl.className = 'mc-translation';
     }
+
+    // Add/update reload button if translation exists
+    if (captionObj.translation && captionObj.translationStatus !== 'translating' && captionObj.translationStatus !== 'refining') {
+      if (!reloadBtn) {
+        reloadBtn = createElement('button', {
+          className: 'mc-action-btn mc-reload-action',
+          title: 'Re-translate',
+          textContent: '↻',
+          onClick: (e) => {
+            e.stopPropagation();
+            retranslateCaption(captionObj);
+          },
+        });
+        wrapper.appendChild(reloadBtn);
+      }
+    } else if (reloadBtn) {
+      reloadBtn.remove();
+    }
+  }
+
+  // Start editing translation
+  function startEditTranslation(captionObj) {
+    const captionEl = document.querySelector(`[data-caption-id="${captionObj.id}"]`);
+    if (!captionEl) return;
+
+    const transEl = captionEl.querySelector('.mc-translation');
+    if (!transEl || transEl.classList.contains('mc-translating') || transEl.classList.contains('mc-refining')) return;
+
+    const currentText = captionObj.translation || '';
+    const input = createElement('textarea', {
+      className: 'mc-translation-edit',
+      value: currentText,
+    });
+    input.rows = 2;
+
+    // Save on blur or Enter
+    const saveEdit = () => {
+      const newText = input.value.trim();
+      if (newText !== currentText) {
+        captionObj.translation = newText;
+        captionObj.userEdited = true; // Mark as user edited for context
+      }
+      // Restore translation display
+      updateCaptionTranslation(captionObj);
+    };
+
+    input.addEventListener('blur', saveEdit);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        input.blur();
+      }
+      if (e.key === 'Escape') {
+        input.value = currentText;
+        input.blur();
+      }
+    });
+
+    transEl.textContent = '';
+    transEl.appendChild(input);
+    input.focus();
+    input.select();
+  }
+
+  // Re-translate a caption
+  function retranslateCaption(captionObj) {
+    captionObj.translation = '';
+    captionObj.translationStatus = 'pending';
+    captionObj.lastTranslatedLength = 0;
+    translateCaption(captionObj, 'semantic');
+  }
+
+  // Manual translate for a caption (bypasses translationEnabled check)
+  function manualTranslate(captionObj) {
+    translateCaption(captionObj, 'semantic', true); // force = true
   }
 
   // ============ Helper ============
@@ -240,6 +369,9 @@
         el.className = value;
       } else if (key === 'textContent') {
         el.textContent = value;
+      } else if (key === 'value') {
+        // For input/textarea, set value property directly
+        el.value = value;
       } else if (key.toLowerCase().startsWith('on')) {
         el.addEventListener(key.slice(2).toLowerCase(), value);
       } else {
@@ -566,6 +698,79 @@
         color: #fff;
       }
       .mc-modal-btn-secondary:hover { background: rgba(255,255,255,0.15); }
+      .mc-required {
+        color: #f87171;
+        font-weight: 500;
+        margin-left: 2px;
+      }
+      /* Caption action buttons */
+      .mc-caption-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .mc-caption-actions {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .mc-action-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 12px;
+        padding: 2px 6px;
+        color: #6b7280;
+        border-radius: 4px;
+        transition: all 0.15s;
+      }
+      .mc-action-btn:hover {
+        background: rgba(255,255,255,0.1);
+        color: #fff;
+      }
+      .mc-action-btn.mc-translate-action {
+        color: #60a5fa;
+      }
+      .mc-action-btn.mc-reload-action {
+        color: #a78bfa;
+      }
+      /* Translation with actions */
+      .mc-translation-wrapper {
+        display: flex;
+        align-items: flex-start;
+        gap: 4px;
+      }
+      .mc-translation {
+        flex: 1;
+        cursor: pointer;
+      }
+      .mc-translation:hover {
+        background: rgba(255,255,255,0.05);
+        border-radius: 4px;
+      }
+      .mc-translation-edit {
+        background: rgba(255,255,255,0.08);
+        border: 1px solid #60a5fa;
+        border-radius: 4px;
+        color: #60a5fa;
+        font-size: 13px;
+        padding: 4px 8px;
+        width: 100%;
+        outline: none;
+        font-family: inherit;
+        resize: none;
+      }
+      .mc-inline-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        opacity: 0;
+        transition: opacity 0.15s;
+      }
+      .mc-caption:hover .mc-inline-actions {
+        opacity: 1;
+      }
     `;
     document.head.appendChild(styles);
 
@@ -654,7 +859,7 @@
     const providerSelect = createElement('select', {
       id: 'mc-settings-provider',
       className: 'mc-form-select',
-      onChange: updateModelOptions,
+      onChange: () => updateProviderUI(),
     }, providerOptions);
     providerSelect.value = settings.provider;
 
@@ -679,6 +884,26 @@
       value: settings.openaiApiKey,
     });
 
+    // Create label with required indicator
+    const anthropicLabel = createElement('label', { className: 'mc-form-label' });
+    anthropicLabel.appendChild(document.createTextNode('API Key '));
+    anthropicLabel.appendChild(createElement('span', { className: 'mc-required', textContent: '*' }));
+
+    const openaiLabel = createElement('label', { className: 'mc-form-label' });
+    openaiLabel.appendChild(document.createTextNode('API Key '));
+    openaiLabel.appendChild(createElement('span', { className: 'mc-required', textContent: '*' }));
+
+    // Create API key groups that can be toggled
+    const anthropicGroup = createElement('div', { className: 'mc-form-group', id: 'mc-anthropic-key-group' }, [
+      anthropicLabel,
+      anthropicApiKeyInput,
+    ]);
+
+    const openaiGroup = createElement('div', { className: 'mc-form-group', id: 'mc-openai-key-group' }, [
+      openaiLabel,
+      openaiApiKeyInput,
+    ]);
+
     const customPromptInput = createElement('textarea', {
       id: 'mc-settings-custom-prompt',
       className: 'mc-form-input mc-form-textarea',
@@ -687,9 +912,12 @@
     });
     customPromptInput.rows = 3;
 
-    function updateModelOptions() {
+    function updateProviderUI() {
       const provider = providerSelect.value;
-      // Clear options without innerHTML (CSP)
+      // Show/hide API key fields
+      anthropicGroup.style.display = provider === 'anthropic' ? 'block' : 'none';
+      openaiGroup.style.display = provider === 'openai' ? 'block' : 'none';
+      // Update model options
       while (modelSelect.firstChild) {
         modelSelect.removeChild(modelSelect.firstChild);
       }
@@ -699,7 +927,7 @@
       });
       modelSelect.value = settings.model;
     }
-    updateModelOptions();
+    updateProviderUI();
 
     const modal = createElement('div', { className: 'mc-modal' }, [
       createElement('div', { className: 'mc-modal-header' }, [
@@ -718,14 +946,8 @@
         createElement('label', { className: 'mc-form-label', textContent: 'Model' }),
         modelSelect,
       ]),
-      createElement('div', { className: 'mc-form-group' }, [
-        createElement('label', { className: 'mc-form-label', textContent: 'Anthropic API Key' }),
-        anthropicApiKeyInput,
-      ]),
-      createElement('div', { className: 'mc-form-group' }, [
-        createElement('label', { className: 'mc-form-label', textContent: 'OpenAI API Key' }),
-        openaiApiKeyInput,
-      ]),
+      anthropicGroup,
+      openaiGroup,
       createElement('div', { className: 'mc-form-group' }, [
         createElement('label', { className: 'mc-form-label', textContent: 'Custom Instructions (optional)' }),
         customPromptInput,
@@ -902,18 +1124,53 @@
       } else {
         const speaker = createElement('div', { className: 'mc-speaker', textContent: c.speaker });
         const original = createElement('div', { className: 'mc-original', textContent: c.text });
+
+        // Translation wrapper with translation text and reload button
+        const translationWrapper = createElement('div', { className: 'mc-translation-wrapper' });
         const translation = createElement('div', {
           className: 'mc-translation' + (c.translationStatus === 'translating' ? ' mc-translating' : ''),
           textContent: c.translation || (settings.translationEnabled ? '...' : ''),
+          onClick: () => startEditTranslation(c),
+          title: 'Click to edit translation',
         });
-        const contentRow = createElement('div', { className: 'mc-caption-content' }, [original, translation]);
+        translationWrapper.appendChild(translation);
+
+        const contentRow = createElement('div', { className: 'mc-caption-content' }, [original, translationWrapper]);
+
+        // Footer with time and translate button
         const time = createElement('div', { className: 'mc-time', textContent: c.time });
+        const translateBtn = createElement('button', {
+          className: 'mc-action-btn mc-translate-action',
+          title: 'Translate this caption',
+          textContent: 'Translate',
+          onClick: (e) => {
+            e.stopPropagation();
+            manualTranslate(c);
+          },
+        });
+        const actions = createElement('div', { className: 'mc-caption-actions' }, [translateBtn]);
+        const footer = createElement('div', { className: 'mc-caption-footer' }, [time, actions]);
+
         const caption = createElement('div', {
           className: 'mc-caption mc-new',
           'data-caption-id': c.id,
-        }, [speaker, contentRow, time]);
+        }, [speaker, contentRow, footer]);
         captionList.appendChild(caption);
         setTimeout(() => caption.classList.remove('mc-new'), 200);
+
+        // Add reload button if translation already exists
+        if (c.translation && c.translationStatus !== 'translating' && c.translationStatus !== 'refining') {
+          const reloadBtn = createElement('button', {
+            className: 'mc-action-btn mc-reload-action',
+            title: 'Re-translate',
+            textContent: '↻',
+            onClick: (e) => {
+              e.stopPropagation();
+              retranslateCaption(c);
+            },
+          });
+          translationWrapper.appendChild(reloadBtn);
+        }
       }
     });
 
@@ -933,54 +1190,84 @@
   // ============ Caption Processing ============
   let captionIdCounter = 0;
 
-  function isSimilar(text1, text2) {
-    if (!text1 || !text2) return false;
-    const t1 = text1.slice(0, 20);
-    const t2 = text2.slice(0, 20);
-    return t1.includes(t2.slice(0, 10)) || t2.includes(t1.slice(0, 10));
+  // Normalize text for comparison (remove trailing punctuation)
+  function normalizeForCompare(text) {
+    return text.trim().replace(/[。、！？.!?,\s]+$/g, '');
+  }
+
+  // Check if newText is a continuation of oldText (handles punctuation changes)
+  function isTextGrowing(oldText, newText) {
+    if (newText.length <= oldText.length) return false;
+
+    const oldNorm = normalizeForCompare(oldText);
+    const newNorm = normalizeForCompare(newText);
+
+    // Check if new text starts with old text (after removing punctuation)
+    if (newNorm.startsWith(oldNorm)) return true;
+
+    // Check if they share a significant common prefix (80% of shorter)
+    const minLen = Math.min(oldNorm.length, newNorm.length);
+    const checkLen = Math.max(5, Math.floor(minLen * 0.8));
+    return newNorm.slice(0, checkLen) === oldNorm.slice(0, checkLen);
   }
 
   function addCaption(speaker, text) {
     if (!speaker || !text) return;
 
-    const last = captions[captions.length - 1];
+    const normalizedText = text.trim();
 
-    if (last && last.text === text) return;
+    // Check for exact duplicate in ANY recent caption first
+    const exactDup = captions.slice(-10).find(c => c.text === normalizedText);
+    if (exactDup) return;
 
-    if (last && last.speaker === speaker) {
-      last.text = text;
-      last.time = new Date().toLocaleTimeString();
-
-      const items = captionList?.querySelectorAll('.mc-caption');
-      const lastItem = items?.[items.length - 1];
-      if (lastItem) {
-        const textEl = lastItem.querySelector('.mc-original');
-        const timeEl = lastItem.querySelector('.mc-time');
-        if (textEl) textEl.textContent = text;
-        if (timeEl) timeEl.textContent = last.time;
+    // Find the most recent caption from this speaker in last 5 entries
+    let speakerCaption = null;
+    for (let i = captions.length - 1; i >= Math.max(0, captions.length - 5); i--) {
+      if (captions[i].speaker === speaker) {
+        speakerCaption = captions[i];
+        break;
       }
-
-      // Re-translate when text updates
-      if (settings.translationEnabled) {
-        // Track length when we last translated
-        const lastTranslatedLen = last.lastTranslatedLength || 0;
-        const growth = text.length - lastTranslatedLen;
-
-        // Always schedule semantic
-        scheduleSemanticTranslation(last);
-
-        // Optimistic if grew by 15+ chars since last translation, or no translation yet
-        if (growth >= 15 || !last.translation) {
-          last.lastTranslatedLength = text.length;
-          translateCaption(last, 'optimistic');
-        }
-      }
-      return;
     }
 
-    const recent = captions.slice(-3);
-    for (const c of recent) {
-      if (isSimilar(c.text, text)) {
+    // If we have a recent caption from this speaker
+    if (speakerCaption) {
+      const oldText = speakerCaption.text;
+      const newText = normalizedText;
+
+      // Exact duplicate - skip
+      if (oldText === newText) return;
+
+      // New text is shorter or equal - likely partial/duplicate, skip
+      if (newText.length <= oldText.length) return;
+
+      // Check if text is growing (handles punctuation changes during live recognition)
+      if (isTextGrowing(oldText, newText)) {
+        speakerCaption.text = newText;
+        speakerCaption.time = new Date().toLocaleTimeString();
+
+        // Update the UI element for this caption
+        const captionEl = document.querySelector(`[data-caption-id="${speakerCaption.id}"]`);
+        if (captionEl) {
+          const textEl = captionEl.querySelector('.mc-original');
+          const timeEl = captionEl.querySelector('.mc-time');
+          if (textEl) textEl.textContent = newText;
+          if (timeEl) timeEl.textContent = speakerCaption.time;
+        }
+
+        // Re-translate when text updates
+        if (settings.translationEnabled) {
+          const lastTranslatedLen = speakerCaption.lastTranslatedLength || 0;
+          const growth = newText.length - lastTranslatedLen;
+
+          // Always schedule semantic
+          scheduleSemanticTranslation(speakerCaption);
+
+          // Optimistic if grew by 20+ chars since last translation, or no translation yet
+          if (growth >= 20 || !speakerCaption.translation) {
+            speakerCaption.lastTranslatedLength = newText.length;
+            translateCaption(speakerCaption, 'optimistic');
+          }
+        }
         return;
       }
     }
@@ -988,11 +1275,11 @@
     const newCaption = {
       id: ++captionIdCounter,
       speaker,
-      text,
+      text: normalizedText,
       time: new Date().toLocaleTimeString(),
       translation: '',
       translationStatus: 'pending',
-      lastTranslatedLength: text.length,
+      lastTranslatedLength: normalizedText.length,
     };
 
     captions.push(newCaption);
@@ -1009,7 +1296,7 @@
       scheduleSemanticTranslation(newCaption);
     }
 
-    console.log('[MeetCaptioner] Caption:', speaker, '-', text);
+    console.log('[MeetCaptioner] Caption:', speaker, '-', normalizedText);
   }
 
   // ============ Google Meet Caption Extraction ============
