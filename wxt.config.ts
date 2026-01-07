@@ -1,23 +1,28 @@
-import { defineConfig } from 'wxt';
+import { defineConfig } from "wxt";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
+  vite: () => ({
+    plugins: [react(), tailwindcss()],
+  }),
   manifest: {
-    name: 'MeetCaptioner',
-    description: 'Capture and translate Google Meet captions in real-time',
-    version: '1.0.0',
-    permissions: ['storage'],
+    name: "MeetCaptioner",
+    description: "Capture and translate Google Meet captions in real-time",
+    version: "1.0.0",
+    permissions: ["storage"],
     host_permissions: [
-      'https://meet.google.com/*',
-      'https://api.anthropic.com/*',
-      'https://api.openai.com/*',
+      "https://meet.google.com/*",
+      "https://api.anthropic.com/*",
+      "https://api.openai.com/*",
     ],
     action: {
-      default_title: 'MeetCaptioner',
+      default_title: "MeetCaptioner",
     },
     web_accessible_resources: [
       {
-        resources: ['injected.js'],
-        matches: ['https://meet.google.com/*'],
+        resources: ["injected.js"],
+        matches: ["https://meet.google.com/*"],
       },
     ],
   },

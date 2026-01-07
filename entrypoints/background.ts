@@ -52,6 +52,10 @@ async function handleMessage(message: any): Promise<any> {
     case "translate":
       return translate(message);
 
+    case "openOptions":
+      chrome.runtime.openOptionsPage();
+      return { success: true };
+
     default:
       return { success: false, error: "Unknown action" };
   }

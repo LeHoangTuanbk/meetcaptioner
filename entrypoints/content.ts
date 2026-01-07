@@ -72,6 +72,12 @@ function setupMessageBridge() {
           });
           break;
 
+        case "OPEN_OPTIONS":
+          response = await chrome.runtime.sendMessage({
+            action: "openOptions",
+          });
+          break;
+
         default:
           response = { success: false, error: "Unknown message type" };
       }

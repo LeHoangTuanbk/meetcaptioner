@@ -42,7 +42,6 @@
   const captions = [];
   let overlay = null;
   let captionList = null;
-  let settingsModal = null;
   let isMinimized = false;
   let requestIdCounter = 0;
   const pendingRequests = new Map();
@@ -600,109 +599,6 @@
       }
       .mc-resize-b::after { display: none; }
 
-      /* Settings Modal */
-      .mc-modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 1000000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .mc-modal {
-        background: #1a1a2e;
-        border-radius: 12px;
-        padding: 20px;
-        width: 360px;
-        max-width: 90vw;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-      }
-      .mc-modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 16px;
-      }
-      .mc-modal-title {
-        color: #fff;
-        font-size: 16px;
-        font-weight: 600;
-      }
-      .mc-modal-close {
-        background: none;
-        border: none;
-        color: #6b7280;
-        font-size: 20px;
-        cursor: pointer;
-        padding: 4px;
-      }
-      .mc-modal-close:hover { color: #fff; }
-      .mc-form-group {
-        margin-bottom: 14px;
-      }
-      .mc-form-label {
-        display: block;
-        color: #9ca3af;
-        font-size: 12px;
-        margin-bottom: 6px;
-      }
-      .mc-form-input, .mc-form-select {
-        width: 100%;
-        background: rgba(255,255,255,0.08);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 6px;
-        padding: 10px 12px;
-        color: #fff;
-        font-size: 13px;
-        outline: none;
-        box-sizing: border-box;
-      }
-      .mc-form-input:focus, .mc-form-select:focus {
-        border-color: #4ade80;
-      }
-      .mc-form-textarea {
-        resize: vertical;
-        min-height: 60px;
-        font-family: inherit;
-      }
-      .mc-form-textarea::placeholder {
-        color: #6b7280;
-        font-size: 11px;
-      }
-      .mc-form-select option { background: #252540; }
-      .mc-modal-footer {
-        display: flex;
-        gap: 8px;
-        justify-content: flex-end;
-        margin-top: 20px;
-      }
-      .mc-modal-btn {
-        padding: 8px 16px;
-        border-radius: 6px;
-        font-size: 13px;
-        cursor: pointer;
-        border: none;
-      }
-      .mc-modal-btn-primary {
-        background: #4ade80;
-        color: #1a1a2e;
-        font-weight: 500;
-      }
-      .mc-modal-btn-primary:hover { background: #22c55e; }
-      .mc-modal-btn-secondary {
-        background: rgba(255,255,255,0.1);
-        color: #fff;
-      }
-      .mc-modal-btn-secondary:hover { background: rgba(255,255,255,0.15); }
-      .mc-required {
-        color: #f87171;
-        font-weight: 500;
-        margin-left: 2px;
-      }
       /* Caption action buttons */
       .mc-caption-footer {
         display: flex;
@@ -801,12 +697,12 @@
     });
     translateBtn.style.opacity = settings.translationEnabled ? '1' : '0.5';
 
-    // Settings button
+    // Settings button - opens options page
     const settingsBtn = createElement('button', {
       className: 'mc-btn',
       title: 'Settings',
       textContent: '⚙',
-      onClick: showSettingsModal,
+      onClick: () => sendMessage('OPEN_OPTIONS', {}),
     });
 
     // Minimize button
@@ -822,9 +718,10 @@
     });
 
     const controls = createElement('div', { className: 'mc-header-controls' }, [
-      langSelect, translateBtn, settingsBtn, minimizeBtn
+      langSelect, translateBtn, settingsBtn
     ]);
-    const header = createElement('div', { className: 'mc-header' }, [title, controls]);
+    // Minimize button outside controls so it stays visible when minimized
+    const header = createElement('div', { className: 'mc-header' }, [title, controls, minimizeBtn]);
 
     captionList = createElement('div', { className: 'mc-list' });
     const content = createElement('div', { className: 'mc-content' }, [captionList]);
@@ -844,153 +741,6 @@
     makeResizable(overlay, resizeHandleB, 'b');
 
     renderCaptions();
-  }
-
-  // ============ UI: Settings Modal ============
-  function showSettingsModal() {
-    console.log('[MeetCaptioner] showSettingsModal called, settingsModal:', settingsModal);
-    if (settingsModal) return;
-
-    const providerOptions = [
-      createElement('option', { value: 'anthropic', textContent: 'Anthropic (Claude)' }),
-      createElement('option', { value: 'openai', textContent: 'OpenAI (GPT)' }),
-    ];
-
-    const providerSelect = createElement('select', {
-      id: 'mc-settings-provider',
-      className: 'mc-form-select',
-      onChange: () => updateProviderUI(),
-    }, providerOptions);
-    providerSelect.value = settings.provider;
-
-    const modelSelect = createElement('select', {
-      id: 'mc-settings-model',
-      className: 'mc-form-select',
-    });
-
-    const anthropicApiKeyInput = createElement('input', {
-      id: 'mc-settings-anthropic-apikey',
-      type: 'password',
-      className: 'mc-form-input',
-      placeholder: 'sk-ant-...',
-      value: settings.anthropicApiKey,
-    });
-
-    const openaiApiKeyInput = createElement('input', {
-      id: 'mc-settings-openai-apikey',
-      type: 'password',
-      className: 'mc-form-input',
-      placeholder: 'sk-proj-... or sk-...',
-      value: settings.openaiApiKey,
-    });
-
-    // Create label with required indicator
-    const anthropicLabel = createElement('label', { className: 'mc-form-label' });
-    anthropicLabel.appendChild(document.createTextNode('API Key '));
-    anthropicLabel.appendChild(createElement('span', { className: 'mc-required', textContent: '*' }));
-
-    const openaiLabel = createElement('label', { className: 'mc-form-label' });
-    openaiLabel.appendChild(document.createTextNode('API Key '));
-    openaiLabel.appendChild(createElement('span', { className: 'mc-required', textContent: '*' }));
-
-    // Create API key groups that can be toggled
-    const anthropicGroup = createElement('div', { className: 'mc-form-group', id: 'mc-anthropic-key-group' }, [
-      anthropicLabel,
-      anthropicApiKeyInput,
-    ]);
-
-    const openaiGroup = createElement('div', { className: 'mc-form-group', id: 'mc-openai-key-group' }, [
-      openaiLabel,
-      openaiApiKeyInput,
-    ]);
-
-    const customPromptInput = createElement('textarea', {
-      id: 'mc-settings-custom-prompt',
-      className: 'mc-form-input mc-form-textarea',
-      placeholder: 'E.g., "This is a tech meeting about AI. Use casual tone. Translate technical terms but keep acronyms like API, ML."',
-      value: settings.customPrompt,
-    });
-    customPromptInput.rows = 3;
-
-    function updateProviderUI() {
-      const provider = providerSelect.value;
-      // Show/hide API key fields
-      anthropicGroup.style.display = provider === 'anthropic' ? 'block' : 'none';
-      openaiGroup.style.display = provider === 'openai' ? 'block' : 'none';
-      // Update model options
-      while (modelSelect.firstChild) {
-        modelSelect.removeChild(modelSelect.firstChild);
-      }
-      MODELS[provider].forEach(m => {
-        const opt = createElement('option', { value: m.id, textContent: m.name });
-        modelSelect.appendChild(opt);
-      });
-      modelSelect.value = settings.model;
-    }
-    updateProviderUI();
-
-    const modal = createElement('div', { className: 'mc-modal' }, [
-      createElement('div', { className: 'mc-modal-header' }, [
-        createElement('span', { className: 'mc-modal-title', textContent: 'Settings' }),
-        createElement('button', {
-          className: 'mc-modal-close',
-          textContent: '×',
-          onClick: closeSettingsModal,
-        }),
-      ]),
-      createElement('div', { className: 'mc-form-group' }, [
-        createElement('label', { className: 'mc-form-label', textContent: 'Provider' }),
-        providerSelect,
-      ]),
-      createElement('div', { className: 'mc-form-group' }, [
-        createElement('label', { className: 'mc-form-label', textContent: 'Model' }),
-        modelSelect,
-      ]),
-      anthropicGroup,
-      openaiGroup,
-      createElement('div', { className: 'mc-form-group' }, [
-        createElement('label', { className: 'mc-form-label', textContent: 'Custom Instructions (optional)' }),
-        customPromptInput,
-      ]),
-      createElement('div', { className: 'mc-modal-footer' }, [
-        createElement('button', {
-          className: 'mc-modal-btn mc-modal-btn-secondary',
-          textContent: 'Cancel',
-          onClick: closeSettingsModal,
-        }),
-        createElement('button', {
-          className: 'mc-modal-btn mc-modal-btn-primary',
-          textContent: 'Save',
-          onClick: () => {
-            saveSettings({
-              provider: providerSelect.value,
-              model: modelSelect.value,
-              anthropicApiKey: anthropicApiKeyInput.value,
-              openaiApiKey: openaiApiKeyInput.value,
-              customPrompt: customPromptInput.value,
-            });
-            closeSettingsModal();
-          },
-        }),
-      ]),
-    ]);
-
-    settingsModal = createElement('div', {
-      className: 'mc-modal-overlay',
-      onClick: (e) => {
-        if (e.target === settingsModal) closeSettingsModal();
-      },
-    }, [modal]);
-
-    document.body.appendChild(settingsModal);
-    console.log('[MeetCaptioner] Settings modal appended to body');
-  }
-
-  function closeSettingsModal() {
-    if (settingsModal) {
-      settingsModal.remove();
-      settingsModal = null;
-    }
   }
 
   // ============ UI: Resize & Drag ============
