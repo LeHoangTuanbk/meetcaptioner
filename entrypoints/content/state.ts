@@ -30,6 +30,15 @@ export function setCCEnabled(enabled: boolean) {
 // Semantic translation timers per caption
 export const semanticTimers = new Map<number, ReturnType<typeof setTimeout>>();
 
+// Clean up timer for a specific caption
+export function clearSemanticTimer(captionId: number) {
+  const timer = semanticTimers.get(captionId);
+  if (timer) {
+    clearTimeout(timer);
+    semanticTimers.delete(captionId);
+  }
+}
+
 // UI element references
 export let overlay: HTMLElement | null = null;
 export let captionList: HTMLElement | null = null;

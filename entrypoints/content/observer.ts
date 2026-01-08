@@ -3,6 +3,9 @@ import { debounce } from "./utils";
 import { addCaption } from "./caption";
 import { renderCaptions } from "./render";
 
+// Track the current caption region element
+let currentCaptionRegion: HTMLElement | null = null;
+
 function extractCaptions(): void {
   const captionRegion = document.querySelector('[role="region"][aria-label="Captions"]');
   if (!captionRegion) return;
@@ -32,8 +35,21 @@ export function startObserver(): void {
       '[role="region"][aria-label="Captions"]'
     ) as HTMLElement | null;
 
-    if (captionRegion && !(captionRegion as any)._mcObserving) {
-      (captionRegion as any)._mcObserving = true;
+    // Check if region exists and is different from current (Google Meet might recreate it)
+    const needsReobserve = captionRegion && (
+      !currentCaptionRegion ||
+      captionRegion !== currentCaptionRegion ||
+      !document.body.contains(currentCaptionRegion)
+    );
+
+    if (needsReobserve && captionRegion) {
+      // Disconnect old observer
+      if (observer) {
+        observer.disconnect();
+        observer = null;
+      }
+
+      currentCaptionRegion = captionRegion;
 
       if (!isCCEnabled) {
         setCCEnabled(true);
@@ -41,8 +57,6 @@ export function startObserver(): void {
           renderCaptions();
         }
       }
-
-      if (observer) observer.disconnect();
 
       observer = new MutationObserver(debouncedExtract);
       observer.observe(captionRegion, {
@@ -52,6 +66,15 @@ export function startObserver(): void {
       });
 
       console.log("[MeetCaptioner] Observing caption region");
+    }
+
+    // If caption region was removed, mark as not enabled
+    if (!captionRegion && currentCaptionRegion) {
+      currentCaptionRegion = null;
+      if (observer) {
+        observer.disconnect();
+        observer = null;
+      }
     }
   }
 

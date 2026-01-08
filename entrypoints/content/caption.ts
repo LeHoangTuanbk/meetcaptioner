@@ -7,6 +7,7 @@ import {
   waveElement,
   waveTimeout,
   setWaveTimeout,
+  clearSemanticTimer,
 } from "./state";
 import { stripPunctuation, isSimilarText, isTextGrowing } from "./utils";
 import { translateCaption, scheduleSemanticTranslation } from "./translation";
@@ -121,8 +122,12 @@ export function addCaption(speaker: string, text: string): void {
   captions.push(newCaption);
   setWaveActive(true);
 
+  // Remove old captions and clean up their timers
   while (captions.length > MAX_CAPTIONS) {
-    captions.shift();
+    const removed = captions.shift();
+    if (removed) {
+      clearSemanticTimer(removed.id);
+    }
   }
 
   renderCaptions(false);
