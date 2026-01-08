@@ -1,7 +1,7 @@
 {
-  "name": "meet-captioner-2",
-  "version": "1.0.0",
-  "description": "Capture Google Meet captions with floating overlay",
+  "name": "meet-captioner",
+  "version": "2.0.0",
+  "description": "Capture Google Meet captions with floating overlay, translate real-time wih LLMs",
   "type": "module",
   "scripts": {
     "dev": "wxt",
@@ -12,7 +12,8 @@
   "keywords": [
     "chrome-extension",
     "google-meet",
-    "caption"
+    "caption",
+    "translation"
   ],
   "author": "Le Hoang Tuan",
   "license": "MIT",
