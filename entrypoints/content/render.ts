@@ -79,6 +79,10 @@ export function renderCaptions(updateOnly = false): void {
   if (!updateOnly && overlay) {
     const content = overlay.querySelector(".mc-content");
     if (content) {
+      // Don't scroll if user is editing translation
+      const isEditing = content.querySelector(".mc-translation-edit") !== null;
+      if (isEditing) return;
+
       // Smart scroll: only auto-scroll if user is near bottom
       const isNearBottom = content.scrollHeight - content.scrollTop - content.clientHeight < 100;
       if (isNearBottom) {
