@@ -12,6 +12,7 @@ import {
 } from "./state";
 import { createElement } from "./utils";
 import { renderCaptions } from "./render";
+import { translateAllExistingCaptions } from "./translation";
 
 async function saveSettings(newSettings: Partial<typeof settings>): Promise<void> {
   updateSettings(newSettings);
@@ -189,7 +190,7 @@ export function createOverlay(): void {
       id: "mc-translate-toggle",
       className: "mc-toggle" + (settings.translationEnabled ? " mc-active" : ""),
       "data-tooltip": settings.translationEnabled ? "Translation ON" : "Translation OFF",
-      onClick: () => {
+      onClick: async () => {
         if (!settings.translationEnabled) {
           const apiKey =
             settings.provider === "anthropic"
@@ -200,7 +201,12 @@ export function createOverlay(): void {
             return;
           }
         }
-        saveSettings({ translationEnabled: !settings.translationEnabled });
+        const newEnabled = !settings.translationEnabled;
+        await saveSettings({ translationEnabled: newEnabled });
+
+        if (newEnabled) {
+          translateAllExistingCaptions();
+        }
       },
     },
     [toggleSwitch]

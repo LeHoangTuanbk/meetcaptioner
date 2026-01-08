@@ -291,31 +291,21 @@ async function translateWithOpenAI(
 function buildPrompt(request: TranslateRequest): string {
   const langName = getLanguageName(request.targetLang);
 
-  if (request.mode === "optimistic") {
-    let prompt = `Translate to ${langName}.`;
-    if (request.customPrompt) {
-      prompt += ` Instructions: ${request.customPrompt}`;
-    }
-    prompt += ` Output ONLY the translation, no explanations:\n\n${request.text}`;
-    return prompt;
-  }
+  let prompt = `You are translating live meeting captions from speech recognition.
 
-  // Semantic mode with context
-  let prompt = `You are a professional translator. Translate naturally to ${langName}.
-Context: This is from a live meeting conversation.
-Notes:
-- Because this is using live captions, occasionally some text segments might be misinterpreted or appear strange. You will need to rely on the overall meaning to correct those misidentified text segments. Only then will you translate them into the target language.
-`;
+CRITICAL RULES:
+1. Translate the COMPLETE text - do not skip or summarize any part
+2. Keep the same meaning and tone as the original
+3. If speech recognition made errors, try to understand the intended meaning
+4. Output ONLY the translation, no explanations or notes
+
+Target language: ${langName}`;
 
   if (request.customPrompt) {
-    prompt += `\nUser instructions: ${request.customPrompt}`;
+    prompt += `\nAdditional instructions: ${request.customPrompt}`;
   }
 
-  if (request.context) {
-    prompt += `\nPrevious context: ${request.context}`;
-  }
-
-  prompt += `\n\nText to translate: ${request.text}\n\nOutput ONLY the translation, no explanations.`;
+  prompt += `\n\nText to translate:\n${request.text}`;
 
   return prompt;
 }

@@ -9,8 +9,7 @@ import {
   setWaveTimeout,
   clearSemanticTimer,
 } from "./state";
-import { stripPunctuation, isSimilarText, isTextGrowing } from "./utils";
-import { translateCaption, scheduleSemanticTranslation } from "./translation";
+import { translateCaption } from "./translation";
 import { renderCaptions } from "./render";
 import { saveCaptionsDebounced } from "./history-service";
 
@@ -30,117 +29,145 @@ export function setWaveActive(active: boolean): void {
   }
 }
 
-function updateCaptionElement(caption: Caption, newText: string): void {
-  caption.text = newText;
-  caption.time = new Date().toLocaleTimeString();
+/**
+ * Add a new caption or update existing one
+ * @param captionId - null to create new, or existing ID to update
+ * @param speaker - speaker name
+ * @param text - caption text
+ * @returns caption ID
+ */
+export function addOrUpdateCaption(
+  captionId: number | null,
+  speaker: string,
+  text: string
+): number {
+  // Edge case: Empty text
+  if (!text || text.trim().length === 0) {
+    console.log("[MeetCaptioner] Empty text, skipping");
+    return captionId ?? -1;
+  }
+
   setWaveActive(true);
 
-  const captionEl = document.querySelector(`[data-caption-id="${caption.id}"]`);
-  if (captionEl) {
-    const textEl = captionEl.querySelector(".mc-original");
-    const timeEl = captionEl.querySelector(".mc-time");
-    if (textEl) textEl.textContent = newText;
-    if (timeEl) timeEl.textContent = caption.time;
-  }
+  if (captionId !== null) {
+    // Update existing caption
+    const caption = captions.find((c) => c.id === captionId);
+    if (caption) {
+      const textChanged = caption.text !== text;
 
-  // Auto-save to history
-  saveCaptionsDebounced();
-}
-
-function triggerTranslationIfNeeded(caption: Caption, newText: string): void {
-  if (!settings.translationEnabled) return;
-
-  const growth = newText.length - (caption.lastTranslatedLength || 0);
-  if (growth >= 10 || !caption.translation) {
-    caption.lastTranslatedLength = newText.length;
-    translateCaption(caption, "optimistic");
-  }
-  scheduleSemanticTranslation(caption);
-}
-
-export function addCaption(speaker: string, text: string): void {
-  if (!speaker || !text) return;
-
-  const normalizedText = text.trim();
-
-  // Check for similar/duplicate in recent captions
-  const similarDup = captions
-    .slice(-10)
-    .find((c) => isSimilarText(c.text, normalizedText));
-
-  if (similarDup) {
-    const oldStripped = stripPunctuation(similarDup.text);
-    const newStripped = stripPunctuation(normalizedText);
-    if (newStripped.length > oldStripped.length) {
-      updateCaptionElement(similarDup, normalizedText);
-      if (similarDup.speaker === speaker) {
-        triggerTranslationIfNeeded(similarDup, normalizedText);
+      // Edge case: Text didn't actually change
+      if (!textChanged) {
+        return captionId;
       }
-    }
-    return;
-  }
 
-  // Find recent caption from same speaker
-  let speakerCaption: Caption | null = null;
-  for (let i = captions.length - 1; i >= Math.max(0, captions.length - 5); i--) {
-    if (captions[i].speaker === speaker) {
-      speakerCaption = captions[i];
-      break;
-    }
-  }
+      caption.text = text;
+      caption.time = new Date().toLocaleTimeString();
 
-  if (speakerCaption) {
-    const oldText = speakerCaption.text;
-    const newText = normalizedText;
-
-    if (oldText === newText) return;
-
-    if (isSimilarText(oldText, newText)) {
-      const oldStripped = stripPunctuation(oldText);
-      const newStripped = stripPunctuation(newText);
-      if (newStripped.length > oldStripped.length) {
-        updateCaptionElement(speakerCaption, newText);
-        triggerTranslationIfNeeded(speakerCaption, newText);
+      // If text changed after finalization, need to re-translate
+      if (caption.isFinalized && textChanged) {
+        console.log("[MeetCaptioner] Text changed after finalize, will re-translate:", captionId);
+        caption.translation = "";
+        caption.translationStatus = "pending";
       }
-      return;
-    }
+      caption.isFinalized = false;
 
-    if (isTextGrowing(oldText, newText)) {
-      updateCaptionElement(speakerCaption, newText);
-      triggerTranslationIfNeeded(speakerCaption, newText);
-      return;
+      // Update DOM
+      const captionEl = document.querySelector(`[data-caption-id="${captionId}"]`);
+      if (captionEl) {
+        const textEl = captionEl.querySelector(".mc-original");
+        const timeEl = captionEl.querySelector(".mc-time");
+        const transEl = captionEl.querySelector(".mc-translation");
+        if (textEl) textEl.textContent = text;
+        if (timeEl) timeEl.textContent = caption.time;
+        // Show "..." if we cleared translation
+        if (transEl && !caption.translation && settings.translationEnabled) {
+          transEl.textContent = "...";
+        }
+      }
+
+      saveCaptionsDebounced();
+      return captionId;
+    } else {
+      // Edge case: Caption no longer exists, fall through to create new
+      console.log("[MeetCaptioner] Caption not found for update, creating new:", captionId);
     }
   }
 
   // Create new caption
+  const newId = getNextCaptionId();
   const newCaption: Caption = {
-    id: getNextCaptionId(),
+    id: newId,
     speaker,
-    text: normalizedText,
+    text,
     time: new Date().toLocaleTimeString(),
     translation: "",
     translationStatus: "pending",
-    lastTranslatedLength: normalizedText.length,
+    lastTranslatedLength: 0,
+    isFinalized: false,
   };
 
   captions.push(newCaption);
-  setWaveActive(true);
+  console.log("[MeetCaptioner] Created caption:", newId, speaker, text.substring(0, 30));
 
-  // Remove old captions and clean up their timers
+  // Remove old captions if over limit
   while (captions.length > MAX_CAPTIONS) {
     const removed = captions.shift();
     if (removed) {
+      console.log("[MeetCaptioner] Removed old caption:", removed.id);
       clearSemanticTimer(removed.id);
     }
   }
 
   renderCaptions(false);
-
-  // Auto-save to history
   saveCaptionsDebounced();
 
-  if (settings.translationEnabled) {
-    translateCaption(newCaption, "optimistic");
-    scheduleSemanticTranslation(newCaption);
+  return newId;
+}
+
+/**
+ * Finalize a caption - trigger translation
+ * Called when text has stopped changing
+ */
+export function finalizeCaption(captionId: number): void {
+  const caption = captions.find((c) => c.id === captionId);
+
+  // Edge case: Caption no longer exists
+  if (!caption) {
+    console.log("[MeetCaptioner] Caption not found for finalize:", captionId);
+    return;
   }
+
+  // Edge case: Already finalized
+  if (caption.isFinalized) {
+    console.log("[MeetCaptioner] Caption already finalized:", captionId);
+    return;
+  }
+
+  caption.isFinalized = true;
+  console.log("[MeetCaptioner] Finalized:", captionId, caption.speaker, caption.text.substring(0, 40));
+
+  // Trigger translation
+  if (settings.translationEnabled) {
+    // Edge case: Already has translation (from previous finalization)
+    if (caption.translation && caption.translationStatus !== "error") {
+      console.log("[MeetCaptioner] Already has translation:", captionId);
+      return;
+    }
+
+    // Edge case: Currently translating
+    if (caption.translationStatus === "translating") {
+      console.log("[MeetCaptioner] Already translating:", captionId);
+      return;
+    }
+
+    console.log("[MeetCaptioner] Starting translation:", captionId);
+    translateCaption(caption, "semantic");
+  }
+
+  saveCaptionsDebounced();
+}
+
+// Keep for backward compatibility
+export function addCaption(speaker: string, text: string): void {
+  addOrUpdateCaption(null, speaker, text);
 }

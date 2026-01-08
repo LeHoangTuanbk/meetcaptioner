@@ -8,6 +8,7 @@ export interface Caption {
   translationError?: string;
   lastTranslatedLength: number;
   userEdited?: boolean;
+  isFinalized?: boolean;
 }
 
 export interface Settings {
