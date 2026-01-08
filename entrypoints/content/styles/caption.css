@@ -58,6 +58,19 @@
   color: #e4e4e7;
   font-size: 13px;
   line-height: 1.45;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.mc-original:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.mc-original.mc-copied,
+.mc-translation.mc-copied {
+  background: rgba(74, 222, 128, 0.15);
+  border-radius: 4px;
 }
 
 .mc-time {

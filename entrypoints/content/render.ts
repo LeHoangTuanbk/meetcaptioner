@@ -1,8 +1,13 @@
 import type { Caption } from "./types";
 import { captions, settings, isCCEnabled, captionList, overlay } from "./state";
-import { createElement } from "./utils";
+import { createElement, copyToClipboard } from "./utils";
 import { updateCaptionTranslation, startEditTranslation } from "./caption-ui";
 import { manualTranslate, retranslateCaption } from "./translation";
+
+function showCopyFeedback(element: HTMLElement): void {
+  element.classList.add("mc-copied");
+  setTimeout(() => element.classList.remove("mc-copied"), 1000);
+}
 
 export function renderCaptions(updateOnly = false): void {
   if (!captionList) return;
@@ -101,6 +106,12 @@ function createCaptionElement(c: Caption): HTMLElement {
   const original = createElement("div", {
     className: "mc-original",
     textContent: c.text,
+    "data-tooltip": "Double-click to copy",
+    onDblClick: async (e: Event) => {
+      e.stopPropagation();
+      const success = await copyToClipboard(c.text);
+      if (success) showCopyFeedback(e.target as HTMLElement);
+    },
   });
 
   const translationWrapper = createElement("div", {
@@ -113,7 +124,14 @@ function createCaptionElement(c: Caption): HTMLElement {
       (c.translationStatus === "translating" ? " mc-translating" : ""),
     textContent: c.translation || (settings.translationEnabled ? "..." : ""),
     onClick: () => startEditTranslation(c),
-    "data-tooltip": "Click to edit",
+    onDblClick: async (e: Event) => {
+      e.stopPropagation();
+      if (c.translation) {
+        const success = await copyToClipboard(c.translation);
+        if (success) showCopyFeedback(e.target as HTMLElement);
+      }
+    },
+    "data-tooltip": "Click to edit, double-click to copy",
   });
   translationWrapper.appendChild(translation);
 
