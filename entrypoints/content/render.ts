@@ -59,7 +59,20 @@ export function renderCaptions(updateOnly = false): void {
 
   captions.forEach((c, i) => {
     if (existingItems[i]) {
-      const item = existingItems[i];
+      const item = existingItems[i] as HTMLElement;
+
+      // Update data-caption-id to match current caption
+      const currentId = item.getAttribute("data-caption-id");
+      if (currentId !== String(c.id)) {
+        item.setAttribute("data-caption-id", String(c.id));
+      }
+
+      // Update speaker if changed
+      const speakerEl = item.querySelector(".mc-speaker");
+      if (speakerEl && speakerEl.textContent !== c.speaker) {
+        speakerEl.textContent = c.speaker;
+      }
+
       const textEl = item.querySelector(".mc-original");
       const timeEl = item.querySelector(".mc-time");
       if (textEl && textEl.textContent !== c.text) {

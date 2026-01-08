@@ -126,6 +126,7 @@ interface TranslateRequest {
   targetLang: string;
   mode: "optimistic" | "semantic";
   context?: string;
+  speaker?: string;
   customPrompt?: string;
 }
 
@@ -294,18 +295,23 @@ function buildPrompt(request: TranslateRequest): string {
   let prompt = `You are translating live meeting captions from speech recognition.
 
 CRITICAL RULES:
-1. Translate the COMPLETE text - do not skip or summarize any part
-2. Keep the same meaning and tone as the original
-3. If speech recognition made errors, try to understand the intended meaning
-4. Output ONLY the translation, no explanations or notes
+1. Translate the COMPLETE text accurately - DO NOT skip any words
+2. KEEP THE SPEAKER'S PERSPECTIVE: The text is spoken BY the speaker. When they refer to themselves, use "I/me". When they refer to the listener, use "you".
+3. DO NOT flip or swap pronouns. If the speaker says something equivalent to "Do you love me?", translate it as "Do you love me?" - NOT "Do I love you?"
+4. Fix obvious speech recognition errors based on context
+5. Output ONLY the translation, nothing else
 
 Target language: ${langName}`;
 
-  if (request.customPrompt) {
-    prompt += `\nAdditional instructions: ${request.customPrompt}`;
+  if (request.context) {
+    prompt += `\n\nRecent conversation (format: [Speaker]: text):\n${request.context}\n\nUse this context to understand who is speaking to whom and maintain correct pronoun references.`;
   }
 
-  prompt += `\n\nText to translate:\n${request.text}`;
+  if (request.customPrompt) {
+    prompt += `\n\nAdditional instructions: ${request.customPrompt}`;
+  }
+
+  prompt += `\n\nCurrent speaker: ${request.speaker || "Unknown"}\nText to translate:\n${request.text}`;
 
   return prompt;
 }

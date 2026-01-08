@@ -24,18 +24,29 @@ function processCaption(entry: Element): void {
   const speaker = speakerEl?.textContent?.trim() || "Unknown";
 
   const textEl = entry.querySelector(".ygicle");
-  if (!textEl) return;
+  if (!textEl) {
+    console.log("[MeetCaptioner] No text element found in entry");
+    return;
+  }
 
   const text = textEl.textContent?.trim();
 
   // Edge case: Empty or very short text - skip
-  if (!text || text.length < 2) return;
+  if (!text || text.length < 2) {
+    console.log("[MeetCaptioner] Text too short:", text);
+    return;
+  }
 
   const lastText = elementLastText.get(entry);
   const lastSpeaker = elementLastSpeaker.get(entry);
 
   // Edge case: No change at all - skip
-  if (lastText === text && lastSpeaker === speaker) return;
+  if (lastText === text && lastSpeaker === speaker) {
+    // Don't log this - too noisy
+    return;
+  }
+
+  console.log("[MeetCaptioner] Processing caption:", speaker, text.substring(0, 30));
 
   // Update tracking
   elementLastText.set(entry, text);
@@ -127,13 +138,20 @@ function extractCaptions(): void {
   const captionRegion = document.querySelector(
     '[role="region"][aria-label="Captions"]'
   );
-  if (!captionRegion) return;
+  if (!captionRegion) {
+    console.log("[MeetCaptioner] No caption region found");
+    return;
+  }
 
   const captionEntries = captionRegion.querySelectorAll(".nMcdL");
 
   // Edge case: No entries - nothing to do
-  if (captionEntries.length === 0) return;
+  if (captionEntries.length === 0) {
+    console.log("[MeetCaptioner] No caption entries found");
+    return;
+  }
 
+  console.log("[MeetCaptioner] Processing", captionEntries.length, "entries");
   captionEntries.forEach(processCaption);
 }
 
@@ -143,7 +161,10 @@ export function startObserver(): void {
 
   function debouncedExtract(): void {
     if (extractTimeout) clearTimeout(extractTimeout);
-    extractTimeout = setTimeout(extractCaptions, 100);
+    extractTimeout = setTimeout(() => {
+      console.log("[MeetCaptioner] Mutation detected, extracting...");
+      extractCaptions();
+    }, 100);
   }
 
   function observeCaptionRegion(): void {

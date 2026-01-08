@@ -4,7 +4,10 @@ import { retranslateCaption } from "./translation";
 
 export function updateCaptionTranslation(captionObj: Caption): void {
   const captionEl = document.querySelector(`[data-caption-id="${captionObj.id}"]`);
-  if (!captionEl) return;
+  if (!captionEl) {
+    console.log("[MeetCaptioner] UI element not found for caption:", captionObj.id);
+    return;
+  }
 
   let wrapper = captionEl.querySelector(".mc-translation-wrapper");
   let transEl = captionEl.querySelector(".mc-translation") as HTMLElement | null;

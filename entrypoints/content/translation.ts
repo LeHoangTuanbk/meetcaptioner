@@ -5,6 +5,25 @@ import { updateCaptionTranslation } from "./caption-ui";
 // Track ongoing translation requests to prevent duplicates
 const pendingTranslations = new Set<number>();
 
+// Number of previous captions to include as context
+const CONTEXT_CAPTION_COUNT = 5;
+
+function buildContext(currentCaption: Caption): string {
+  // Find index of current caption
+  const currentIndex = captions.findIndex((c) => c.id === currentCaption.id);
+  if (currentIndex <= 0) return "";
+
+  // Get previous captions for context
+  const startIndex = Math.max(0, currentIndex - CONTEXT_CAPTION_COUNT);
+  const contextCaptions = captions.slice(startIndex, currentIndex);
+
+  if (contextCaptions.length === 0) return "";
+
+  return contextCaptions
+    .map((c) => `[${c.speaker}]: ${c.text}`)
+    .join("\n");
+}
+
 export async function translateCaption(
   captionObj: Caption,
   mode: "optimistic" | "semantic" = "semantic",
@@ -44,6 +63,8 @@ export async function translateCaption(
   // Save the text we're translating
   const textToTranslate = captionObj.text;
   const captionId = captionObj.id;
+  const speaker = captionObj.speaker;
+  const context = buildContext(captionObj);
 
   try {
     pendingTranslations.add(captionId);
@@ -58,6 +79,8 @@ export async function translateCaption(
       text: textToTranslate,
       targetLang: settings.targetLanguage,
       mode,
+      speaker,
+      context,
       customPrompt: settings.customPrompt,
     })) as TranslateResponse;
 
