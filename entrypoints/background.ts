@@ -24,11 +24,6 @@ const DEFAULT_SETTINGS: Settings = {
   customPrompt: DEFAULT_CUSTOM_PROMPT,
 };
 
-// Rate limiting (high limit - API providers have their own limits)
-const rateLimiter = new Map<string, number[]>();
-const RATE_LIMIT = 10000; // requests per minute
-const RATE_WINDOW = 60000; // 1 minute
-
 export default defineBackground(() => {
   console.debug("[MeetCaptioner] Background started");
 
@@ -123,12 +118,6 @@ async function translate(request: TranslateRequest): Promise<any> {
   if (!settings.translationEnabled) {
     console.log("[MeetCaptioner] Translation disabled");
     return { success: false, error: "Translation disabled" };
-  }
-
-  // Rate limiting
-  if (isRateLimited("translate")) {
-    console.log("[MeetCaptioner] Rate limited");
-    return { success: false, error: "Rate limit exceeded" };
   }
 
   try {
@@ -286,21 +275,6 @@ function getLanguageName(code: string): string {
     tr: "Turkish",
   };
   return languages[code] || code;
-}
-
-function isRateLimited(key: string): boolean {
-  const now = Date.now();
-  const timestamps = rateLimiter.get(key) || [];
-
-  const recent = timestamps.filter((t) => now - t < RATE_WINDOW);
-
-  if (recent.length >= RATE_LIMIT) {
-    return true;
-  }
-
-  recent.push(now);
-  rateLimiter.set(key, recent);
-  return false;
 }
 
 function sanitizeError(error: any): string {
