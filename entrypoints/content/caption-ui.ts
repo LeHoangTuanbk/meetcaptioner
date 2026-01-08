@@ -77,6 +77,11 @@ export function updateCaptionTranslation(captionObj: Caption): void {
   }
 }
 
+function autoResizeTextarea(textarea: HTMLTextAreaElement): void {
+  textarea.style.height = "auto";
+  textarea.style.height = textarea.scrollHeight + "px";
+}
+
 export function startEditTranslation(captionObj: Caption): void {
   const captionEl = document.querySelector(`[data-caption-id="${captionObj.id}"]`);
   if (!captionEl) return;
@@ -94,7 +99,6 @@ export function startEditTranslation(captionObj: Caption): void {
   const input = createElement("textarea", {
     className: "mc-translation-edit",
     value: currentText,
-    rows: 2,
   }) as HTMLTextAreaElement;
 
   const saveEdit = () => {
@@ -107,6 +111,7 @@ export function startEditTranslation(captionObj: Caption): void {
   };
 
   input.addEventListener("blur", saveEdit);
+  input.addEventListener("input", () => autoResizeTextarea(input));
   input.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -120,6 +125,11 @@ export function startEditTranslation(captionObj: Caption): void {
 
   transEl.textContent = "";
   transEl.appendChild(input);
-  input.focus();
-  input.setSelectionRange(input.value.length, input.value.length);
+
+  // Auto-resize on initial render
+  requestAnimationFrame(() => {
+    autoResizeTextarea(input);
+    input.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
+  });
 }

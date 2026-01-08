@@ -5,8 +5,28 @@ import { updateCaptionTranslation, startEditTranslation } from "./caption-ui";
 import { manualTranslate, retranslateCaption } from "./translation";
 
 function showCopyFeedback(element: HTMLElement): void {
+  // Find caption element for positioning context
+  const caption = element.closest(".mc-caption");
+  if (!caption) return;
+
+  // Remove existing indicator if any
+  const existing = caption.querySelector(".mc-copy-indicator");
+  if (existing) existing.remove();
+
   element.classList.add("mc-copied");
-  setTimeout(() => element.classList.remove("mc-copied"), 1000);
+
+  // Show floating "Copied!" indicator (absolute positioned, won't affect layout)
+  const indicator = document.createElement("span");
+  indicator.className = "mc-copy-indicator";
+  indicator.textContent = "✓ Copied!";
+
+  // Append to caption (which has position relative)
+  caption.appendChild(indicator);
+
+  setTimeout(() => {
+    element.classList.remove("mc-copied");
+    indicator.remove();
+  }, 2000);
 }
 
 export function renderCaptions(updateOnly = false): void {
