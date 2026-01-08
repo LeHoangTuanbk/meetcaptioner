@@ -1,0 +1,95 @@
+# Chrome Web Store Description
+
+## Short Summary (from manifest)
+Capture and translate Google Meet captions in real-time
+
+## Full Description (copy below for store listing)
+
+---
+
+Never miss a word in your Google Meet calls again.
+
+MeetCaptioner captures live captions and translates them instantly using AI — perfect for international meetings, language learners, or anyone who needs accurate meeting notes.
+
+🎯 KEY FEATURES
+
+• Real-time Caption Capture — Automatically captures every word spoken in your Google Meet with speaker identification
+• AI-Powered Translation — Translate to 18+ languages using OpenAI or Anthropic APIs
+• Floating Overlay — Draggable, resizable panel that stays out of your way
+• Meeting History — All your captions are auto-saved locally for later review
+• Export Options — Download captions and translations as text files
+• Editable Translations — Click to edit any translation manually
+• Smart Fallback — Automatic model switching when rate limits hit
+• Privacy First — All data stored locally on your device, never sent to external servers
+
+🌍 SUPPORTED LANGUAGES
+
+Vietnamese, English, Chinese, Japanese, Korean, Spanish, French, German, Portuguese, Russian, Arabic, Hindi, Italian, Thai, Indonesian, Dutch, Polish, Turkish
+
+🤖 AI PROVIDERS
+
+Choose your preferred AI provider:
+• OpenAI (GPT-4.1 Nano, GPT-4.1 Mini, GPT-5 Nano)
+• Anthropic (Claude Haiku 4.5, Claude Sonnet 4.5, Claude Opus 4.5)
+
+💡 PERFECT FOR
+
+• International teams with multilingual meetings
+• Language learners practicing comprehension
+• Accessibility — read along with spoken content
+• Meeting documentation and note-taking
+• Anyone working across language barriers
+
+🔒 PRIVACY & SECURITY
+
+Your API keys and meeting data stay on your device. We don't collect, store, or transmit any personal information. Translations are processed directly through your own API accounts.
+
+📋 HOW TO USE
+
+1. Install the extension
+2. Join a Google Meet call
+3. Enable captions in Google Meet
+4. Configure your API key in Settings
+5. Toggle translation ON in the overlay
+6. Watch real-time translations appear!
+
+---
+
+Questions or feedback? Visit our GitHub repository.
+
+Made with ❤️ for better communication across languages.
+
+
+## Privacy & Permissions (for Chrome Web Store form)
+
+### Single Purpose Description
+```
+MeetCaptioner captures and displays real-time captions from Google Meet meetings with AI-powered translation. It provides a floating overlay showing original captions alongside translations, helping users understand multilingual conversations and save meeting transcripts.
+```
+
+### Storage Permission Justification
+```
+The storage permission is required to:
+1. Save user preferences (API provider, model selection, target language)
+2. Store API keys locally for translation services
+3. Auto-save meeting captions and translations for later review in Meeting History
+4. Preserve custom translation prompts configured by the user
+All data is stored locally on the user's device and never transmitted to external servers.
+```
+
+### Host Permission Justification (meet.google.com)
+```
+The host permission for meet.google.com is essential because:
+1. The extension must inject a content script to detect and capture live captions displayed during Google Meet calls
+2. It needs to read the caption text, speaker names, and timestamps from the Meet interface
+3. The floating overlay must be rendered on the Meet page for users to see translations alongside the video call
+Without this permission, the extension cannot access or display captions from Google Meet.
+```
+
+### Host Permission Justification (api.anthropic.com, api.openai.com)
+```
+These API endpoints are required for AI translation:
+1. api.anthropic.com - Users who choose Anthropic as their provider send caption text here for translation using their own API key
+2. api.openai.com - Users who choose OpenAI as their provider send caption text here for translation using their own API key
+Users must provide their own API keys. No data is sent without user configuration and explicit consent.
+```
