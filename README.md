@@ -20,22 +20,9 @@ A powerful Chrome extension that captures Google Meet captions in real-time with
 
 ## Screenshots
 
-<details>
-<summary>Click to view screenshots</summary>
+![MeetCaptioner Demo](documents/deployment/images/github/demo.png)
 
-### Caption Overlay
-
-The floating overlay displays captions and translations side-by-side during your meeting.
-
-### Meeting History
-
-Review past meetings with full caption and translation history.
-
-### Settings
-
-Configure your preferred AI provider, model, and target language.
-
-</details>
+*Real-time caption capture and AI translation in Google Meet*
 
 ## Installation
 
