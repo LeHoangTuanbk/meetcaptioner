@@ -133,8 +133,21 @@ function makeDraggable(element: HTMLElement, handle: HTMLElement): void {
     const deltaX = e.clientX - startX;
     const deltaY = e.clientY - startY;
 
-    element.style.left = startLeft + deltaX + "px";
-    element.style.top = startTop + deltaY + "px";
+    let newLeft = startLeft + deltaX;
+    let newTop = startTop + deltaY;
+
+    // Constrain within viewport bounds (keep at least 100px visible)
+    const minVisible = 100;
+    const maxLeft = window.innerWidth - minVisible;
+    const maxTop = window.innerHeight - 50; // Keep header visible
+    const minLeft = minVisible - element.offsetWidth;
+    const minTop = 0;
+
+    newLeft = Math.max(minLeft, Math.min(maxLeft, newLeft));
+    newTop = Math.max(minTop, Math.min(maxTop, newTop));
+
+    element.style.left = newLeft + "px";
+    element.style.top = newTop + "px";
     element.style.right = "auto";
     element.style.bottom = "auto";
   }

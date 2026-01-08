@@ -123,6 +123,11 @@ export function startEditTranslation(captionObj: Caption): void {
     }
   });
 
+  // Prevent parent handlers from interfering with mouse interaction
+  input.addEventListener("click", (e) => e.stopPropagation());
+  input.addEventListener("mousedown", (e) => e.stopPropagation());
+  input.addEventListener("mouseup", (e) => e.stopPropagation());
+
   transEl.textContent = "";
   transEl.appendChild(input);
 
