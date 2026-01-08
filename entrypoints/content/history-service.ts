@@ -13,6 +13,11 @@ function getMeetingCodeFromUrl(): string {
   return match ? match[1] : "unknown";
 }
 
+function getMeetingTitle(): string | undefined {
+  const el = document.querySelector("[data-meeting-title]");
+  return el?.getAttribute("data-meeting-title") || undefined;
+}
+
 export function initMeetingSession(): void {
   if (currentSession) return;
 
@@ -20,6 +25,7 @@ export function initMeetingSession(): void {
     id: generateId(),
     meetingUrl: window.location.href,
     meetingCode: getMeetingCodeFromUrl(),
+    title: getMeetingTitle(),
     startTime: Date.now(),
     captions: [],
   };
@@ -39,6 +45,11 @@ function convertToSavedCaption(caption: Caption): SavedCaption {
 
 async function saveToStorage(): Promise<void> {
   if (!currentSession) return;
+
+  // Try to get title if not already set
+  if (!currentSession.title) {
+    currentSession.title = getMeetingTitle();
+  }
 
   // Convert current captions to saved format
   currentSession.captions = captions.map(convertToSavedCaption);
