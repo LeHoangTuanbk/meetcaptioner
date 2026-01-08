@@ -9,6 +9,24 @@ interface Settings {
   customPrompt: string;
 }
 
+// Model lists for fallback
+const MODELS = {
+  anthropic: [
+    "claude-haiku-4-5-20251001",
+    "claude-sonnet-4-5-20250929",
+    "claude-opus-4-5-20251101",
+  ],
+  openai: ["gpt-4.1-nano", "gpt-4.1-mini", "gpt-5-nano"],
+};
+
+// Custom error for rate limit
+class RateLimitError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "RateLimitError";
+  }
+}
+
 // Default custom prompt for new users
 const DEFAULT_CUSTOM_PROMPT =
   "Translate naturally and smoothly. Keep technical terms and abbreviations as-is (API, ML, etc). Use appropriate formality for business context.";
@@ -139,39 +157,63 @@ async function translate(request: TranslateRequest): Promise<any> {
     return { success: false, error: "Translation disabled" };
   }
 
-  try {
-    console.log(
-      "[MeetCaptioner] Calling API with provider:",
-      settings.provider
-    );
-    const translation =
-      settings.provider === "anthropic"
-        ? await translateWithAnthropic(request, settings, apiKey)
-        : await translateWithOpenAI(request, settings, apiKey);
+  // Get model list for fallback
+  const modelList = MODELS[settings.provider];
+  const startIndex = modelList.indexOf(settings.model);
+  const modelsToTry =
+    startIndex >= 0
+      ? [...modelList.slice(startIndex), ...modelList.slice(0, startIndex)]
+      : modelList;
 
-    console.log("[MeetCaptioner] Translation success:", translation);
-    return {
-      success: true,
-      id: request.id,
-      translation,
-      mode: request.mode,
-    };
-  } catch (error) {
-    console.error("[MeetCaptioner] Translation error:", error);
-    return {
-      success: false,
-      id: request.id,
-      error: sanitizeError(error),
-    };
+  let lastError: Error | null = null;
+
+  for (const model of modelsToTry) {
+    try {
+      console.log(
+        "[MeetCaptioner] Calling API with provider:",
+        settings.provider,
+        "model:",
+        model
+      );
+      const translation =
+        settings.provider === "anthropic"
+          ? await translateWithAnthropic(request, apiKey, model)
+          : await translateWithOpenAI(request, apiKey, model);
+
+      console.log("[MeetCaptioner] Translation success:", translation);
+      return {
+        success: true,
+        id: request.id,
+        translation,
+        mode: request.mode,
+      };
+    } catch (error) {
+      lastError = error as Error;
+      if (error instanceof RateLimitError) {
+        console.warn(
+          `[MeetCaptioner] Rate limited on ${model}, trying next model...`
+        );
+        continue;
+      }
+      // For non-rate-limit errors, don't retry with other models
+      break;
+    }
   }
+
+  console.error("[MeetCaptioner] Translation error:", lastError);
+  return {
+    success: false,
+    id: request.id,
+    error: sanitizeError(lastError),
+  };
 }
 
 // ============ Anthropic API ============
 
 async function translateWithAnthropic(
   request: TranslateRequest,
-  settings: Settings,
-  apiKey: string
+  apiKey: string,
+  model: string
 ): Promise<string> {
   const prompt = buildPrompt(request);
 
@@ -184,7 +226,7 @@ async function translateWithAnthropic(
       "anthropic-dangerous-direct-browser-access": "true",
     },
     body: JSON.stringify({
-      model: settings.model,
+      model,
       max_tokens: 1024,
       messages: [{ role: "user", content: prompt }],
     }),
@@ -197,6 +239,9 @@ async function translateWithAnthropic(
       response.status,
       error
     );
+    if (response.status === 429) {
+      throw new RateLimitError(`Anthropic rate limit: ${error}`);
+    }
     throw new Error(`Anthropic API error: ${response.status} - ${error}`);
   }
 
@@ -209,8 +254,8 @@ async function translateWithAnthropic(
 
 async function translateWithOpenAI(
   request: TranslateRequest,
-  settings: Settings,
-  apiKey: string
+  apiKey: string,
+  model: string
 ): Promise<string> {
   const prompt = buildPrompt(request);
 
@@ -221,7 +266,7 @@ async function translateWithOpenAI(
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: settings.model,
+      model,
       max_completion_tokens: 1024,
       messages: [{ role: "user", content: prompt }],
     }),
@@ -230,6 +275,9 @@ async function translateWithOpenAI(
   if (!response.ok) {
     const error = await response.text();
     console.error("[MeetCaptioner] OpenAI API error:", response.status, error);
+    if (response.status === 429) {
+      throw new RateLimitError(`OpenAI rate limit: ${error}`);
+    }
     throw new Error(`OpenAI API error: ${response.status} - ${error}`);
   }
 
