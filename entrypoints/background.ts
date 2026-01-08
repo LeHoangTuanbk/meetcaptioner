@@ -55,6 +55,25 @@ async function handleMessage(message: any): Promise<any> {
       chrome.runtime.openOptionsPage();
       return { success: true };
 
+    // Meeting History Actions
+    case "getMeetingHistory":
+      return getMeetingHistory();
+
+    case "saveMeetingSession":
+      return saveMeetingSession(message.session);
+
+    case "deleteMeetingSession":
+      return deleteMeetingSession(message.sessionId);
+
+    case "updateMeetingSession":
+      return updateMeetingSession(message.sessionId, message.updates);
+
+    case "clearMeetingHistory":
+      return clearMeetingHistory();
+
+    case "getStorageUsage":
+      return getStorageUsage();
+
     default:
       return { success: false, error: "Unknown action" };
   }
@@ -296,4 +315,88 @@ function sanitizeError(error: any): string {
   }
 
   return "Translation failed";
+}
+
+// ============ Meeting History ============
+
+interface MeetingSession {
+  id: string;
+  meetingUrl: string;
+  meetingCode: string;
+  startTime: number;
+  endTime?: number;
+  captions: Array<{
+    speaker: string;
+    text: string;
+    translation?: string;
+    time: string;
+    timestamp: number;
+  }>;
+}
+
+async function getMeetingHistory(): Promise<{
+  success: boolean;
+  sessions: MeetingSession[];
+}> {
+  const result = await chrome.storage.local.get("meetingHistory");
+  const sessions = (result.meetingHistory as MeetingSession[]) || [];
+  return { success: true, sessions };
+}
+
+async function saveMeetingSession(
+  session: MeetingSession
+): Promise<{ success: boolean }> {
+  const { sessions } = await getMeetingHistory();
+
+  // Find existing session by ID and update, or add new
+  const existingIndex = sessions.findIndex((s) => s.id === session.id);
+  if (existingIndex >= 0) {
+    sessions[existingIndex] = session;
+  } else {
+    sessions.push(session);
+  }
+
+  // Sort by startTime descending (newest first)
+  sessions.sort((a, b) => b.startTime - a.startTime);
+
+  await chrome.storage.local.set({ meetingHistory: sessions });
+  return { success: true };
+}
+
+async function deleteMeetingSession(
+  sessionId: string
+): Promise<{ success: boolean }> {
+  const { sessions } = await getMeetingHistory();
+  const filtered = sessions.filter((s) => s.id !== sessionId);
+  await chrome.storage.local.set({ meetingHistory: filtered });
+  return { success: true };
+}
+
+async function updateMeetingSession(
+  sessionId: string,
+  updates: Partial<MeetingSession>
+): Promise<{ success: boolean }> {
+  const { sessions } = await getMeetingHistory();
+  const index = sessions.findIndex((s) => s.id === sessionId);
+  if (index >= 0) {
+    sessions[index] = { ...sessions[index], ...updates };
+    await chrome.storage.local.set({ meetingHistory: sessions });
+  }
+  return { success: true };
+}
+
+async function clearMeetingHistory(): Promise<{ success: boolean }> {
+  await chrome.storage.local.set({ meetingHistory: [] });
+  return { success: true };
+}
+
+async function getStorageUsage(): Promise<{
+  success: boolean;
+  bytesUsed: number;
+  quota: number;
+}> {
+  const bytesUsed = await chrome.storage.local.getBytesInUse(null);
+  // chrome.storage.local quota is typically 5MB (5242880 bytes)
+  const quota = 5242880;
+  return { success: true, bytesUsed, quota };
 }

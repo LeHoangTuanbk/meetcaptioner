@@ -6,6 +6,7 @@
 }
 
 .mc-caption {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -58,6 +59,47 @@
   color: #e4e4e7;
   font-size: 13px;
   line-height: 1.45;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.mc-original:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.mc-original.mc-copied,
+.mc-translation.mc-copied {
+  background: rgba(74, 222, 128, 0.15);
+  border-radius: 4px;
+}
+
+.mc-copy-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.85);
+  color: #4ade80;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+  white-space: nowrap;
+  z-index: 10;
+  pointer-events: none;
+  animation: mcCopyPop 0.2s ease;
+}
+
+@keyframes mcCopyPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .mc-time {

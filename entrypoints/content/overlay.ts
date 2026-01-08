@@ -12,7 +12,6 @@ import {
 } from "./state";
 import { createElement } from "./utils";
 import { renderCaptions } from "./render";
-import { exportCaptions } from "./export";
 
 async function saveSettings(newSettings: Partial<typeof settings>): Promise<void> {
   updateSettings(newSettings);
@@ -133,8 +132,21 @@ function makeDraggable(element: HTMLElement, handle: HTMLElement): void {
     const deltaX = e.clientX - startX;
     const deltaY = e.clientY - startY;
 
-    element.style.left = startLeft + deltaX + "px";
-    element.style.top = startTop + deltaY + "px";
+    let newLeft = startLeft + deltaX;
+    let newTop = startTop + deltaY;
+
+    // Constrain within viewport bounds (keep at least 100px visible)
+    const minVisible = 100;
+    const maxLeft = window.innerWidth - minVisible;
+    const maxTop = window.innerHeight - 50; // Keep header visible
+    const minLeft = minVisible - element.offsetWidth;
+    const minTop = 0;
+
+    newLeft = Math.max(minLeft, Math.min(maxLeft, newLeft));
+    newTop = Math.max(minTop, Math.min(maxTop, newTop));
+
+    element.style.left = newLeft + "px";
+    element.style.top = newTop + "px";
     element.style.right = "auto";
     element.style.bottom = "auto";
   }
@@ -194,52 +206,6 @@ export function createOverlay(): void {
     [toggleSwitch]
   );
 
-  let exportWrapper: HTMLElement;
-  const exportMenu = createElement("div", { className: "mc-export-menu" }, [
-    createElement("button", {
-      className: "mc-export-item",
-      textContent: "Export Captions",
-      onClick: () => {
-        exportCaptions("captions");
-        exportWrapper.classList.remove("open");
-      },
-    }),
-    createElement("button", {
-      className: "mc-export-item",
-      textContent: "Export Translations",
-      onClick: () => {
-        exportCaptions("translations");
-        exportWrapper.classList.remove("open");
-      },
-    }),
-    createElement("button", {
-      className: "mc-export-item",
-      textContent: "Export Both",
-      onClick: () => {
-        exportCaptions("both");
-        exportWrapper.classList.remove("open");
-      },
-    }),
-  ]);
-
-  const exportBtn = createElement("button", {
-    className: "mc-btn",
-    "data-tooltip": "Export data",
-    textContent: "↓",
-    onClick: (e) => {
-      e.stopPropagation();
-      exportWrapper.classList.toggle("open");
-    },
-  });
-
-  exportWrapper = createElement("div", { className: "mc-export-wrapper" }, [exportBtn, exportMenu]);
-
-  document.addEventListener("click", (e) => {
-    if (!exportWrapper.contains(e.target as Node)) {
-      exportWrapper.classList.remove("open");
-    }
-  });
-
   const settingsBtn = createElement("button", {
     className: "mc-btn",
     "data-tooltip": "Settings",
@@ -264,7 +230,6 @@ export function createOverlay(): void {
     translateToggle,
   ]);
   const miniControls = createElement("div", { className: "mc-header-mini" }, [
-    exportWrapper,
     settingsBtn,
     minimizeBtn,
   ]);
