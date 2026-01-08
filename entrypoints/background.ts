@@ -24,9 +24,9 @@ const DEFAULT_SETTINGS: Settings = {
   customPrompt: DEFAULT_CUSTOM_PROMPT,
 };
 
-// Rate limiting
+// Rate limiting (high limit - API providers have their own limits)
 const rateLimiter = new Map<string, number[]>();
-const RATE_LIMIT = 60; // requests per minute
+const RATE_LIMIT = 10000; // requests per minute
 const RATE_WINDOW = 60000; // 1 minute
 
 export default defineBackground(() => {
