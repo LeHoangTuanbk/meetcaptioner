@@ -56,12 +56,22 @@ export default function App() {
         </section>
       </div>
 
-      <button
-        onClick={openSettings}
-        className="w-full mt-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2 hover:cursor-pointer"
-      >
-        <span>Open Settings</span>
-      </button>
+      <div className="mt-5 space-y-2">
+        <button
+          onClick={openSettings}
+          className="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <span>Open Settings</span>
+        </button>
+        <button
+          onClick={() =>
+            chrome.tabs.create({ url: chrome.runtime.getURL("history.html") })
+          }
+          className="w-full py-2.5 bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <span>View Meeting Caption History</span>
+        </button>
+      </div>
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { DEFAULT_CUSTOM_PROMPT } from "./constants";
 import { updateSettings } from "./state";
 import { createOverlay, updateUIFromSettings } from "./overlay";
 import { startObserver } from "./observer";
+import { initMeetingSession, updateSessionEndTime } from "./history-service";
 
 export default defineContentScript({
   matches: ["https://meet.google.com/*"],
@@ -56,5 +57,14 @@ async function init(): Promise<void> {
   createOverlay();
   await loadSettings();
   startObserver();
+
+  // Initialize meeting session for history tracking
+  initMeetingSession();
+
+  // Save session on page unload
+  window.addEventListener("beforeunload", () => {
+    updateSessionEndTime();
+  });
+
   console.log("[MeetCaptioner] Ready");
 }

@@ -12,7 +12,6 @@ import {
 } from "./state";
 import { createElement } from "./utils";
 import { renderCaptions } from "./render";
-import { exportCaptions } from "./export";
 
 async function saveSettings(newSettings: Partial<typeof settings>): Promise<void> {
   updateSettings(newSettings);
@@ -207,52 +206,6 @@ export function createOverlay(): void {
     [toggleSwitch]
   );
 
-  let exportWrapper: HTMLElement;
-  const exportMenu = createElement("div", { className: "mc-export-menu" }, [
-    createElement("button", {
-      className: "mc-export-item",
-      textContent: "Export Captions",
-      onClick: () => {
-        exportCaptions("captions");
-        exportWrapper.classList.remove("open");
-      },
-    }),
-    createElement("button", {
-      className: "mc-export-item",
-      textContent: "Export Translations",
-      onClick: () => {
-        exportCaptions("translations");
-        exportWrapper.classList.remove("open");
-      },
-    }),
-    createElement("button", {
-      className: "mc-export-item",
-      textContent: "Export Both",
-      onClick: () => {
-        exportCaptions("both");
-        exportWrapper.classList.remove("open");
-      },
-    }),
-  ]);
-
-  const exportBtn = createElement("button", {
-    className: "mc-btn",
-    "data-tooltip": "Export data",
-    textContent: "↓",
-    onClick: (e) => {
-      e.stopPropagation();
-      exportWrapper.classList.toggle("open");
-    },
-  });
-
-  exportWrapper = createElement("div", { className: "mc-export-wrapper" }, [exportBtn, exportMenu]);
-
-  document.addEventListener("click", (e) => {
-    if (!exportWrapper.contains(e.target as Node)) {
-      exportWrapper.classList.remove("open");
-    }
-  });
-
   const settingsBtn = createElement("button", {
     className: "mc-btn",
     "data-tooltip": "Settings",
@@ -277,7 +230,6 @@ export function createOverlay(): void {
     translateToggle,
   ]);
   const miniControls = createElement("div", { className: "mc-header-mini" }, [
-    exportWrapper,
     settingsBtn,
     minimizeBtn,
   ]);

@@ -12,6 +12,7 @@ import {
 import { stripPunctuation, isSimilarText, isTextGrowing } from "./utils";
 import { translateCaption, scheduleSemanticTranslation } from "./translation";
 import { renderCaptions } from "./render";
+import { saveCaptionsDebounced } from "./history-service";
 
 export function setWaveActive(active: boolean): void {
   if (!waveElement) return;
@@ -41,6 +42,9 @@ function updateCaptionElement(caption: Caption, newText: string): void {
     if (textEl) textEl.textContent = newText;
     if (timeEl) timeEl.textContent = caption.time;
   }
+
+  // Auto-save to history
+  saveCaptionsDebounced();
 }
 
 function triggerTranslationIfNeeded(caption: Caption, newText: string): void {
@@ -131,6 +135,9 @@ export function addCaption(speaker: string, text: string): void {
   }
 
   renderCaptions(false);
+
+  // Auto-save to history
+  saveCaptionsDebounced();
 
   if (settings.translationEnabled) {
     translateCaption(newCaption, "optimistic");

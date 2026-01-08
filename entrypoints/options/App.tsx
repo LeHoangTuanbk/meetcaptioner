@@ -195,13 +195,23 @@ export default function App() {
       />
 
       <div className="max-w-2xl mx-auto py-12 px-6">
-        <header className="mb-8">
-          <h1 className="text-2xl font-semibold text-white mb-2">
-            MeetCaptioner Settings
-          </h1>
-          <p className="text-slate-400">
-            Configure translation settings for Google Meet captions
-          </p>
+        <header className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold text-white mb-2">
+              MeetCaptioner Settings
+            </h1>
+            <p className="text-slate-400">
+              Configure translation settings for Google Meet captions
+            </p>
+          </div>
+          <button
+            onClick={() =>
+              chrome.tabs.create({ url: chrome.runtime.getURL("history.html") })
+            }
+            className="text-sm text-slate-400 hover:text-white transition-colors cursor-pointer"
+          >
+            View Meeting Caption History →
+          </button>
         </header>
 
         <div className="space-y-6">
