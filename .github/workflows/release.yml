@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -30,6 +33,13 @@ jobs:
 
       - name: Create zip
         run: pnpm zip
+
+      - name: List output files
+        run: |
+          echo "=== .output directory ==="
+          ls -la .output/ || echo "No .output directory"
+          echo "=== Find all zip files ==="
+          find . -name "*.zip" -type f
 
       - name: Get version from tag
         id: version
