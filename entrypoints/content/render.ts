@@ -78,7 +78,13 @@ export function renderCaptions(updateOnly = false): void {
 
   if (!updateOnly && overlay) {
     const content = overlay.querySelector(".mc-content");
-    if (content) content.scrollTop = content.scrollHeight;
+    if (content) {
+      // Smart scroll: only auto-scroll if user is near bottom
+      const isNearBottom = content.scrollHeight - content.scrollTop - content.clientHeight < 100;
+      if (isNearBottom) {
+        content.scrollTop = content.scrollHeight;
+      }
+    }
   }
 }
 
