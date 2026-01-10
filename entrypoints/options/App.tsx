@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Toaster, toast } from "sonner";
 import {
   ApiKeyInput,
+  OllamaSettings,
   Select,
   TextArea,
   MODELS,
@@ -12,6 +13,7 @@ import {
 const PROVIDERS = [
   { id: "openai", name: "OpenAI (GPT)" },
   { id: "anthropic", name: "Anthropic (Claude)" },
+  { id: "ollama", name: "Ollama (Local/Cloud)" },
 ];
 
 export default function App() {
@@ -51,9 +53,11 @@ export default function App() {
   };
 
   const validateApiKey = async (
-    provider: "anthropic" | "openai",
+    provider: "anthropic" | "openai" | "ollama",
     apiKey: string
   ): Promise<{ valid: boolean; error?: string }> => {
+    // Ollama doesn't require API key validation (handled by connection test)
+    if (provider === "ollama") return { valid: true };
     if (!apiKey) return { valid: true }; // Empty key is ok (user might not want to use this provider)
 
     try {
@@ -120,24 +124,27 @@ export default function App() {
     setSaving(true);
 
     try {
-      // Check if API key changed for current provider
-      const currentKey =
-        settings.provider === "anthropic"
-          ? settings.anthropicApiKey
-          : settings.openaiApiKey;
+      // Ollama doesn't need API key validation
+      if (settings.provider !== "ollama") {
+        // Check if API key changed for current provider
+        const currentKey =
+          settings.provider === "anthropic"
+            ? settings.anthropicApiKey
+            : settings.openaiApiKey;
 
-      if (currentKey && currentKey !== originalApiKey) {
-        // Validate the new API key
-        const validation = await validateApiKey(settings.provider, currentKey);
-        if (!validation.valid) {
-          toast.error(validation.error || "Invalid API key");
-          setSaving(false);
-          return;
+        if (currentKey && currentKey !== originalApiKey) {
+          // Validate the new API key
+          const validation = await validateApiKey(settings.provider, currentKey);
+          if (!validation.valid) {
+            toast.error(validation.error || "Invalid API key");
+            setSaving(false);
+            return;
+          }
         }
+        setOriginalApiKey(currentKey);
       }
 
       await chrome.runtime.sendMessage({ action: "saveSettings", settings });
-      setOriginalApiKey(currentKey);
       toast.success("Settings saved!");
     } catch (e) {
       console.error("Failed to save settings:", e);
@@ -154,8 +161,14 @@ export default function App() {
     setSettings((prev) => {
       const next = { ...prev, [key]: value };
       if (key === "provider") {
-        const provider = value as "anthropic" | "openai";
-        next.model = MODELS[provider][0].id;
+        const provider = value as "anthropic" | "openai" | "ollama";
+        // For Ollama, clear model - it will be set when models are fetched
+        if (provider === "ollama") {
+          next.model = "";
+        } else {
+          const models = MODELS[provider];
+          next.model = models.length > 0 ? models[0].id : "";
+        }
       }
       return next;
     });
@@ -219,23 +232,36 @@ export default function App() {
             label="AI Provider"
             value={settings.provider}
             onChange={(v) =>
-              updateSetting("provider", v as "anthropic" | "openai")
+              updateSetting("provider", v as "anthropic" | "openai" | "ollama")
             }
             options={PROVIDERS}
           />
 
-          <ApiKeyInput
-            value={currentApiKey}
-            onChange={setCurrentApiKey}
-            provider={settings.provider}
-          />
+          {settings.provider === "ollama" ? (
+            <OllamaSettings
+              baseUrl={settings.ollamaBaseUrl}
+              apiKey={settings.ollamaApiKey}
+              selectedModel={settings.model}
+              onBaseUrlChange={(v) => updateSetting("ollamaBaseUrl", v)}
+              onApiKeyChange={(v) => updateSetting("ollamaApiKey", v)}
+              onModelChange={(v) => updateSetting("model", v)}
+            />
+          ) : (
+            <>
+              <ApiKeyInput
+                value={currentApiKey}
+                onChange={setCurrentApiKey}
+                provider={settings.provider}
+              />
 
-          <Select
-            label="Model"
-            value={settings.model}
-            onChange={(v) => updateSetting("model", v)}
-            options={MODELS[settings.provider]}
-          />
+              <Select
+                label="Model"
+                value={settings.model}
+                onChange={(v) => updateSetting("model", v)}
+                options={MODELS[settings.provider]}
+              />
+            </>
+          )}
 
           <TextArea
             label="Custom Instructions"

@@ -1,22 +1,25 @@
 // Settings interface
 interface Settings {
-  provider: "anthropic" | "openai";
+  provider: "anthropic" | "openai" | "ollama";
   anthropicApiKey: string;
   openaiApiKey: string;
+  ollamaBaseUrl: string;
+  ollamaApiKey: string;
   model: string;
   targetLanguage: string;
   translationEnabled: boolean;
   customPrompt: string;
 }
 
-// Model lists for fallback
-const MODELS = {
+// Model lists for fallback (ollama models are fetched dynamically)
+const MODELS: Record<string, string[]> = {
   anthropic: [
     "claude-haiku-4-5-20251001",
     "claude-sonnet-4-5-20250929",
     "claude-opus-4-5-20251101",
   ],
   openai: ["gpt-4.1-nano", "gpt-4.1-mini", "gpt-5-nano"],
+  ollama: [],
 };
 
 // Custom error for rate limit
@@ -36,6 +39,8 @@ const DEFAULT_SETTINGS: Settings = {
   provider: "openai",
   anthropicApiKey: "",
   openaiApiKey: "",
+  ollamaBaseUrl: "http://localhost:11434",
+  ollamaApiKey: "",
   model: "gpt-4.1-nano",
   targetLanguage: "en",
   translationEnabled: false,
@@ -72,6 +77,9 @@ async function handleMessage(message: any): Promise<any> {
     case "openOptions":
       chrome.runtime.openOptionsPage();
       return { success: true };
+
+    case "getOllamaModels":
+      return getOllamaModels(message.baseUrl, message.apiKey);
 
     // Meeting History Actions
     case "getMeetingHistory":
@@ -130,33 +138,93 @@ interface TranslateRequest {
   customPrompt?: string;
 }
 
-async function translate(request: TranslateRequest): Promise<any> {
+async function translate(request: TranslateRequest): Promise<{
+  success: boolean;
+  id?: string;
+  translation?: string;
+  mode?: string;
+  error?: string;
+}> {
   console.log("[MeetCaptioner] translate() called with:", request);
   const { settings } = await getSettings();
 
-  // Get the correct API key for the selected provider
-  const apiKey =
-    settings.provider === "anthropic"
-      ? settings.anthropicApiKey
-      : settings.openaiApiKey;
+  // Ollama validation: requires base URL, and API key for cloud
+  if (settings.provider === "ollama") {
+    if (!settings.ollamaBaseUrl) {
+      return {
+        success: false,
+        error: "Ollama base URL not configured",
+      };
+    }
+    // Ollama Cloud requires API key
+    const isCloudUrl = settings.ollamaBaseUrl.includes("ollama.com");
+    if (isCloudUrl && !settings.ollamaApiKey) {
+      return {
+        success: false,
+        error: "API key required for Ollama Cloud",
+      };
+    }
+  } else {
+    // Get the correct API key for the selected provider
+    const apiKey =
+      settings.provider === "anthropic"
+        ? settings.anthropicApiKey
+        : settings.openaiApiKey;
 
-  console.log("[MeetCaptioner] Settings:", {
-    provider: settings.provider,
-    hasApiKey: apiKey ? "***" : "(empty)",
-  });
+    console.log("[MeetCaptioner] Settings:", {
+      provider: settings.provider,
+      hasApiKey: apiKey ? "***" : "(empty)",
+    });
 
-  if (!apiKey) {
-    console.log("[MeetCaptioner] No API key configured for", settings.provider);
-    return {
-      success: false,
-      error: `API key not configured for ${settings.provider}`,
-    };
+    if (!apiKey) {
+      console.log("[MeetCaptioner] No API key configured for", settings.provider);
+      return {
+        success: false,
+        error: `API key not configured for ${settings.provider}`,
+      };
+    }
   }
 
   if (!settings.translationEnabled) {
     console.log("[MeetCaptioner] Translation disabled");
     return { success: false, error: "Translation disabled" };
   }
+
+  // For Ollama, we use the selected model directly (no fallback)
+  if (settings.provider === "ollama") {
+    try {
+      console.log(
+        "[MeetCaptioner] Calling Ollama API with model:",
+        settings.model
+      );
+      const translation = await translateWithOllama(
+        request,
+        settings.ollamaBaseUrl,
+        settings.model,
+        settings.ollamaApiKey || undefined
+      );
+      console.log("[MeetCaptioner] Translation success:", translation);
+      return {
+        success: true,
+        id: request.id,
+        translation,
+        mode: request.mode,
+      };
+    } catch (error) {
+      console.error("[MeetCaptioner] Ollama translation error:", error);
+      return {
+        success: false,
+        id: request.id,
+        error: sanitizeError(error),
+      };
+    }
+  }
+
+  // Get the correct API key for the selected provider
+  const apiKey =
+    settings.provider === "anthropic"
+      ? settings.anthropicApiKey
+      : settings.openaiApiKey;
 
   // Get model list for fallback
   const modelList = MODELS[settings.provider];
@@ -285,6 +353,111 @@ async function translateWithOpenAI(
   const data = await response.json();
   console.log("[MeetCaptioner] OpenAI response:", data);
   return data.choices[0].message.content.trim();
+}
+
+// ============ Ollama API ============
+
+/** Ollama model summary from /api/tags response */
+interface OllamaModelSummary {
+  name: string;
+  modified_at: string;
+  size: number;
+  digest: string;
+  details: {
+    format: string;
+    family: string;
+    families?: string[];
+    parameter_size: string;
+    quantization_level: string;
+  };
+}
+
+/** Fetch available models from Ollama instance */
+async function getOllamaModels(baseUrl: string, apiKey?: string): Promise<{
+  success: boolean;
+  models?: Array<{ id: string; name: string }>;
+  error?: string;
+}> {
+  try {
+    const url = baseUrl.replace(/\/$/, "");
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    // Add authorization header for Ollama Cloud API
+    if (apiKey) {
+      headers["Authorization"] = `Bearer ${apiKey}`;
+    }
+
+    const response = await fetch(`${url}/api/tags`, {
+      method: "GET",
+      headers,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("[MeetCaptioner] Ollama API error:", response.status, errorText);
+      return {
+        success: false,
+        error: `Failed to connect to Ollama: ${response.status}`,
+      };
+    }
+
+    const data = await response.json();
+    const models = (data.models as OllamaModelSummary[] || []).map((m) => ({
+      id: m.name,
+      name: `${m.name} (${m.details.parameter_size})`,
+    }));
+
+    console.log("[MeetCaptioner] Ollama models:", models);
+    return { success: true, models };
+  } catch (error) {
+    console.error("[MeetCaptioner] Failed to fetch Ollama models:", error);
+    return {
+      success: false,
+      error: "Failed to connect to Ollama. Is the server running?",
+    };
+  }
+}
+
+/** Translate using Ollama /api/generate endpoint */
+async function translateWithOllama(
+  request: TranslateRequest,
+  baseUrl: string,
+  model: string,
+  apiKey?: string
+): Promise<string> {
+  const prompt = buildPrompt(request);
+  const url = baseUrl.replace(/\/$/, "");
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+
+  // Add authorization header for Ollama Cloud API
+  if (apiKey) {
+    headers["Authorization"] = `Bearer ${apiKey}`;
+  }
+
+  const response = await fetch(`${url}/api/generate`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      model,
+      prompt,
+      stream: false,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    console.error("[MeetCaptioner] Ollama API error:", response.status, error);
+    throw new Error(`Ollama API error: ${response.status} - ${error}`);
+  }
+
+  const data = await response.json();
+  console.log("[MeetCaptioner] Ollama response:", data);
+  return data.response.trim();
 }
 
 // ============ Helpers ============

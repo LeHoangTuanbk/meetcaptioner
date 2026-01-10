@@ -1,5 +1,6 @@
 export { Toggle } from "./toggle";
 export { ApiKeyInput } from "./api-key-input";
+export { OllamaSettings } from "./ollama-settings";
 export { Select } from "./select";
 export { TextArea } from "./text-area";
 export { MODELS, LANGUAGES } from "./constants";

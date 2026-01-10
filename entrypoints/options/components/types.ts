@@ -1,7 +1,9 @@
 export interface Settings {
-  provider: 'anthropic' | 'openai';
+  provider: 'anthropic' | 'openai' | 'ollama';
   anthropicApiKey: string;
   openaiApiKey: string;
+  ollamaBaseUrl: string;
+  ollamaApiKey: string;
   model: string;
   targetLanguage: string;
   translationEnabled: boolean;
@@ -14,6 +16,8 @@ export const DEFAULT_SETTINGS: Settings = {
   provider: 'openai',
   anthropicApiKey: '',
   openaiApiKey: '',
+  ollamaBaseUrl: 'http://localhost:11434',
+  ollamaApiKey: '',
   model: 'gpt-4.1-nano',
   targetLanguage: 'en',
   translationEnabled: false,
