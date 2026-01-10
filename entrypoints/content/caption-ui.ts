@@ -5,7 +5,6 @@ import { retranslateCaption } from "./translation";
 export function updateCaptionTranslation(captionObj: Caption): void {
   const captionEl = document.querySelector(`[data-caption-id="${captionObj.id}"]`);
   if (!captionEl) {
-    console.log("[MeetCaptioner] UI element not found for caption:", captionObj.id);
     return;
   }
 

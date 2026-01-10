@@ -43,7 +43,6 @@ export function addOrUpdateCaption(
 ): number {
   // Edge case: Empty text
   if (!text || text.trim().length === 0) {
-    console.log("[MeetCaptioner] Empty text, skipping");
     return captionId ?? -1;
   }
 
@@ -65,7 +64,6 @@ export function addOrUpdateCaption(
 
       // If text changed after finalization, need to re-translate
       if (caption.isFinalized && textChanged) {
-        console.log("[MeetCaptioner] Text changed after finalize, will re-translate:", captionId);
         caption.translation = "";
         caption.translationStatus = "pending";
       }
@@ -87,10 +85,8 @@ export function addOrUpdateCaption(
 
       saveCaptionsDebounced();
       return captionId;
-    } else {
-      // Edge case: Caption no longer exists, fall through to create new
-      console.log("[MeetCaptioner] Caption not found for update, creating new:", captionId);
     }
+    // Edge case: Caption no longer exists, fall through to create new
   }
 
   // Create new caption
@@ -107,13 +103,11 @@ export function addOrUpdateCaption(
   };
 
   captions.push(newCaption);
-  console.log("[MeetCaptioner] Created caption:", newId, speaker, text.substring(0, 30));
 
   // Remove old captions if over limit
   while (captions.length > MAX_CAPTIONS) {
     const removed = captions.shift();
     if (removed) {
-      console.log("[MeetCaptioner] Removed old caption:", removed.id);
       clearSemanticTimer(removed.id);
     }
   }
@@ -133,34 +127,28 @@ export function finalizeCaption(captionId: number): void {
 
   // Edge case: Caption no longer exists
   if (!caption) {
-    console.log("[MeetCaptioner] Caption not found for finalize:", captionId);
     return;
   }
 
   // Edge case: Already finalized
   if (caption.isFinalized) {
-    console.log("[MeetCaptioner] Caption already finalized:", captionId);
     return;
   }
 
   caption.isFinalized = true;
-  console.log("[MeetCaptioner] Finalized:", captionId, caption.speaker, caption.text.substring(0, 40));
 
   // Trigger translation
   if (settings.translationEnabled) {
     // Edge case: Already has translation (from previous finalization)
     if (caption.translation && caption.translationStatus !== "error") {
-      console.log("[MeetCaptioner] Already has translation:", captionId);
       return;
     }
 
     // Edge case: Currently translating
     if (caption.translationStatus === "translating") {
-      console.log("[MeetCaptioner] Already translating:", captionId);
       return;
     }
 
-    console.log("[MeetCaptioner] Starting translation:", captionId);
     translateCaption(caption, "semantic");
   }
 

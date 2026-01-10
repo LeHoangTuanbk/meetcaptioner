@@ -29,8 +29,6 @@ export function initMeetingSession(): void {
     startTime: Date.now(),
     captions: [],
   };
-
-  console.log("[MeetCaptioner] Meeting session initialized:", currentSession.id);
 }
 
 function convertToSavedCaption(caption: Caption): SavedCaption {
@@ -60,9 +58,8 @@ async function saveToStorage(): Promise<void> {
       action: "saveMeetingSession",
       session: currentSession,
     });
-    console.log("[MeetCaptioner] Session saved:", currentSession.captions.length, "captions");
-  } catch (e) {
-    console.error("[MeetCaptioner] Failed to save session:", e);
+  } catch {
+    // Session save failed silently
   }
 }
 

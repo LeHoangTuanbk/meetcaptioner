@@ -25,7 +25,6 @@ function processCaption(entry: Element): void {
 
   const textEl = entry.querySelector(".ygicle");
   if (!textEl) {
-    console.log("[MeetCaptioner] No text element found in entry");
     return;
   }
 
@@ -33,7 +32,6 @@ function processCaption(entry: Element): void {
 
   // Edge case: Empty or very short text - skip
   if (!text || text.length < 2) {
-    console.log("[MeetCaptioner] Text too short:", text);
     return;
   }
 
@@ -45,8 +43,6 @@ function processCaption(entry: Element): void {
     // Don't log this - too noisy
     return;
   }
-
-  console.log("[MeetCaptioner] Processing caption:", speaker, text.substring(0, 30));
 
   // Update tracking
   elementLastText.set(entry, text);
@@ -61,7 +57,6 @@ function processCaption(entry: Element): void {
     if (!caption) {
       // Edge case: Caption was removed from array (MAX_CAPTIONS limit)
       // Create a new caption for this element
-      console.log("[MeetCaptioner] Caption removed, creating new for element");
       cancelFinalization(existingCaptionId);
       const newId = addOrUpdateCaption(null, speaker, text);
       elementToCaptionId.set(entry, newId);
@@ -78,7 +73,6 @@ function processCaption(entry: Element): void {
     } else {
       // Edge case: Speaker changed in same DOM element
       // Finalize old caption immediately, create new
-      console.log("[MeetCaptioner] Speaker changed in element:", lastSpeaker, "→", speaker);
       cancelFinalization(existingCaptionId);
       finalizeCaption(existingCaptionId);
 
@@ -109,8 +103,6 @@ function scheduleFinalization(captionId: number): void {
     const caption = captions.find((c) => c.id === captionId);
     if (caption) {
       finalizeCaption(captionId);
-    } else {
-      console.log("[MeetCaptioner] Caption gone before finalize:", captionId);
     }
   }, FINALIZE_DELAY);
 
@@ -139,7 +131,6 @@ function extractCaptions(): void {
     '[role="region"][aria-label="Captions"]'
   );
   if (!captionRegion) {
-    console.log("[MeetCaptioner] No caption region found");
     return;
   }
 
@@ -147,11 +138,9 @@ function extractCaptions(): void {
 
   // Edge case: No entries - nothing to do
   if (captionEntries.length === 0) {
-    console.log("[MeetCaptioner] No caption entries found");
     return;
   }
 
-  console.log("[MeetCaptioner] Processing", captionEntries.length, "entries");
   captionEntries.forEach(processCaption);
 }
 
@@ -162,7 +151,6 @@ export function startObserver(): void {
   function debouncedExtract(): void {
     if (extractTimeout) clearTimeout(extractTimeout);
     extractTimeout = setTimeout(() => {
-      console.log("[MeetCaptioner] Mutation detected, extracting...");
       extractCaptions();
     }, 100);
   }
@@ -202,13 +190,10 @@ export function startObserver(): void {
 
       // Initial extraction
       extractCaptions();
-
-      console.log("[MeetCaptioner] Observing caption region");
     }
 
     // Edge case: Caption region removed
     if (!captionRegion && currentCaptionRegion) {
-      console.log("[MeetCaptioner] Caption region removed, finalizing all");
       currentCaptionRegion = null;
       if (observer) {
         observer.disconnect();
@@ -221,6 +206,4 @@ export function startObserver(): void {
 
   setInterval(observeCaptionRegion, 2000);
   observeCaptionRegion();
-
-  console.log("[MeetCaptioner] Observer started");
 }

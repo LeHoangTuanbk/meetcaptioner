@@ -20,8 +20,7 @@ export default function App() {
       if (response?.success) {
         setSessions(response.sessions || []);
       }
-    } catch (e) {
-      console.error("Failed to load history:", e);
+    } catch {
       toast.error("Failed to load meeting history");
     } finally {
       setLoading(false);
@@ -34,8 +33,8 @@ export default function App() {
       if (response?.success) {
         setStorageInfo({ bytesUsed: response.bytesUsed, quota: response.quota });
       }
-    } catch (e) {
-      console.error("Failed to load storage info:", e);
+    } catch {
+      // Storage info load failed silently
     }
   };
 

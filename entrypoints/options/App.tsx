@@ -45,8 +45,8 @@ export default function App() {
             : merged.openaiApiKey;
         setOriginalApiKey(key);
       }
-    } catch (e) {
-      console.error("Failed to load settings:", e);
+    } catch {
+      // Settings load failed silently
     } finally {
       setLoading(false);
     }
@@ -146,8 +146,7 @@ export default function App() {
 
       await chrome.runtime.sendMessage({ action: "saveSettings", settings });
       toast.success("Settings saved!");
-    } catch (e) {
-      console.error("Failed to save settings:", e);
+    } catch {
       toast.error("Failed to save settings");
     } finally {
       setSaving(false);

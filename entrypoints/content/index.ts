@@ -25,8 +25,6 @@ export default defineContentScript({
     meta.content = "true";
     (document.head || document.documentElement).appendChild(meta);
 
-    console.log("[MeetCaptioner] Starting...");
-
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", init);
     } else {
@@ -48,8 +46,8 @@ async function loadSettings(): Promise<void> {
       }
       updateUIFromSettings();
     }
-  } catch (e) {
-    console.debug("[MeetCaptioner] Could not load settings:", e);
+  } catch {
+    // Settings could not be loaded, using defaults
   }
 }
 
@@ -65,6 +63,4 @@ async function init(): Promise<void> {
   window.addEventListener("beforeunload", () => {
     updateSessionEndTime();
   });
-
-  console.log("[MeetCaptioner] Ready");
 }

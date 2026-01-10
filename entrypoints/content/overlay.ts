@@ -18,8 +18,8 @@ async function saveSettings(newSettings: Partial<typeof settings>): Promise<void
   updateSettings(newSettings);
   try {
     await chrome.runtime.sendMessage({ action: "saveSettings", settings });
-  } catch (e) {
-    console.error("[MeetCaptioner] Could not save settings:", e);
+  } catch {
+    // Settings save failed silently
   }
   updateUIFromSettings();
 }

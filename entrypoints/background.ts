@@ -48,14 +48,11 @@ const DEFAULT_SETTINGS: Settings = {
 };
 
 export default defineBackground(() => {
-  console.debug("[MeetCaptioner] Background started");
-
   // Handle messages from content script
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     handleMessage(message)
       .then(sendResponse)
       .catch((error) => {
-        console.error("[MeetCaptioner] Error:", error);
         sendResponse({ success: false, error: String(error) });
       });
 
@@ -145,7 +142,6 @@ async function translate(request: TranslateRequest): Promise<{
   mode?: string;
   error?: string;
 }> {
-  console.log("[MeetCaptioner] translate() called with:", request);
   const { settings } = await getSettings();
 
   // Ollama validation: requires base URL, and API key for cloud
@@ -171,13 +167,7 @@ async function translate(request: TranslateRequest): Promise<{
         ? settings.anthropicApiKey
         : settings.openaiApiKey;
 
-    console.log("[MeetCaptioner] Settings:", {
-      provider: settings.provider,
-      hasApiKey: apiKey ? "***" : "(empty)",
-    });
-
     if (!apiKey) {
-      console.log("[MeetCaptioner] No API key configured for", settings.provider);
       return {
         success: false,
         error: `API key not configured for ${settings.provider}`,
@@ -186,24 +176,18 @@ async function translate(request: TranslateRequest): Promise<{
   }
 
   if (!settings.translationEnabled) {
-    console.log("[MeetCaptioner] Translation disabled");
     return { success: false, error: "Translation disabled" };
   }
 
   // For Ollama, we use the selected model directly (no fallback)
   if (settings.provider === "ollama") {
     try {
-      console.log(
-        "[MeetCaptioner] Calling Ollama API with model:",
-        settings.model
-      );
       const translation = await translateWithOllama(
         request,
         settings.ollamaBaseUrl,
         settings.model,
         settings.ollamaApiKey || undefined
       );
-      console.log("[MeetCaptioner] Translation success:", translation);
       return {
         success: true,
         id: request.id,
@@ -211,7 +195,6 @@ async function translate(request: TranslateRequest): Promise<{
         mode: request.mode,
       };
     } catch (error) {
-      console.error("[MeetCaptioner] Ollama translation error:", error);
       return {
         success: false,
         id: request.id,
@@ -238,18 +221,11 @@ async function translate(request: TranslateRequest): Promise<{
 
   for (const model of modelsToTry) {
     try {
-      console.log(
-        "[MeetCaptioner] Calling API with provider:",
-        settings.provider,
-        "model:",
-        model
-      );
       const translation =
         settings.provider === "anthropic"
           ? await translateWithAnthropic(request, apiKey, model)
           : await translateWithOpenAI(request, apiKey, model);
 
-      console.log("[MeetCaptioner] Translation success:", translation);
       return {
         success: true,
         id: request.id,
@@ -259,9 +235,6 @@ async function translate(request: TranslateRequest): Promise<{
     } catch (error) {
       lastError = error as Error;
       if (error instanceof RateLimitError) {
-        console.warn(
-          `[MeetCaptioner] Rate limited on ${model}, trying next model...`
-        );
         continue;
       }
       // For non-rate-limit errors, don't retry with other models
@@ -269,7 +242,6 @@ async function translate(request: TranslateRequest): Promise<{
     }
   }
 
-  console.error("[MeetCaptioner] Translation error:", lastError);
   return {
     success: false,
     id: request.id,
@@ -303,11 +275,6 @@ async function translateWithAnthropic(
 
   if (!response.ok) {
     const error = await response.text();
-    console.error(
-      "[MeetCaptioner] Anthropic API error:",
-      response.status,
-      error
-    );
     if (response.status === 429) {
       throw new RateLimitError(`Anthropic rate limit: ${error}`);
     }
@@ -315,7 +282,6 @@ async function translateWithAnthropic(
   }
 
   const data = await response.json();
-  console.log("[MeetCaptioner] Anthropic response:", data);
   return data.content[0].text.trim();
 }
 
@@ -343,7 +309,6 @@ async function translateWithOpenAI(
 
   if (!response.ok) {
     const error = await response.text();
-    console.error("[MeetCaptioner] OpenAI API error:", response.status, error);
     if (response.status === 429) {
       throw new RateLimitError(`OpenAI rate limit: ${error}`);
     }
@@ -351,7 +316,6 @@ async function translateWithOpenAI(
   }
 
   const data = await response.json();
-  console.log("[MeetCaptioner] OpenAI response:", data);
   return data.choices[0].message.content.trim();
 }
 
@@ -395,8 +359,6 @@ async function getOllamaModels(baseUrl: string, apiKey?: string): Promise<{
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("[MeetCaptioner] Ollama API error:", response.status, errorText);
       return {
         success: false,
         error: `Failed to connect to Ollama: ${response.status}`,
@@ -409,10 +371,8 @@ async function getOllamaModels(baseUrl: string, apiKey?: string): Promise<{
       name: `${m.name} (${m.details.parameter_size})`,
     }));
 
-    console.log("[MeetCaptioner] Ollama models:", models);
     return { success: true, models };
-  } catch (error) {
-    console.error("[MeetCaptioner] Failed to fetch Ollama models:", error);
+  } catch {
     return {
       success: false,
       error: "Failed to connect to Ollama. Is the server running?",
@@ -451,12 +411,10 @@ async function translateWithOllama(
 
   if (!response.ok) {
     const error = await response.text();
-    console.error("[MeetCaptioner] Ollama API error:", response.status, error);
     throw new Error(`Ollama API error: ${response.status} - ${error}`);
   }
 
   const data = await response.json();
-  console.log("[MeetCaptioner] Ollama response:", data);
   return data.response.trim();
 }
 
@@ -515,7 +473,6 @@ function getLanguageName(code: string): string {
 
 function sanitizeError(error: any): string {
   const msg = String(error);
-  console.log("[MeetCaptioner] sanitizeError called with:", msg);
 
   if (
     msg.includes("401") ||

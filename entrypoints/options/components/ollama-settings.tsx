@@ -65,8 +65,7 @@ export function OllamaSettings({
         setError(response?.error || "Failed to fetch models");
         setModels([]);
       }
-    } catch (err) {
-      console.error("Failed to fetch Ollama models:", err);
+    } catch {
       setError("Failed to connect to Ollama");
       setModels([]);
     } finally {
