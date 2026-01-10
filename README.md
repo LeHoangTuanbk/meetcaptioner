@@ -10,7 +10,7 @@ A powerful Chrome extension that captures Google Meet captions in real-time with
 ## Features
 
 - **Real-time Caption Capture** - Automatically captures captions from Google Meet with speaker identification
-- **Live AI Translation** - Translate captions to 18+ languages using OpenAI or Anthropic APIs
+- **Live AI Translation** - Translate captions to 18+ languages using OpenAI, Anthropic, or Ollama (local/cloud)
 - **Floating Overlay** - Draggable, resizable overlay that doesn't interfere with your meeting
 - **Meeting History** - Auto-saves all your meeting captions locally for later review
 - **Export Options** - Export captions and translations to text files
@@ -22,7 +22,7 @@ A powerful Chrome extension that captures Google Meet captions in real-time with
 
 ![MeetCaptioner Demo](documents/deployment/images/github/demo.png)
 
-*Real-time caption capture and AI translation in Google Meet*
+_Real-time caption capture and AI translation in Google Meet_
 
 ## Installation
 
@@ -66,17 +66,20 @@ A powerful Chrome extension that captures Google Meet captions in real-time with
 ## Configuration
 
 1. Click the extension icon and go to **Settings**
-2. Choose your AI provider (OpenAI or Anthropic)
-3. Enter your API key
+2. Choose your AI provider (OpenAI, Anthropic, or Ollama)
+3. Enter your API key (or configure Ollama server URL for local LLM)
 4. Select your preferred model and target language
 5. Enable translation toggle in the overlay
 
 ### Supported AI Providers
 
-| Provider  | Models                                               |
-| --------- | ---------------------------------------------------- |
-| OpenAI    | GPT-4.1 Nano, GPT-4.1 Mini, GPT-5 Nano               |
-| Anthropic | Claude Haiku 4.5, Claude Sonnet 4.5, Claude Opus 4.5 |
+| Provider  | Models                                                     |
+| --------- | ---------------------------------------------------------- |
+| OpenAI    | GPT-4.1 Nano, GPT-4.1 Mini, GPT-5 Nano                     |
+| Anthropic | Claude Haiku 4.5, Claude Sonnet 4.5, Claude Opus 4.5       |
+| Ollama    | Any local model (Qwen, Llama, Gemma, etc.) or Ollama Cloud |
+
+> **Note:** For Ollama local, you need to configure CORS. See [setup guide](https://objectgraph.com/blog/ollama-cors/).
 
 ### Supported Languages
 
@@ -143,35 +146,11 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-```
-MIT License
-
-Copyright (c) 2026 Le Hoang Tuan
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
-
 ## Acknowledgments
 
 - [WXT](https://wxt.dev) for the amazing extension framework
 - [Tailwind CSS](https://tailwindcss.com) for the utility-first CSS
-- [OpenAI](https://openai.com) and [Anthropic](https://anthropic.com) for AI APIs
+- [OpenAI](https://openai.com), [Anthropic](https://anthropic.com), and [Ollama](https://ollama.com) for AI APIs
 
 ---
 
