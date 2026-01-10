@@ -50,14 +50,6 @@ jobs:
         with:
           name: MeetCaptioner v${{ steps.version.outputs.VERSION }}
           generate_release_notes: true
-          body: |
-            ## Installation
-            1. Download the `.zip` file below
-            2. Extract the zip
-            3. Open `chrome://extensions/`
-            4. Enable "Developer mode"
-            5. Click "Load unpacked" and select the extracted folder
-          append_body: true
           files: |
             .output/*.zip
           draft: false
