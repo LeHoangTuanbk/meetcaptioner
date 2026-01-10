@@ -1,4 +1,4 @@
-export const MODELS = {
+export const MODELS: Record<string, readonly { id: string; name: string }[]> = {
   anthropic: [
     { id: "claude-haiku-4-5-20251001", name: "Claude Haiku 4.5 (Fastest)" },
     { id: "claude-sonnet-4-5-20250929", name: "Claude Sonnet 4.5" },
@@ -9,7 +9,8 @@ export const MODELS = {
     { id: "gpt-4.1-mini", name: "GPT-4.1 Mini" },
     { id: "gpt-5-nano", name: "GPT-5 Nano" },
   ],
-} as const;
+  ollama: [],
+};
 
 export const LANGUAGES = [
   { code: "vi", name: "Vietnamese" },

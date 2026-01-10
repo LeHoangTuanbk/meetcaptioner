@@ -15,6 +15,9 @@ export default defineConfig({
       "https://meet.google.com/*",
       "https://api.anthropic.com/*",
       "https://api.openai.com/*",
+      "http://localhost:*/*",
+      "http://127.0.0.1:*/*",
+      "https://ollama.com/*",
     ],
     icons: {
       16: "icon-16.png",
