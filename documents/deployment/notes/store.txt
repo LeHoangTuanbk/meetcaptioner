@@ -79,26 +79,12 @@ All data is stored locally on the user's device and never transmitted to externa
 ```
 
 ### Host Permission Justification (meet.google.com)
-```
-The host permission for meet.google.com is essential because:
-1. The extension must inject a content script to detect and capture live captions displayed during Google Meet calls
-2. It needs to read the caption text, speaker names, and timestamps from the Meet interface
-3. The floating overlay must be rendered on the Meet page for users to see translations alongside the video call
-Without this permission, the extension cannot access or display captions from Google Meet.
-```
+1. meet.google.com - Inject content script to capture live captions, read speaker names/timestamps, and render translation overlay on Meet page.
 
-### Host Permission Justification (api.anthropic.com, api.openai.com)
-```
-These API endpoints are required for AI translation:
-1. api.anthropic.com - Users who choose Anthropic as their provider send caption text here for translation using their own API key
-2. api.openai.com - Users who choose OpenAI as their provider send caption text here for translation using their own API key
-Users must provide their own API keys. No data is sent without user configuration and explicit consent.
-```
+2. api.anthropic.com & api.openai.com - Send caption text for AI translation using user's own API key. No data sent without user configuration.
 
-### Host Permission Justification (localhost, 127.0.0.1, ollama.com)
-```
-These endpoints support Ollama as an AI translation provider:
-1. localhost / 127.0.0.1 - Users who run Ollama locally on their machine can use it for translation without sending data to external servers. Ollama runs on port 11434 by default.
-2. ollama.com - Users who prefer Ollama Cloud (currently in preview) can use Ollama's hosted service with their API key.
-This provides users with a privacy-focused, free alternative using open-source LLMs running entirely on their own hardware.
-```
+3. localhost/127.0.0.1 - Support local Ollama LLM for privacy-focused translation without external servers.
+
+4. ollama.com - Support Ollama Cloud service for users preferring hosted option.
+
+All API keys stored locally. Users choose their provider and must configure before any data is sent.

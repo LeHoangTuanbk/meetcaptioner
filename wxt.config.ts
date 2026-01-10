@@ -9,14 +9,16 @@ export default defineConfig({
   manifest: {
     name: "MeetCaptioner",
     description: "Capture and translate Google Meet captions in real-time",
-    version: "2.0.0",
+    version: "2.0.1",
     permissions: ["storage"],
     host_permissions: [
       "https://meet.google.com/*",
       "https://api.anthropic.com/*",
       "https://api.openai.com/*",
-      "http://localhost:*/*",
-      "http://127.0.0.1:*/*",
+      "http://localhost/*",
+      "http://localhost:11434/*",
+      "http://127.0.0.1/*",
+      "http://127.0.0.1:11434/*",
       "https://ollama.com/*",
     ],
     icons: {
