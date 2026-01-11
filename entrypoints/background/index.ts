@@ -1,6 +1,6 @@
-// Settings interface
-interface Settings {
-  provider: "anthropic" | "openai" | "ollama";
+type Provider = "anthropic" | "openai" | "ollama";
+type Settings = {
+  provider: Provider;
   anthropicApiKey: string;
   openaiApiKey: string;
   ollamaBaseUrl: string;
@@ -9,9 +9,8 @@ interface Settings {
   targetLanguage: string;
   translationEnabled: boolean;
   customPrompt: string;
-}
+};
 
-// Model lists for fallback (ollama models are fetched dynamically)
 const MODELS: Record<string, string[]> = {
   anthropic: [
     "claude-haiku-4-5-20251001",
@@ -22,7 +21,6 @@ const MODELS: Record<string, string[]> = {
   ollama: [],
 };
 
-// Custom error for rate limit
 class RateLimitError extends Error {
   constructor(message: string) {
     super(message);
@@ -337,7 +335,10 @@ interface OllamaModelSummary {
 }
 
 /** Fetch available models from Ollama instance */
-async function getOllamaModels(baseUrl: string, apiKey?: string): Promise<{
+async function getOllamaModels(
+  baseUrl: string,
+  apiKey?: string
+): Promise<{
   success: boolean;
   models?: Array<{ id: string; name: string }>;
   error?: string;
@@ -366,7 +367,7 @@ async function getOllamaModels(baseUrl: string, apiKey?: string): Promise<{
     }
 
     const data = await response.json();
-    const models = (data.models as OllamaModelSummary[] || []).map((m) => ({
+    const models = ((data.models as OllamaModelSummary[]) || []).map((m) => ({
       id: m.name,
       name: `${m.name} (${m.details.parameter_size})`,
     }));
@@ -442,7 +443,9 @@ Target language: ${langName}`;
     prompt += `\n\nAdditional instructions: ${request.customPrompt}`;
   }
 
-  prompt += `\n\nCurrent speaker: ${request.speaker || "Unknown"}\nText to translate:\n${request.text}`;
+  prompt += `\n\nCurrent speaker: ${
+    request.speaker || "Unknown"
+  }\nText to translate:\n${request.text}`;
 
   return prompt;
 }
