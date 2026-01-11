@@ -1,0 +1,17 @@
+Storage:
+- Store on Google Drive all meetings
+- Tự động tóm tắt cuộc họp sau khi kết thúc
+- Trích xuất Action Items và Key Decisions
+- Gửi qua email hoặc export
+Speaker Analytics
+- Ai nói nhiều nhất (% talk time)
+- Biểu đồ participation
+- Sentiment analysis
+Chatbot:
+- Tìm kiếm trong toàn bộ meeting history
+- "Tìm lúc John nói về budget"
+Custom Vocabulary
+- Thêm thuật ngữ chuyên ngành
+- Tên riêng, từ viết tắt công ty
+
+AI Summary + Advanced Export - 2 features users cần nhất và dễ implement nhất.
