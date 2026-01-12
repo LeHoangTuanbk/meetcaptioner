@@ -1,6 +1,6 @@
 import type { Caption } from "./types";
 import { captions, settings, isCCEnabled, captionList, overlay } from "./state";
-import { createElement, copyToClipboard } from "./utils";
+import { createElement, copyToClipboard } from "./libs";
 import { updateCaptionTranslation, startEditTranslation } from "./caption-ui";
 import { manualTranslate, retranslateCaption } from "./translation";
 
@@ -122,7 +122,8 @@ export function renderCaptions(updateOnly = false): void {
       if (isEditing) return;
 
       // Smart scroll: only auto-scroll if user is near bottom
-      const isNearBottom = content.scrollHeight - content.scrollTop - content.clientHeight < 100;
+      const isNearBottom =
+        content.scrollHeight - content.scrollTop - content.clientHeight < 100;
       if (isNearBottom) {
         content.scrollTop = content.scrollHeight;
       }

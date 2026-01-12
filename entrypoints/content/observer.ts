@@ -127,9 +127,7 @@ function cancelFinalization(captionId: number): void {
 }
 
 function extractCaptions(): void {
-  const captionRegion = document.querySelector(
-    '[role="region"][aria-label="Captions"]'
-  );
+  const captionRegion = document.querySelector('[role="region"].vNKgIf.UDinHf');
   if (!captionRegion) {
     return;
   }
@@ -156,8 +154,9 @@ export function startObserver(): void {
   }
 
   function observeCaptionRegion(): void {
+    // Caption region selector from Google Meet
     const captionRegion = document.querySelector(
-      '[role="region"][aria-label="Captions"]'
+      '[role="region"].vNKgIf.UDinHf'
     ) as HTMLElement | null;
 
     const needsReobserve =
@@ -188,18 +187,15 @@ export function startObserver(): void {
         characterData: true,
       });
 
-      // Initial extraction
       extractCaptions();
     }
 
-    // Edge case: Caption region removed
     if (!captionRegion && currentCaptionRegion) {
       currentCaptionRegion = null;
       if (observer) {
         observer.disconnect();
         observer = null;
       }
-      // Finalize any pending when captions are turned off
       finalizePendingCaptions();
     }
   }

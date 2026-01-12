@@ -1,15 +1,19 @@
 import type { Caption } from "./types";
-import { createElement } from "./utils";
+import { createElement } from "./libs";
 import { retranslateCaption } from "./translation";
 
 export function updateCaptionTranslation(captionObj: Caption): void {
-  const captionEl = document.querySelector(`[data-caption-id="${captionObj.id}"]`);
+  const captionEl = document.querySelector(
+    `[data-caption-id="${captionObj.id}"]`
+  );
   if (!captionEl) {
     return;
   }
 
   let wrapper = captionEl.querySelector(".mc-translation-wrapper");
-  let transEl = captionEl.querySelector(".mc-translation") as HTMLElement | null;
+  let transEl = captionEl.querySelector(
+    ".mc-translation"
+  ) as HTMLElement | null;
   let reloadBtn = captionEl.querySelector(".mc-reload-action");
 
   if (!wrapper) {
@@ -38,12 +42,17 @@ export function updateCaptionTranslation(captionObj: Caption): void {
       transEl.className = "mc-translation mc-translating";
     }
   } else if (captionObj.translationStatus === "refining") {
-    transEl.textContent = captionObj.translation ? captionObj.translation + " ↻" : "...";
+    transEl.textContent = captionObj.translation
+      ? captionObj.translation + " ↻"
+      : "...";
     transEl.className = "mc-translation mc-refining";
   } else if (captionObj.translationStatus === "error") {
     if (captionObj.translation) {
       transEl.textContent = captionObj.translation + " ⚠";
-      transEl.setAttribute("data-tooltip", captionObj.translationError || "Error");
+      transEl.setAttribute(
+        "data-tooltip",
+        captionObj.translationError || "Error"
+      );
     } else {
       transEl.textContent = "⚠ " + (captionObj.translationError || "Error");
     }
@@ -85,10 +94,14 @@ function autoResizeTextarea(textarea: HTMLTextAreaElement): void {
 }
 
 export function startEditTranslation(captionObj: Caption): void {
-  const captionEl = document.querySelector(`[data-caption-id="${captionObj.id}"]`);
+  const captionEl = document.querySelector(
+    `[data-caption-id="${captionObj.id}"]`
+  );
   if (!captionEl) return;
 
-  const transEl = captionEl.querySelector(".mc-translation") as HTMLElement | null;
+  const transEl = captionEl.querySelector(
+    ".mc-translation"
+  ) as HTMLElement | null;
   if (
     !transEl ||
     transEl.classList.contains("mc-translating") ||
@@ -125,7 +138,6 @@ export function startEditTranslation(captionObj: Caption): void {
     }
   });
 
-  // Prevent parent handlers from interfering with mouse interaction
   input.addEventListener("click", (e) => e.stopPropagation());
   input.addEventListener("mousedown", (e) => e.stopPropagation());
   input.addEventListener("mouseup", (e) => e.stopPropagation());
@@ -133,7 +145,6 @@ export function startEditTranslation(captionObj: Caption): void {
   transEl.textContent = "";
   transEl.appendChild(input);
 
-  // Auto-resize on initial render
   requestAnimationFrame(() => {
     autoResizeTextarea(input);
     input.focus();

@@ -1,6 +1,6 @@
 import type { MeetingSession, SavedCaption, Caption } from "./types";
 import { captions } from "./state";
-import { debounce } from "./utils";
+import { debounce } from "./libs";
 
 let currentSession: MeetingSession | null = null;
 
@@ -9,7 +9,9 @@ function generateId(): string {
 }
 
 function getMeetingCodeFromUrl(): string {
-  const match = window.location.pathname.match(/\/([a-z]{3}-[a-z]{4}-[a-z]{3})/);
+  const match = window.location.pathname.match(
+    /\/([a-z]{3}-[a-z]{4}-[a-z]{3})/
+  );
   return match ? match[1] : "unknown";
 }
 
@@ -63,8 +65,7 @@ async function saveToStorage(): Promise<void> {
   }
 }
 
-// Debounced save function (1 second delay)
-export const saveCaptionsDebounced = debounce(saveToStorage, 1000);
+export const saveCaptionsDebounced = debounce(saveToStorage, 500);
 
 export function updateSessionEndTime(): void {
   if (!currentSession) return;

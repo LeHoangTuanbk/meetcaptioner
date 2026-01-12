@@ -1,42 +1,47 @@
-export interface Caption {
+export type Caption = {
   id: number;
   speaker: string;
   text: string;
   time: string;
   translation: string;
-  translationStatus: "pending" | "translating" | "refining" | "optimistic" | "semantic" | "error";
+  translationStatus:
+    | "pending"
+    | "translating"
+    | "refining"
+    | "optimistic"
+    | "semantic"
+    | "error";
   translationError?: string;
   lastTranslatedLength: number;
   userEdited?: boolean;
   isFinalized?: boolean;
-}
+};
 
-export interface Settings {
-  provider: "anthropic" | "openai";
+export type Settings = {
+  provider: "anthropic" | "openai" | "ollama";
   anthropicApiKey: string;
   openaiApiKey: string;
   model: string;
   targetLanguage: string;
   translationEnabled: boolean;
   customPrompt: string;
-}
+};
 
-export interface TranslateResponse {
+export type TranslateResponse = {
   success: boolean;
   translation?: string;
   error?: string;
-}
+};
 
-// Meeting History Types
-export interface SavedCaption {
+export type SavedCaption = {
   speaker: string;
   text: string;
   translation?: string;
   time: string;
   timestamp: number;
-}
+};
 
-export interface MeetingSession {
+export type MeetingSession = {
   id: string;
   meetingUrl: string;
   meetingCode: string;
@@ -44,4 +49,4 @@ export interface MeetingSession {
   startTime: number;
   endTime?: number;
   captions: SavedCaption[];
-}
+};

@@ -9,7 +9,9 @@ export default defineContentScript({
   runAt: "document_start",
 
   main() {
-    const isMeetingUrl = /\/[a-z]{3}-[a-z]{4}-[a-z]{3}($|\?)/.test(window.location.pathname);
+    const isMeetingUrl = /\/[a-z]{3}-[a-z]{4}-[a-z]{3}($|\?)/.test(
+      window.location.pathname
+    );
 
     if (!isMeetingUrl && window.location.pathname !== "/new") {
       return;
@@ -35,7 +37,9 @@ export default defineContentScript({
 
 async function loadSettings(): Promise<void> {
   try {
-    const response = await chrome.runtime.sendMessage({ action: "getSettings" });
+    const response = await chrome.runtime.sendMessage({
+      action: "getSettings",
+    });
     if (response?.success && response.settings) {
       const saved = response.settings;
       updateSettings(saved);
@@ -56,10 +60,8 @@ async function init(): Promise<void> {
   await loadSettings();
   startObserver();
 
-  // Initialize meeting session for history tracking
   initMeetingSession();
 
-  // Save session on page unload
   window.addEventListener("beforeunload", () => {
     updateSessionEndTime();
   });
