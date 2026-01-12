@@ -1,4 +1,3 @@
-/* Caption list */
 .mc-list {
   display: flex;
   flex-direction: column;
@@ -34,7 +33,6 @@
   gap: 12px;
 }
 
-/* Single column mode when translation is OFF */
 #meetcaptioner-overlay.translation-off .mc-caption-content {
   grid-template-columns: 1fr;
 }
@@ -115,7 +113,6 @@
   line-height: 1.5;
 }
 
-/* Caption footer */
 .mc-caption-footer {
   display: flex;
   align-items: center;

@@ -45,6 +45,7 @@ export let captionList: HTMLElement | null = null;
 export let waveElement: HTMLElement | null = null;
 export let waveTimeout: ReturnType<typeof setTimeout> | null = null;
 export let isMinimized = false;
+export let savedPosition: { left: string; top: string; width: string; height: string } | null = null;
 
 export function setOverlay(el: HTMLElement | null) {
   overlay = el;
@@ -64,4 +65,8 @@ export function setWaveTimeout(timeout: ReturnType<typeof setTimeout> | null) {
 
 export function setMinimized(minimized: boolean) {
   isMinimized = minimized;
+}
+
+export function setSavedPosition(pos: { left: string; top: string; width: string; height: string } | null) {
+  savedPosition = pos;
 }

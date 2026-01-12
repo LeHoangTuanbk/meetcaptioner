@@ -9,6 +9,8 @@ import {
   setWaveElement,
   isMinimized,
   setMinimized,
+  savedPosition,
+  setSavedPosition,
 } from "./state";
 import { createElement } from "./utils";
 import { renderCaptions } from "./render";
@@ -224,9 +226,26 @@ export function createOverlay(): void {
     "data-tooltip": "Minimize",
     textContent: "−",
     onClick: () => {
-      setMinimized(!isMinimized);
-      overlay?.classList.toggle("minimized", isMinimized);
-      minimizeBtn.textContent = isMinimized ? "+" : "−";
+      if (!overlay) return;
+
+      if (!isMinimized) {
+        setSavedPosition({
+          left: overlay.style.left,
+          top: overlay.style.top,
+          width: overlay.style.width,
+          height: overlay.style.height,
+        });
+
+        const rect = overlay.getBoundingClientRect();
+        const rightEdge = window.innerWidth - rect.right;
+
+        overlay.style.left = "auto";
+        overlay.style.right = Math.max(20, rightEdge) + "px";
+      }
+
+      setMinimized(true);
+      overlay.classList.add("minimized");
+      minimizeBtn.textContent = "+";
     },
   });
 
@@ -256,8 +275,19 @@ export function createOverlay(): void {
     className: "mc-btn",
     textContent: "+",
     onClick: () => {
+      if (!overlay) return;
+
+      if (savedPosition) {
+        overlay.style.left = savedPosition.left;
+        overlay.style.top = savedPosition.top;
+        overlay.style.width = savedPosition.width;
+        overlay.style.height = savedPosition.height;
+        overlay.style.right = "auto";
+        setSavedPosition(null);
+      }
+
       setMinimized(false);
-      overlay?.classList.remove("minimized");
+      overlay.classList.remove("minimized");
       minimizeBtn.textContent = "−";
     },
   });
