@@ -46,12 +46,10 @@ function convertToSavedCaption(caption: Caption): SavedCaption {
 async function saveToStorage(): Promise<void> {
   if (!currentSession) return;
 
-  // Try to get title if not already set
   if (!currentSession.title) {
     currentSession.title = getMeetingTitle();
   }
 
-  // Convert current captions to saved format
   currentSession.captions = captions.map(convertToSavedCaption);
   currentSession.endTime = Date.now();
 
@@ -70,7 +68,6 @@ export const saveCaptionsDebounced = debounce(saveToStorage, 500);
 export function updateSessionEndTime(): void {
   if (!currentSession) return;
   currentSession.endTime = Date.now();
-  // Final save without debounce
   saveToStorage();
 }
 

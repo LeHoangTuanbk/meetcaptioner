@@ -29,19 +29,11 @@ export function setWaveActive(active: boolean): void {
   }
 }
 
-/**
- * Add a new caption or update existing one
- * @param captionId - null to create new, or existing ID to update
- * @param speaker - speaker name
- * @param text - caption text
- * @returns caption ID
- */
 export function addOrUpdateCaption(
   captionId: number | null,
   speaker: string,
   text: string
 ): number {
-  // Edge case: Empty text
   if (!text || text.trim().length === 0) {
     return captionId ?? -1;
   }
@@ -49,12 +41,10 @@ export function addOrUpdateCaption(
   setWaveActive(true);
 
   if (captionId !== null) {
-    // Update existing caption
     const caption = captions.find((c) => c.id === captionId);
     if (caption) {
       const textChanged = caption.text !== text;
 
-      // Edge case: Text didn't actually change
       if (!textChanged) {
         return captionId;
       }
@@ -62,22 +52,21 @@ export function addOrUpdateCaption(
       caption.text = text;
       caption.time = new Date().toLocaleTimeString();
 
-      // If text changed after finalization, need to re-translate
       if (caption.isFinalized && textChanged) {
         caption.translation = "";
         caption.translationStatus = "pending";
       }
       caption.isFinalized = false;
 
-      // Update DOM
-      const captionEl = document.querySelector(`[data-caption-id="${captionId}"]`);
+      const captionEl = document.querySelector(
+        `[data-caption-id="${captionId}"]`
+      );
       if (captionEl) {
         const textEl = captionEl.querySelector(".mc-original");
         const timeEl = captionEl.querySelector(".mc-time");
         const transEl = captionEl.querySelector(".mc-translation");
         if (textEl) textEl.textContent = text;
         if (timeEl) timeEl.textContent = caption.time;
-        // Show "..." if we cleared translation
         if (transEl && !caption.translation && settings.translationEnabled) {
           transEl.textContent = "...";
         }
@@ -89,7 +78,6 @@ export function addOrUpdateCaption(
     // Edge case: Caption no longer exists, fall through to create new
   }
 
-  // Create new caption
   const newId = getNextCaptionId();
   const newCaption: Caption = {
     id: newId,
@@ -104,7 +92,6 @@ export function addOrUpdateCaption(
 
   captions.push(newCaption);
 
-  // Remove old captions if over limit
   while (captions.length > MAX_CAPTIONS) {
     const removed = captions.shift();
     if (removed) {
@@ -118,33 +105,24 @@ export function addOrUpdateCaption(
   return newId;
 }
 
-/**
- * Finalize a caption - trigger translation
- * Called when text has stopped changing
- */
 export function finalizeCaption(captionId: number): void {
   const caption = captions.find((c) => c.id === captionId);
 
-  // Edge case: Caption no longer exists
   if (!caption) {
     return;
   }
 
-  // Edge case: Already finalized
   if (caption.isFinalized) {
     return;
   }
 
   caption.isFinalized = true;
 
-  // Trigger translation
   if (settings.translationEnabled) {
-    // Edge case: Already has translation (from previous finalization)
     if (caption.translation && caption.translationStatus !== "error") {
       return;
     }
 
-    // Edge case: Currently translating
     if (caption.translationStatus === "translating") {
       return;
     }
@@ -155,7 +133,6 @@ export function finalizeCaption(captionId: number): void {
   saveCaptionsDebounced();
 }
 
-// Keep for backward compatibility
 export function addCaption(speaker: string, text: string): void {
   addOrUpdateCaption(null, speaker, text);
 }

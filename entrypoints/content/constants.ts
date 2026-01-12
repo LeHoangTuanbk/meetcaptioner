@@ -1,4 +1,4 @@
-export const MAX_CAPTIONS = 50;
+export const MAX_CAPTIONS = 200;
 export const SEMANTIC_DELAY = 1500;
 
 export const LANGUAGES = [
