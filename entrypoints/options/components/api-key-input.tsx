@@ -1,10 +1,10 @@
 import { useState } from "react";
 
-interface ApiKeyInputProps {
+type ApiKeyInputProps = {
   value: string;
   onChange: (value: string) => void;
-  provider: "anthropic" | "openai";
-}
+  provider: "anthropic" | "openai" | "ollama";
+};
 
 export function ApiKeyInput({ value, onChange, provider }: ApiKeyInputProps) {
   const [showKey, setShowKey] = useState(false);
