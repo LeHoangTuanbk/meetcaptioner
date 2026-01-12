@@ -6,7 +6,7 @@ import {
   TextArea,
   MODELS,
 } from "./components";
-import { useSettings } from "./useSettings";
+import { useSettings } from "./use-settings";
 
 const PROVIDERS = [
   { id: "openai", name: "OpenAI (GPT)" },

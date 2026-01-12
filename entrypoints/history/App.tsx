@@ -1,6 +1,6 @@
 import { Toaster } from "sonner";
 import { SessionList, SessionDetail, StorageIndicator } from "./components";
-import { useHistory } from "./useHistory";
+import { useHistory } from "./use-history";
 
 export default function App() {
   const {
