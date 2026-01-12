@@ -1,4 +1,3 @@
-/* Main overlay container */
 #meetcaptioner-overlay {
   position: fixed;
   top: 80px;
@@ -17,7 +16,6 @@
   min-height: 200px;
 }
 
-/* Minimized state */
 #meetcaptioner-overlay.minimized {
   height: auto !important;
   width: auto !important;
@@ -44,6 +42,7 @@
 
 #meetcaptioner-overlay.minimized .mc-minimized-controls {
   display: flex !important;
+  opacity: 1;
 }
 
 #meetcaptioner-overlay.minimized [data-tooltip]::after {
@@ -54,7 +53,6 @@
   transform: translateY(-4px);
 }
 
-/* Content area */
 .mc-content {
   flex: 1;
   overflow: hidden auto;
@@ -62,6 +60,11 @@
   min-height: 0;
   user-select: text;
   cursor: text;
+  transition: opacity 0.4s ease-out;
+}
+
+#meetcaptioner-overlay.minimized .mc-content {
+  opacity: 0;
 }
 
 .mc-content *::selection {

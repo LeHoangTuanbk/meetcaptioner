@@ -27,10 +27,8 @@ export function setCCEnabled(enabled: boolean) {
   isCCEnabled = enabled;
 }
 
-// Semantic translation timers per caption
 export const semanticTimers = new Map<number, ReturnType<typeof setTimeout>>();
 
-// Clean up timer for a specific caption
 export function clearSemanticTimer(captionId: number) {
   const timer = semanticTimers.get(captionId);
   if (timer) {
@@ -39,12 +37,17 @@ export function clearSemanticTimer(captionId: number) {
   }
 }
 
-// UI element references
 export let overlay: HTMLElement | null = null;
 export let captionList: HTMLElement | null = null;
 export let waveElement: HTMLElement | null = null;
 export let waveTimeout: ReturnType<typeof setTimeout> | null = null;
 export let isMinimized = false;
+export let savedPosition: {
+  left: string;
+  top: string;
+  width: string;
+  height: string;
+} | null = null;
 
 export function setOverlay(el: HTMLElement | null) {
   overlay = el;
@@ -64,4 +67,10 @@ export function setWaveTimeout(timeout: ReturnType<typeof setTimeout> | null) {
 
 export function setMinimized(minimized: boolean) {
   isMinimized = minimized;
+}
+
+export function setSavedPosition(
+  pos: { left: string; top: string; width: string; height: string } | null
+) {
+  savedPosition = pos;
 }

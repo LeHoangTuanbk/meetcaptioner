@@ -4,19 +4,14 @@ import { renderCaptions } from "./render";
 
 let currentCaptionRegion: HTMLElement | null = null;
 
-// Map DOM element → our caption ID
 const elementToCaptionId = new WeakMap<Element, number>();
 
-// Track last text for each element to detect changes
 const elementLastText = new WeakMap<Element, string>();
 
-// Track last speaker for each element
 const elementLastSpeaker = new WeakMap<Element, string>();
 
-// Track finalization timers
 const finalizationTimers = new Map<number, ReturnType<typeof setTimeout>>();
 
-// Time to wait before finalizing (translating) a caption
 const FINALIZE_DELAY = 1500;
 
 function processCaption(entry: Element): void {
@@ -30,7 +25,6 @@ function processCaption(entry: Element): void {
 
   const text = textEl.textContent?.trim();
 
-  // Edge case: Empty or very short text - skip
   if (!text || text.length < 2) {
     return;
   }
@@ -38,25 +32,19 @@ function processCaption(entry: Element): void {
   const lastText = elementLastText.get(entry);
   const lastSpeaker = elementLastSpeaker.get(entry);
 
-  // Edge case: No change at all - skip
   if (lastText === text && lastSpeaker === speaker) {
-    // Don't log this - too noisy
     return;
   }
 
-  // Update tracking
   elementLastText.set(entry, text);
   elementLastSpeaker.set(entry, speaker);
 
   const existingCaptionId = elementToCaptionId.get(entry);
 
   if (existingCaptionId !== undefined) {
-    // This DOM element already has a caption
     const caption = captions.find((c) => c.id === existingCaptionId);
 
     if (!caption) {
-      // Edge case: Caption was removed from array (MAX_CAPTIONS limit)
-      // Create a new caption for this element
       cancelFinalization(existingCaptionId);
       const newId = addOrUpdateCaption(null, speaker, text);
       elementToCaptionId.set(entry, newId);
@@ -65,14 +53,11 @@ function processCaption(entry: Element): void {
     }
 
     if (caption.speaker === speaker) {
-      // Same speaker - update text
       if (text !== caption.text) {
         addOrUpdateCaption(existingCaptionId, speaker, text);
         scheduleFinalization(existingCaptionId);
       }
     } else {
-      // Edge case: Speaker changed in same DOM element
-      // Finalize old caption immediately, create new
       cancelFinalization(existingCaptionId);
       finalizeCaption(existingCaptionId);
 
@@ -81,8 +66,6 @@ function processCaption(entry: Element): void {
       scheduleFinalization(newId);
     }
   } else {
-    // New DOM element
-    // First, finalize any pending captions
     finalizePendingCaptions();
 
     const newId = addOrUpdateCaption(null, speaker, text);
@@ -92,14 +75,11 @@ function processCaption(entry: Element): void {
 }
 
 function scheduleFinalization(captionId: number): void {
-  // Cancel existing timer for this caption
   cancelFinalization(captionId);
 
-  // Schedule new finalization
   const timer = setTimeout(() => {
     finalizationTimers.delete(captionId);
 
-    // Edge case: Verify caption still exists before finalizing
     const caption = captions.find((c) => c.id === captionId);
     if (caption) {
       finalizeCaption(captionId);
@@ -109,7 +89,6 @@ function scheduleFinalization(captionId: number): void {
   finalizationTimers.set(captionId, timer);
 }
 
-// Finalize all captions that have pending timers
 function finalizePendingCaptions(): void {
   const pendingIds = Array.from(finalizationTimers.keys());
   for (const captionId of pendingIds) {
@@ -127,16 +106,13 @@ function cancelFinalization(captionId: number): void {
 }
 
 function extractCaptions(): void {
-  const captionRegion = document.querySelector(
-    '[role="region"][aria-label="Captions"]'
-  );
+  const captionRegion = document.querySelector('[role="region"].vNKgIf.UDinHf');
   if (!captionRegion) {
     return;
   }
 
   const captionEntries = captionRegion.querySelectorAll(".nMcdL");
 
-  // Edge case: No entries - nothing to do
   if (captionEntries.length === 0) {
     return;
   }
@@ -157,7 +133,7 @@ export function startObserver(): void {
 
   function observeCaptionRegion(): void {
     const captionRegion = document.querySelector(
-      '[role="region"][aria-label="Captions"]'
+      '[role="region"].vNKgIf.UDinHf'
     ) as HTMLElement | null;
 
     const needsReobserve =
@@ -188,18 +164,15 @@ export function startObserver(): void {
         characterData: true,
       });
 
-      // Initial extraction
       extractCaptions();
     }
 
-    // Edge case: Caption region removed
     if (!captionRegion && currentCaptionRegion) {
       currentCaptionRegion = null;
       if (observer) {
         observer.disconnect();
         observer = null;
       }
-      // Finalize any pending when captions are turned off
       finalizePendingCaptions();
     }
   }

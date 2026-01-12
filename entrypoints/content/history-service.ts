@@ -1,6 +1,6 @@
 import type { MeetingSession, SavedCaption, Caption } from "./types";
 import { captions } from "./state";
-import { debounce } from "./utils";
+import { debounce } from "./libs";
 
 let currentSession: MeetingSession | null = null;
 
@@ -9,7 +9,9 @@ function generateId(): string {
 }
 
 function getMeetingCodeFromUrl(): string {
-  const match = window.location.pathname.match(/\/([a-z]{3}-[a-z]{4}-[a-z]{3})/);
+  const match = window.location.pathname.match(
+    /\/([a-z]{3}-[a-z]{4}-[a-z]{3})/
+  );
   return match ? match[1] : "unknown";
 }
 
@@ -44,12 +46,10 @@ function convertToSavedCaption(caption: Caption): SavedCaption {
 async function saveToStorage(): Promise<void> {
   if (!currentSession) return;
 
-  // Try to get title if not already set
   if (!currentSession.title) {
     currentSession.title = getMeetingTitle();
   }
 
-  // Convert current captions to saved format
   currentSession.captions = captions.map(convertToSavedCaption);
   currentSession.endTime = Date.now();
 
@@ -63,13 +63,11 @@ async function saveToStorage(): Promise<void> {
   }
 }
 
-// Debounced save function (1 second delay)
-export const saveCaptionsDebounced = debounce(saveToStorage, 1000);
+export const saveCaptionsDebounced = debounce(saveToStorage, 500);
 
 export function updateSessionEndTime(): void {
   if (!currentSession) return;
   currentSession.endTime = Date.now();
-  // Final save without debounce
   saveToStorage();
 }
 

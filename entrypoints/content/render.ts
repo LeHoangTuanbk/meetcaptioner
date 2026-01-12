@@ -1,26 +1,22 @@
 import type { Caption } from "./types";
 import { captions, settings, isCCEnabled, captionList, overlay } from "./state";
-import { createElement, copyToClipboard } from "./utils";
+import { createElement, copyToClipboard } from "./libs";
 import { updateCaptionTranslation, startEditTranslation } from "./caption-ui";
 import { manualTranslate, retranslateCaption } from "./translation";
 
 function showCopyFeedback(element: HTMLElement): void {
-  // Find caption element for positioning context
   const caption = element.closest(".mc-caption");
   if (!caption) return;
 
-  // Remove existing indicator if any
   const existing = caption.querySelector(".mc-copy-indicator");
   if (existing) existing.remove();
 
   element.classList.add("mc-copied");
 
-  // Show floating "Copied!" indicator (absolute positioned, won't affect layout)
   const indicator = document.createElement("span");
   indicator.className = "mc-copy-indicator";
   indicator.textContent = "✓ Copied!";
 
-  // Append to caption (which has position relative)
   caption.appendChild(indicator);
 
   setTimeout(() => {
@@ -46,7 +42,9 @@ export function renderCaptions(updateOnly = false): void {
     } else {
       empty.appendChild(document.createTextNode("Waiting for captions..."));
       empty.appendChild(document.createElement("br"));
-      empty.appendChild(document.createTextNode("Turn on CC in Google Meet"));
+      empty.appendChild(
+        document.createTextNode("Please, turn on CC in Google Meet")
+      );
     }
     captionList.appendChild(empty);
     return;
@@ -61,13 +59,11 @@ export function renderCaptions(updateOnly = false): void {
     if (existingItems[i]) {
       const item = existingItems[i] as HTMLElement;
 
-      // Update data-caption-id to match current caption
       const currentId = item.getAttribute("data-caption-id");
       if (currentId !== String(c.id)) {
         item.setAttribute("data-caption-id", String(c.id));
       }
 
-      // Update speaker if changed
       const speakerEl = item.querySelector(".mc-speaker");
       if (speakerEl && speakerEl.textContent !== c.speaker) {
         speakerEl.textContent = c.speaker;
@@ -117,12 +113,11 @@ export function renderCaptions(updateOnly = false): void {
   if (!updateOnly && overlay) {
     const content = overlay.querySelector(".mc-content");
     if (content) {
-      // Don't scroll if user is editing translation
       const isEditing = content.querySelector(".mc-translation-edit") !== null;
       if (isEditing) return;
 
-      // Smart scroll: only auto-scroll if user is near bottom
-      const isNearBottom = content.scrollHeight - content.scrollTop - content.clientHeight < 100;
+      const isNearBottom =
+        content.scrollHeight - content.scrollTop - content.clientHeight < 100;
       if (isNearBottom) {
         content.scrollTop = content.scrollHeight;
       }
