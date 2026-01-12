@@ -29,7 +29,7 @@ Vietnamese, English, Chinese, Japanese, Korean, Spanish, French, German, Portugu
 🤖 AI PROVIDERS
 
 Choose your preferred AI provider:
-• OpenAI (GPT-4.1 Nano, GPT-4.1 Mini, GPT-5 Nano)
+• OpenAI (GPT-4.1 Nano, GPT-4.1 Mini, GPT-4.1, GPT-5 Nano, GPT-5 Mini, GPT-5)
 • Anthropic (Claude Haiku 4.5, Claude Sonnet 4.5, Claude Opus 4.5)
 • Ollama (Local LLM or Ollama Cloud) — Run models like Qwen, Llama, Gemma locally for free
 
