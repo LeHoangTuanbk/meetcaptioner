@@ -1,9 +1,9 @@
-interface ToggleProps {
+type ToggleProps = {
   enabled: boolean;
   onChange: (enabled: boolean) => void;
   label: string;
   description?: string;
-}
+};
 
 export function Toggle({ enabled, onChange, label, description }: ToggleProps) {
   return (
@@ -18,12 +18,12 @@ export function Toggle({ enabled, onChange, label, description }: ToggleProps) {
         <button
           onClick={() => onChange(!enabled)}
           className={`relative w-12 h-6 rounded-full transition-colors ${
-            enabled ? 'bg-emerald-500' : 'bg-slate-600'
+            enabled ? "bg-emerald-500" : "bg-slate-600"
           }`}
         >
           <span
             className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${
-              enabled ? 'translate-x-7' : 'translate-x-1'
+              enabled ? "translate-x-7" : "translate-x-1"
             }`}
           />
         </button>
