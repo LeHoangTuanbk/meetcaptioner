@@ -35,7 +35,7 @@ export function ApiKeyInput({ value, onChange, provider }: ApiKeyInputProps) {
         <button
           type="button"
           onClick={() => setShowKey(!showKey)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white cursor-pointer"
         >
           {showKey ? "🙈" : "👁️"}
         </button>

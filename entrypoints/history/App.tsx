@@ -58,7 +58,7 @@ export default function App() {
               onClick={() =>
                 chrome.runtime.sendMessage({ action: "openOptions" })
               }
-              className="px-4 py-2 text-sm bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
+              className="px-4 py-2 text-sm bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
             >
               Settings
             </button>
