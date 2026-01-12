@@ -71,7 +71,7 @@ export const SessionDetail = ({
           </div>
           <button
             onClick={() => handleDelete(onDelete)}
-            className="px-4 py-2 text-sm bg-red-900/50 hover:bg-red-800/50 text-red-300 rounded-lg transition-colors"
+            className="px-4 py-2 text-sm bg-red-900/50 hover:bg-red-800/50 text-red-300 rounded-lg transition-colors cursor-pointer"
           >
             Delete
           </button>
