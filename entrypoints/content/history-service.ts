@@ -1,8 +1,9 @@
 import type { MeetingSession, SavedCaption, Caption } from "./types";
-import { captions } from "./state";
 import { debounce } from "./libs";
 
 let currentSession: MeetingSession | null = null;
+
+const allCaptions = new Map<number, SavedCaption>();
 
 function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
@@ -33,14 +34,27 @@ export function initMeetingSession(): void {
   };
 }
 
-function convertToSavedCaption(caption: Caption): SavedCaption {
-  return {
+export function addCaptionToHistory(caption: Caption): void {
+  const saved: SavedCaption = {
     speaker: caption.speaker,
     text: caption.text,
     translation: caption.translation || undefined,
     time: caption.time,
     timestamp: Date.now(),
   };
+  allCaptions.set(caption.id, saved);
+}
+
+export function updateCaptionInHistory(
+  captionId: number,
+  updates: Partial<Pick<SavedCaption, "text" | "translation">>
+): void {
+  const existing = allCaptions.get(captionId);
+  if (existing) {
+    if (updates.text !== undefined) existing.text = updates.text;
+    if (updates.translation !== undefined)
+      existing.translation = updates.translation;
+  }
 }
 
 async function saveToStorage(): Promise<void> {
@@ -50,7 +64,7 @@ async function saveToStorage(): Promise<void> {
     currentSession.title = getMeetingTitle();
   }
 
-  currentSession.captions = captions.map(convertToSavedCaption);
+  currentSession.captions = Array.from(allCaptions.values());
   currentSession.endTime = Date.now();
 
   try {

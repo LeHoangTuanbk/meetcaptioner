@@ -1,6 +1,10 @@
 import type { Caption, TranslateResponse } from "./types";
 import { captions, settings } from "./state";
 import { updateCaptionTranslation } from "./caption-ui";
+import {
+  updateCaptionInHistory,
+  saveCaptionsDebounced,
+} from "./history-service";
 
 const pendingTranslations = new Set<number>();
 
@@ -68,16 +72,18 @@ export async function translateCaption(
       customPrompt: settings.customPrompt,
     })) as TranslateResponse;
 
-    const stillExists = captions.find((c) => c.id === captionId);
-    if (!stillExists) {
-      return;
-    }
+    const stillExistsInUI = captions.find((c) => c.id === captionId);
 
     if (response?.success && response.translation) {
-      captionObj.translation = response.translation;
-      captionObj.translationStatus = "semantic";
-      updateCaptionTranslation(captionObj);
-    } else {
+      updateCaptionInHistory(captionId, { translation: response.translation });
+      saveCaptionsDebounced();
+
+      if (stillExistsInUI) {
+        captionObj.translation = response.translation;
+        captionObj.translationStatus = "semantic";
+        updateCaptionTranslation(captionObj);
+      }
+    } else if (stillExistsInUI) {
       captionObj.translationStatus = "error";
       captionObj.translationError = response?.error || "Translation failed";
       updateCaptionTranslation(captionObj);

@@ -11,7 +11,11 @@ import {
 } from "./state";
 import { translateCaption } from "./translation";
 import { renderCaptions } from "./render";
-import { saveCaptionsDebounced } from "./history-service";
+import {
+  saveCaptionsDebounced,
+  addCaptionToHistory,
+  updateCaptionInHistory,
+} from "./history-service";
 
 export function setWaveActive(active: boolean): void {
   if (!waveElement) return;
@@ -72,6 +76,7 @@ export function addOrUpdateCaption(
         }
       }
 
+      updateCaptionInHistory(captionId, { text });
       saveCaptionsDebounced();
       return captionId;
     }
@@ -91,6 +96,8 @@ export function addOrUpdateCaption(
   };
 
   captions.push(newCaption);
+
+  addCaptionToHistory(newCaption);
 
   while (captions.length > MAX_CAPTIONS) {
     const removed = captions.shift();
