@@ -4,6 +4,7 @@ import { createElement } from "../libs";
 import { renderCaptions } from "../render";
 import { makeDraggable, makeResizable } from "./interactions";
 import { createHeader } from "./header";
+import { createScrollButton } from "./scroll-button";
 
 export { updateUIFromSettings } from "./settings";
 
@@ -43,6 +44,9 @@ export function createOverlay(): void {
 
   document.body.appendChild(overlayEl);
   setOverlay(overlayEl);
+
+  const scrollBtn = createScrollButton(content, overlayEl);
+  overlayEl.appendChild(scrollBtn);
 
   makeDraggable(overlayEl, header);
   makeResizable(overlayEl, resizeHandleBR, "br");
