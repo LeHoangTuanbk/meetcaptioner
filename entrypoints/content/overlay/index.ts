@@ -7,6 +7,37 @@ import { createHeader } from "./header";
 
 export { updateUIFromSettings } from "./settings";
 
+function setupScrollToBottom(content: HTMLElement): HTMLElement {
+  const scrollBtn = createElement("button", {
+    className: "mc-scroll-bottom",
+    "data-tooltip": "Scroll to bottom",
+    textContent: "↓",
+    onClick: () => {
+      content.scrollTop = content.scrollHeight;
+    },
+  });
+
+  const updateScrollButtonVisibility = () => {
+    const isNearBottom =
+      content.scrollHeight - content.scrollTop - content.clientHeight < 100;
+    scrollBtn.classList.toggle("mc-visible", !isNearBottom);
+  };
+
+  content.addEventListener("scroll", updateScrollButtonVisibility);
+
+  // Also update when content changes (new captions, text updates, etc.)
+  const mutationObserver = new MutationObserver(updateScrollButtonVisibility);
+  mutationObserver.observe(content, {
+    childList: true,
+    subtree: true,
+    characterData: true,
+  });
+
+  setTimeout(updateScrollButtonVisibility, 100);
+
+  return scrollBtn;
+}
+
 export function createOverlay(): void {
   if (overlay) return;
 
@@ -43,6 +74,10 @@ export function createOverlay(): void {
 
   document.body.appendChild(overlayEl);
   setOverlay(overlayEl);
+
+  // Append scroll button AFTER overlay is in DOM to avoid flex layout issues
+  const scrollBtn = setupScrollToBottom(content);
+  overlayEl.appendChild(scrollBtn);
 
   makeDraggable(overlayEl, header);
   makeResizable(overlayEl, resizeHandleBR, "br");
