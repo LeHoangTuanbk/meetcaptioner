@@ -1,6 +1,6 @@
 export const MAX_CAPTIONS = 200;
 export const SEMANTIC_DELAY = 1500;
-
+// TODO: Refining, Semantic, Optimistic has not been used yet. Consider refactor code
 export const TranslationStatus = {
   Pending: "pending",
   Translating: "translating",
