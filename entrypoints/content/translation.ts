@@ -98,7 +98,6 @@ export async function translateCaption(
 }
 
 export function retranslateCaption(captionObj: Caption): void {
-  captionObj.translation = "";
   captionObj.translationStatus = "pending";
   captionObj.isFinalized = false;
   translateCaption(captionObj, "semantic");

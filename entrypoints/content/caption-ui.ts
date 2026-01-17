@@ -3,6 +3,11 @@ import { createElement } from "./libs";
 import { retranslateCaption } from "./translation";
 import { scrollToBottomIfNeeded } from "./render";
 
+function removeDots(transEl: HTMLElement): void {
+  const dotsEl = transEl.querySelector(".mc-dots");
+  if (dotsEl) dotsEl.remove();
+}
+
 export function updateCaptionTranslation(captionObj: Caption): void {
   const captionEl = document.querySelector(
     `[data-caption-id="${captionObj.id}"]`
@@ -34,20 +39,28 @@ export function updateCaptionTranslation(captionObj: Caption): void {
     wrapper.appendChild(transEl);
   }
 
-  if (captionObj.translationStatus === "translating") {
-    if (captionObj.translation) {
-      transEl.textContent = captionObj.translation + " ...";
-      transEl.className = "mc-translation mc-translating";
-    } else {
-      transEl.textContent = "...";
-      transEl.className = "mc-translation mc-translating";
+  let dotsEl = transEl.querySelector(".mc-dots") as HTMLElement | null;
+
+  if (
+    captionObj.translationStatus === "translating" ||
+    captionObj.translationStatus === "pending"
+  ) {
+    if (!dotsEl) {
+      dotsEl = document.createElement("span");
+      dotsEl.className = "mc-dots";
+      dotsEl.textContent = "...";
     }
+    transEl.textContent = captionObj.translation || "";
+    transEl.appendChild(dotsEl);
+    transEl.className = "mc-translation mc-translating";
   } else if (captionObj.translationStatus === "refining") {
+    removeDots(transEl);
     transEl.textContent = captionObj.translation
       ? captionObj.translation + " ↻"
       : "...";
     transEl.className = "mc-translation mc-refining";
   } else if (captionObj.translationStatus === "error") {
+    removeDots(transEl);
     if (captionObj.translation) {
       transEl.textContent = captionObj.translation + " ⚠";
       transEl.setAttribute(
@@ -59,10 +72,12 @@ export function updateCaptionTranslation(captionObj: Caption): void {
     }
     transEl.className = "mc-translation mc-error";
   } else if (captionObj.translation) {
+    removeDots(transEl);
     transEl.textContent = captionObj.translation;
     transEl.className = "mc-translation";
     transEl.setAttribute("data-tooltip", "Click to edit");
   } else {
+    removeDots(transEl);
     transEl.textContent = "";
     transEl.className = "mc-translation";
   }

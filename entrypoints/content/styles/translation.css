@@ -12,9 +12,19 @@
   border-radius: 4px;
 }
 
-.mc-translation.mc-translating {
-  color: #6b7280;
-  animation: mcPulse 1s infinite;
+
+.mc-dots {
+  animation: mcBlink 1s ease-in-out infinite;
+}
+
+@keyframes mcBlink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
 }
 
 .mc-translation.mc-refining {

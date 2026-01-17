@@ -11,6 +11,7 @@ import {
 } from "./state";
 import { translateCaption } from "./translation";
 import { renderCaptions, scrollToBottomIfNeeded } from "./render";
+import { updateCaptionTranslation } from "./caption-ui";
 import {
   saveCaptionsDebounced,
   addCaptionToHistory,
@@ -56,8 +57,8 @@ export function addOrUpdateCaption(
       caption.text = text;
       caption.time = new Date().toLocaleTimeString();
 
-      if (caption.isFinalized && textChanged) {
-        caption.translation = "";
+      const needsRetranslate = caption.isFinalized && textChanged;
+      if (needsRetranslate) {
         caption.translationStatus = "pending";
       }
       caption.isFinalized = false;
@@ -68,11 +69,11 @@ export function addOrUpdateCaption(
       if (captionEl) {
         const textEl = captionEl.querySelector(".mc-original");
         const timeEl = captionEl.querySelector(".mc-time");
-        const transEl = captionEl.querySelector(".mc-translation");
         if (textEl) textEl.textContent = text;
         if (timeEl) timeEl.textContent = caption.time;
-        if (transEl && !caption.translation && settings.translationEnabled) {
-          transEl.textContent = "...";
+
+        if (needsRetranslate || !caption.translation) {
+          updateCaptionTranslation(caption);
         }
       }
 
@@ -128,7 +129,12 @@ export function finalizeCaption(captionId: number): void {
   caption.isFinalized = true;
 
   if (settings.translationEnabled) {
-    if (caption.translation && caption.translationStatus !== "error") {
+    // Skip if already has translation and not pending retranslate
+    if (
+      caption.translation &&
+      caption.translationStatus !== "error" &&
+      caption.translationStatus !== "pending"
+    ) {
       return;
     }
 
