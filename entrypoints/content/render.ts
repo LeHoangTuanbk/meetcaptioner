@@ -4,6 +4,21 @@ import { createElement, copyToClipboard } from "./libs";
 import { updateCaptionTranslation, startEditTranslation } from "./caption-ui";
 import { manualTranslate, retranslateCaption } from "./translation";
 
+export function scrollToBottomIfNeeded(): void {
+  if (!overlay) return;
+  const content = overlay.querySelector(".mc-content");
+  if (!content) return;
+
+  const isEditing = content.querySelector(".mc-translation-edit") !== null;
+  if (isEditing) return;
+
+  const isNearBottom =
+    content.scrollHeight - content.scrollTop - content.clientHeight < 100;
+  if (isNearBottom) {
+    content.scrollTop = content.scrollHeight;
+  }
+}
+
 function showCopyFeedback(element: HTMLElement): void {
   const caption = element.closest(".mc-caption");
   if (!caption) return;
@@ -110,18 +125,8 @@ export function renderCaptions(updateOnly = false): void {
     }
   }
 
-  if (!updateOnly && overlay) {
-    const content = overlay.querySelector(".mc-content");
-    if (content) {
-      const isEditing = content.querySelector(".mc-translation-edit") !== null;
-      if (isEditing) return;
-
-      const isNearBottom =
-        content.scrollHeight - content.scrollTop - content.clientHeight < 100;
-      if (isNearBottom) {
-        content.scrollTop = content.scrollHeight;
-      }
-    }
+  if (!updateOnly) {
+    scrollToBottomIfNeeded();
   }
 }
 

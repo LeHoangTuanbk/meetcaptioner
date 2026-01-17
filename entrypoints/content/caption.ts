@@ -10,7 +10,7 @@ import {
   clearSemanticTimer,
 } from "./state";
 import { translateCaption } from "./translation";
-import { renderCaptions } from "./render";
+import { renderCaptions, scrollToBottomIfNeeded } from "./render";
 import {
   saveCaptionsDebounced,
   addCaptionToHistory,
@@ -75,6 +75,8 @@ export function addOrUpdateCaption(
           transEl.textContent = "...";
         }
       }
+
+      scrollToBottomIfNeeded();
 
       updateCaptionInHistory(captionId, { text });
       saveCaptionsDebounced();

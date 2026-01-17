@@ -1,6 +1,7 @@
 import type { Caption } from "./types";
 import { createElement } from "./libs";
 import { retranslateCaption } from "./translation";
+import { scrollToBottomIfNeeded } from "./render";
 
 export function updateCaptionTranslation(captionObj: Caption): void {
   const captionEl = document.querySelector(
@@ -86,6 +87,8 @@ export function updateCaptionTranslation(captionObj: Caption): void {
   } else if (reloadBtn) {
     reloadBtn.remove();
   }
+
+  scrollToBottomIfNeeded();
 }
 
 function autoResizeTextarea(textarea: HTMLTextAreaElement): void {
