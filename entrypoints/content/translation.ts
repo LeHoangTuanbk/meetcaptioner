@@ -5,6 +5,7 @@ import {
   updateCaptionInHistory,
   saveCaptionsDebounced,
 } from "./history-service";
+import { TranslationStatus } from "./constants";
 
 const pendingTranslations = new Set<number>();
 
@@ -41,7 +42,7 @@ export async function translateCaption(
   }
 
   if (!apiKey) {
-    captionObj.translationStatus = "error";
+    captionObj.translationStatus = TranslationStatus.Error;
     captionObj.translationError = "No API key configured";
     updateCaptionTranslation(captionObj);
     return;
@@ -58,7 +59,7 @@ export async function translateCaption(
 
   try {
     pendingTranslations.add(captionId);
-    captionObj.translationStatus = "translating";
+    captionObj.translationStatus = TranslationStatus.Translating;
     updateCaptionTranslation(captionObj);
 
     const response = (await chrome.runtime.sendMessage({
@@ -80,16 +81,16 @@ export async function translateCaption(
 
       if (stillExistsInUI) {
         captionObj.translation = response.translation;
-        captionObj.translationStatus = "semantic";
+        captionObj.translationStatus = TranslationStatus.Semantic;
         updateCaptionTranslation(captionObj);
       }
     } else if (stillExistsInUI) {
-      captionObj.translationStatus = "error";
+      captionObj.translationStatus = TranslationStatus.Error;
       captionObj.translationError = response?.error || "Translation failed";
       updateCaptionTranslation(captionObj);
     }
   } catch (e) {
-    captionObj.translationStatus = "error";
+    captionObj.translationStatus = TranslationStatus.Error;
     captionObj.translationError = String(e);
     updateCaptionTranslation(captionObj);
   } finally {
@@ -98,7 +99,7 @@ export async function translateCaption(
 }
 
 export function retranslateCaption(captionObj: Caption): void {
-  captionObj.translationStatus = "pending";
+  captionObj.translationStatus = TranslationStatus.Pending;
   captionObj.isFinalized = false;
   translateCaption(captionObj, "semantic");
 }
@@ -111,7 +112,7 @@ export async function translateAllExistingCaptions(): Promise<void> {
   const untranslated = captions.filter(
     (c) =>
       !c.translation &&
-      c.translationStatus !== "translating" &&
+      c.translationStatus !== TranslationStatus.Translating &&
       !pendingTranslations.has(c.id)
   );
 

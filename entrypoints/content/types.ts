@@ -1,16 +1,12 @@
+import type { TranslationStatus } from "./constants";
+
 export type Caption = {
   id: number;
   speaker: string;
   text: string;
   time: string;
   translation: string;
-  translationStatus:
-    | "pending"
-    | "translating"
-    | "refining"
-    | "optimistic"
-    | "semantic"
-    | "error";
+  translationStatus: TranslationStatus;
   translationError?: string;
   lastTranslatedLength: number;
   userEdited?: boolean;

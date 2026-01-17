@@ -2,6 +2,7 @@ import type { Caption } from "./types";
 import { createElement } from "./libs";
 import { retranslateCaption } from "./translation";
 import { scrollToBottomIfNeeded } from "./render";
+import { TranslationStatus } from "./constants";
 
 function removeDots(transEl: HTMLElement): void {
   const dotsEl = transEl.querySelector(".mc-dots");
@@ -42,8 +43,8 @@ export function updateCaptionTranslation(captionObj: Caption): void {
   let dotsEl = transEl.querySelector(".mc-dots") as HTMLElement | null;
 
   if (
-    captionObj.translationStatus === "translating" ||
-    captionObj.translationStatus === "pending"
+    captionObj.translationStatus === TranslationStatus.Translating ||
+    captionObj.translationStatus === TranslationStatus.Pending
   ) {
     if (!dotsEl) {
       dotsEl = document.createElement("span");
@@ -53,13 +54,13 @@ export function updateCaptionTranslation(captionObj: Caption): void {
     transEl.textContent = captionObj.translation || "";
     transEl.appendChild(dotsEl);
     transEl.className = "mc-translation mc-translating";
-  } else if (captionObj.translationStatus === "refining") {
+  } else if (captionObj.translationStatus === TranslationStatus.Refining) {
     removeDots(transEl);
     transEl.textContent = captionObj.translation
       ? captionObj.translation + " ↻"
       : "...";
     transEl.className = "mc-translation mc-refining";
-  } else if (captionObj.translationStatus === "error") {
+  } else if (captionObj.translationStatus === TranslationStatus.Error) {
     removeDots(transEl);
     if (captionObj.translation) {
       transEl.textContent = captionObj.translation + " ⚠";
@@ -84,8 +85,8 @@ export function updateCaptionTranslation(captionObj: Caption): void {
 
   if (
     captionObj.translation &&
-    captionObj.translationStatus !== "translating" &&
-    captionObj.translationStatus !== "refining"
+    captionObj.translationStatus !== TranslationStatus.Translating &&
+    captionObj.translationStatus !== TranslationStatus.Refining
   ) {
     if (!reloadBtn) {
       reloadBtn = createElement("button", {

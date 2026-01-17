@@ -3,6 +3,7 @@ import { captions, settings, isCCEnabled, captionList, overlay } from "./state";
 import { createElement, copyToClipboard } from "./libs";
 import { updateCaptionTranslation, startEditTranslation } from "./caption-ui";
 import { manualTranslate, retranslateCaption } from "./translation";
+import { TranslationStatus } from "./constants";
 
 export function scrollToBottomIfNeeded(): void {
   if (!overlay) return;
@@ -98,8 +99,8 @@ export function renderCaptions(updateOnly = false): void {
 
       if (
         c.translation &&
-        c.translationStatus !== "translating" &&
-        c.translationStatus !== "refining"
+        c.translationStatus !== TranslationStatus.Translating &&
+        c.translationStatus !== TranslationStatus.Refining
       ) {
         const wrapper = captionEl.querySelector(".mc-translation-wrapper");
         if (wrapper) {
@@ -154,7 +155,7 @@ function createCaptionElement(c: Caption): HTMLElement {
   const translation = createElement("div", {
     className:
       "mc-translation" +
-      (c.translationStatus === "translating" ? " mc-translating" : ""),
+      (c.translationStatus === TranslationStatus.Translating ? " mc-translating" : ""),
     textContent: c.translation || (settings.translationEnabled ? "..." : ""),
     onClick: () => startEditTranslation(c),
     onDblClick: async (e: Event) => {

@@ -1,6 +1,18 @@
 export const MAX_CAPTIONS = 200;
 export const SEMANTIC_DELAY = 1500;
 
+export const TranslationStatus = {
+  Pending: "pending",
+  Translating: "translating",
+  Refining: "refining",
+  Optimistic: "optimistic",
+  Semantic: "semantic",
+  Error: "error",
+} as const;
+
+export type TranslationStatus =
+  (typeof TranslationStatus)[keyof typeof TranslationStatus];
+
 export const LANGUAGES = [
   { code: "vi", name: "Vietnamese" },
   { code: "en", name: "English" },

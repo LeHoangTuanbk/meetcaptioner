@@ -1,5 +1,5 @@
 import type { Caption } from "./types";
-import { MAX_CAPTIONS } from "./constants";
+import { MAX_CAPTIONS, TranslationStatus } from "./constants";
 import {
   captions,
   settings,
@@ -59,7 +59,7 @@ export function addOrUpdateCaption(
 
       const needsRetranslate = caption.isFinalized && textChanged;
       if (needsRetranslate) {
-        caption.translationStatus = "pending";
+        caption.translationStatus = TranslationStatus.Pending;
       }
       caption.isFinalized = false;
 
@@ -93,7 +93,7 @@ export function addOrUpdateCaption(
     text,
     time: new Date().toLocaleTimeString(),
     translation: "",
-    translationStatus: "pending",
+    translationStatus: TranslationStatus.Pending,
     lastTranslatedLength: 0,
     isFinalized: false,
   };
@@ -132,13 +132,13 @@ export function finalizeCaption(captionId: number): void {
     // Skip if already has translation and not pending retranslate
     if (
       caption.translation &&
-      caption.translationStatus !== "error" &&
-      caption.translationStatus !== "pending"
+      caption.translationStatus !== TranslationStatus.Error &&
+      caption.translationStatus !== TranslationStatus.Pending
     ) {
       return;
     }
 
-    if (caption.translationStatus === "translating") {
+    if (caption.translationStatus === TranslationStatus.Translating) {
       return;
     }
 
