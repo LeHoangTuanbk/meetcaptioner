@@ -31,8 +31,7 @@
 #meetcaptioner-overlay.minimized .mc-header-left,
 #meetcaptioner-overlay.minimized .mc-header-right,
 #meetcaptioner-overlay.minimized .mc-header-translation,
-#meetcaptioner-overlay.minimized .mc-lang-select,
-#meetcaptioner-overlay.minimized .mc-scroll-bottom {
+#meetcaptioner-overlay.minimized .mc-lang-select {
   display: none !important;
 }
 
@@ -85,35 +84,4 @@
 .mc-content::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.15);
   border-radius: 2px;
-}
-
-.mc-scroll-bottom {
-  position: absolute;
-  bottom: 20px;
-  right: 16px;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: transparent;
-  border: none;
-  color: rgba(255, 255, 255, 0.4);
-  font-size: 12px;
-  cursor: pointer;
-  opacity: 0;
-  transition: all 0.2s ease;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-}
-
-.mc-scroll-bottom.mc-visible {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.mc-scroll-bottom:hover {
-  color: rgba(255, 255, 255, 0.8);
-  background: rgba(255, 255, 255, 0.1);
 }
