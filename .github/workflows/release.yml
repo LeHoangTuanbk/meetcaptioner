@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 permissions:
   contents: write
@@ -22,8 +22,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'pnpm'
+          node-version: "20"
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install
@@ -50,6 +50,7 @@ jobs:
         with:
           name: MeetCaptioner v${{ steps.version.outputs.VERSION }}
           generate_release_notes: true
+          append_body: false
           files: |
             .output/*.zip
           draft: false
