@@ -132,7 +132,7 @@ type LanguageDirection = "ltr" | "rtl";
 
 ## Phase 2: Apply Direction To Live Translation Surfaces
 
-- Status: Planned
+- Status: Completed
 - Goal: make live overlay translations direction-aware
 - Technical tasks:
   - resolve direction from current `targetLanguage`
@@ -190,12 +190,12 @@ If current target language is not a sufficient proxy for saved history rendering
 - created branch for static direction support
 - completed planning split from Persian language support
 - completed Phase 1 shared metadata foundation
+- completed Phase 2 live translation direction support
 
 ## Current Execution State
 
 - Branch ready: Yes
 - Planning document ready: Yes
 - Implementation started: Yes
-- Current completed phase: Phase 1
-- Recommended next action: Execute Phase 2 for live translation surfaces
-
+- Current completed phase: Phase 2
+- Recommended next action: Execute Phase 3 for history translation surfaces
