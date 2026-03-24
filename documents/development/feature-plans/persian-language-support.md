@@ -8,10 +8,11 @@ This feature is intentionally separated from static direction support. Direction
 
 ## Metadata
 
-- Feature status: Deferred
-- Branch: Not created yet
+- Feature status: Planned
+- Branch: `feature/add-persian-language-support`
 - Created on: 2026-03-24
-- Dependency note: depends on shared language metadata work from the static direction support track
+- Tracking issue: `#10`
+- Dependency note: depends on direction-support work tracked in issue `#8` and PR `#9`
 
 ## Executive Summary
 
@@ -49,6 +50,7 @@ This feature does not own direction infrastructure. It should consume the direct
 
 - this feature should be implemented after the static direction support branch is in a usable state
 - the preferred implementation path is to update the shared language metadata module instead of patching multiple duplicated constants
+- while PR `#9` is unmerged, this branch should remain setup-focused or be rebased later before opening an upstream PR
 
 ## Planned Phases
 
@@ -78,8 +80,7 @@ This feature does not own direction infrastructure. It should consume the direct
 
 ## Current Execution State
 
-- Branch ready: No
+- Branch ready: Yes
 - Planning document ready: Yes
 - Implementation started: No
-- Recommended next action: create a dedicated Persian support branch after the direction-support work reaches a stable checkpoint
-
+- Recommended next action: wait for PR `#9` to merge or rebase this branch onto the merged direction-support changes before implementation begins
