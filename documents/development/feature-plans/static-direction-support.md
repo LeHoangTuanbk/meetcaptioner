@@ -142,12 +142,14 @@ type LanguageDirection = "ltr" | "rtl";
 
 ## Phase 3: Apply Direction To History Translation Surfaces
 
-- Status: Planned
+- Status: Completed
 - Goal: make saved translations readable with stable direction in history UI
 - Technical tasks:
   - apply direction to translation column
   - verify mixed text readability
   - confirm original captions remain unchanged
+- Current implementation note:
+  - history uses the currently saved `targetLanguage` from settings as the static direction source because translation direction is not yet persisted per session
 
 ## Phase 4: Verification And Cleanup
 
@@ -191,11 +193,12 @@ If current target language is not a sufficient proxy for saved history rendering
 - completed planning split from Persian language support
 - completed Phase 1 shared metadata foundation
 - completed Phase 2 live translation direction support
+- completed Phase 3 history translation direction support using current settings as the direction source
 
 ## Current Execution State
 
 - Branch ready: Yes
 - Planning document ready: Yes
 - Implementation started: Yes
-- Current completed phase: Phase 2
-- Recommended next action: Execute Phase 3 for history translation surfaces
+- Current completed phase: Phase 3
+- Recommended next action: Execute Phase 4 for verification and cleanup
