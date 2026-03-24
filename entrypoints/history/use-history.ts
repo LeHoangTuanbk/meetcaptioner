@@ -1,6 +1,10 @@
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import type { MeetingSession } from "./components";
+import {
+  getLanguageDirection,
+  type LanguageDirection,
+} from "../shared/language-metadata";
 
 type StorageInfo = {
   bytesUsed: number;
@@ -14,6 +18,8 @@ export function useHistory() {
     null
   );
   const [searchQuery, setSearchQuery] = useState("");
+  const [translationDirection, setTranslationDirection] =
+    useState<LanguageDirection>("ltr");
   const [storageInfo, setStorageInfo] = useState<StorageInfo>({
     bytesUsed: 0,
     quota: 5242880,
@@ -22,6 +28,7 @@ export function useHistory() {
   useEffect(() => {
     loadHistory();
     loadStorageInfo();
+    loadTranslationDirection();
   }, []);
 
   const loadHistory = async () => {
@@ -52,6 +59,21 @@ export function useHistory() {
       }
     } catch {
       // Storage info load failed silently
+    }
+  };
+
+  const loadTranslationDirection = async () => {
+    try {
+      const response = await chrome.runtime.sendMessage({
+        action: "getSettings",
+      });
+      if (response?.success && response.settings?.targetLanguage) {
+        setTranslationDirection(
+          getLanguageDirection(response.settings.targetLanguage)
+        );
+      }
+    } catch {
+      // Translation direction load failed silently
     }
   };
 
@@ -137,6 +159,7 @@ export function useHistory() {
     setSelectedSession,
     searchQuery,
     setSearchQuery,
+    translationDirection,
     storageInfo,
     filteredSessions,
     deleteSession,

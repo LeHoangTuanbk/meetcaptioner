@@ -1,9 +1,5 @@
 import type { TranslateRequest } from "./types";
-import { LANGUAGES } from "./constants";
-
-export function getLanguageName(code: string): string {
-  return LANGUAGES[code] || code;
-}
+import { getLanguageName } from "../shared/language-metadata";
 
 export function buildPrompt(request: TranslateRequest): string {
   const langName = getLanguageName(request.targetLang);

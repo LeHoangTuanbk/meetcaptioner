@@ -1,3 +1,5 @@
+import { LANGUAGE_OPTIONS } from "../../shared/language-metadata";
+
 export const MODELS: Record<string, readonly { id: string; name: string }[]> = {
   anthropic: [
     { id: "claude-haiku-4-5-20251001", name: "Claude Haiku 4.5 (Fastest)" },
@@ -15,23 +17,4 @@ export const MODELS: Record<string, readonly { id: string; name: string }[]> = {
   ollama: [],
 };
 
-export const LANGUAGES = [
-  { code: "vi", name: "Vietnamese" },
-  { code: "en", name: "English" },
-  { code: "zh", name: "Chinese" },
-  { code: "ja", name: "Japanese" },
-  { code: "ko", name: "Korean" },
-  { code: "es", name: "Spanish" },
-  { code: "fr", name: "French" },
-  { code: "de", name: "German" },
-  { code: "pt", name: "Portuguese" },
-  { code: "ru", name: "Russian" },
-  { code: "ar", name: "Arabic" },
-  { code: "hi", name: "Hindi" },
-  { code: "it", name: "Italian" },
-  { code: "th", name: "Thai" },
-  { code: "id", name: "Indonesian" },
-  { code: "nl", name: "Dutch" },
-  { code: "pl", name: "Polish" },
-  { code: "tr", name: "Turkish" },
-] as const;
+export const LANGUAGES = LANGUAGE_OPTIONS;
