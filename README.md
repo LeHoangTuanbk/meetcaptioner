@@ -10,12 +10,14 @@ A powerful Chrome extension that captures Google Meet captions in real-time with
 ## Features
 
 - **Real-time Caption Capture** - Automatically captures captions from Google Meet with speaker identification
-- **Live AI Translation** - Translate captions to 18+ languages using OpenAI, Anthropic, or Ollama (local/cloud)
+- **Live AI Translation** - Translate captions to 19+ languages using OpenAI, Anthropic, or Ollama (local/cloud)
 - **Floating Overlay** - Draggable, resizable overlay that doesn't interfere with your meeting
 - **Meeting History** - Auto-saves all your meeting captions locally for later review
 - **Export Options** - Export captions and translations to text files
 - **Editable Translations** - Click to edit any translation manually
 - **Smart Fallback** - Automatic model switching when rate limits are hit
+- **Direction-Aware Translation UI** - RTL/LTR direction is applied from language metadata in the overlay and history views
+- **Faster Re-Translation UX** - Changing the target language or triggering manual re-translation clears stale output and starts a fresh request immediately
 - **Privacy First** - All data stored locally, no external servers
 
 ## Screenshots
@@ -31,8 +33,8 @@ _Real-time caption capture and AI translation in Google Meet_
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/LeHoangTuanbk/MeetCaptioner
-   cd meet-captioner
+   git clone https://github.com/LeHoangTuanbk/meetcaptioner.git
+   cd meetcaptioner
    ```
 
 2. **Install dependencies**
@@ -75,7 +77,7 @@ _Real-time caption capture and AI translation in Google Meet_
 
 | Provider  | Models                                                     |
 | --------- | ---------------------------------------------------------- |
-| OpenAI    | GPT-4.1 Nano, GPT-4.1 Mini, GPT-5 Nano                     |
+| OpenAI    | GPT-5 Mini, GPT-5.2, GPT-5.1, GPT-5 Nano, GPT-4.1, GPT-4.1 Mini |
 | Anthropic | Claude Haiku 4.5, Claude Sonnet 4.5, Claude Opus 4.5       |
 | Ollama    | Any local model (Qwen, Llama, Gemma, etc.) or Ollama Cloud |
 
@@ -83,7 +85,13 @@ _Real-time caption capture and AI translation in Google Meet_
 
 ### Supported Languages
 
-Vietnamese, English, Chinese, Japanese, Korean, Spanish, French, German, Portuguese, Russian, Arabic, Hindi, Italian, Thai, Indonesian, Dutch, Polish, Turkish
+Vietnamese, English, Persian, Chinese, Japanese, Korean, Spanish, French, German, Portuguese, Russian, Arabic, Hindi, Italian, Thai, Indonesian, Dutch, Polish, Turkish
+
+### Translation UX Notes
+
+- Changing the target language in the overlay immediately triggers re-translation for existing captions
+- Existing translated text is cleared before a new translation request completes, reducing stale-language flashes
+- OpenAI settings validation uses model lookup instead of a generation request, which avoids false save failures caused by output token limits
 
 ## Tech Stack
 

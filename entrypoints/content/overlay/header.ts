@@ -9,7 +9,11 @@ import {
   setSavedPosition,
 } from "../state";
 import { createElement } from "../libs";
-import { translateAllExistingCaptions } from "../translation";
+import {
+  translateAllExistingCaptions,
+  isTranslationConfigured,
+  openTranslationSettings,
+} from "../translation";
 import { saveOverlaySettings } from "./settings";
 
 export function createHeader(): {
@@ -36,10 +40,27 @@ export function createHeader(): {
       id: "mc-lang-select",
       className: "mc-lang-select",
       "data-tooltip": "Target Language",
-      onChange: (e) =>
-        saveOverlaySettings({
-          targetLanguage: (e.target as HTMLSelectElement).value,
-        }),
+      onChange: async (e) => {
+        const targetLanguage = (e.target as HTMLSelectElement).value;
+
+        await saveOverlaySettings({ targetLanguage });
+
+        if (!isTranslationConfigured()) {
+          openTranslationSettings();
+          return;
+        }
+
+        if (!settings.translationEnabled) {
+          await saveOverlaySettings({ translationEnabled: true });
+        }
+
+        void translateAllExistingCaptions({
+          force: true,
+          includeTranslated: true,
+          resetExisting: true,
+          overridePending: true,
+        });
+      },
     },
     langOptions
   ) as HTMLSelectElement;
@@ -57,21 +78,15 @@ export function createHeader(): {
         ? "Translation ON"
         : "Translation OFF",
       onClick: async () => {
-        if (!settings.translationEnabled) {
-          const apiKey =
-            settings.provider === "anthropic"
-              ? settings.anthropicApiKey
-              : settings.openaiApiKey;
-          if (!apiKey) {
-            chrome.runtime.sendMessage({ action: "openOptions" });
-            return;
-          }
+        if (!settings.translationEnabled && !isTranslationConfigured()) {
+          openTranslationSettings();
+          return;
         }
         const newEnabled = !settings.translationEnabled;
         await saveOverlaySettings({ translationEnabled: newEnabled });
 
         if (newEnabled) {
-          translateAllExistingCaptions();
+          void translateAllExistingCaptions();
         }
       },
     },

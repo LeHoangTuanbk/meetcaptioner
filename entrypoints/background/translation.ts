@@ -41,7 +41,7 @@ export async function translate(
     }
   }
 
-  if (!settings.translationEnabled) {
+  if (!request.force && !settings.translationEnabled) {
     return { success: false, error: "Translation disabled" };
   }
 
