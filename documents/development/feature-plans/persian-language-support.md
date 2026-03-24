@@ -67,7 +67,7 @@ This feature does not own direction infrastructure. It should consume the direct
 
 ## Phase 2: Validate End-To-End Translation Flow
 
-- Status: Not Started
+- Status: Completed
 - Tasks:
   - select Persian in live UI
   - validate prompt language resolution
@@ -83,4 +83,4 @@ This feature does not own direction infrastructure. It should consume the direct
 - Branch ready: Yes
 - Planning document ready: Yes
 - Implementation started: Yes
-- Recommended next action: validate end-to-end Persian target-language flow before starting Phase 2 UI and runtime checks
+- Recommended next action: if approved, package Phase 1 and Phase 2 changes, then decide whether to begin any Persian-specific QA refinements or wait for upstream review on direction support
