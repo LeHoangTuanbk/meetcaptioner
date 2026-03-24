@@ -58,13 +58,15 @@ Expected build output directory:
 3. In the MeetCaptioner overlay, open the target-language dropdown
 4. Confirm that `Persian` appears in the list
 5. Select `Persian`
-6. Turn translation on
+6. Confirm that translation starts automatically after the dropdown change
 7. Speak or wait for a caption to appear
 
 ## Expected Results
 
 - `Persian` is available in the target-language dropdown
 - selecting `Persian` does not break the overlay
+- changing the dropdown clears previous translation text before new requests finish
+- changing the dropdown automatically starts translation for existing captions
 - translated captions appear
 - translated text renders with RTL direction
 - editing a translation keeps RTL direction
@@ -104,8 +106,16 @@ Repeat a quick pass with `English` selected:
 - Edit the text
 - Confirm the edit textarea still uses the expected RTL direction
 
+## Case 5: Manual Re-Translate Reset
+
+- wait for a caption to get translated
+- click `Translate` or `↻`
+- confirm the old translated text is cleared immediately
+- confirm the new translation or any new error state replaces the cleared state
+
 ## Notes
 
 - If you are testing against the current Persian branch, remember it is stacked on top of the static-direction-support branch
 - If provider configuration is missing, translation may fail even though Persian support itself is wired correctly
+- If provider configuration is missing and you change the dropdown, the selected language should still be saved, and the options page should open so configuration can be fixed
 - For Ollama, local connectivity and model setup still need to be valid

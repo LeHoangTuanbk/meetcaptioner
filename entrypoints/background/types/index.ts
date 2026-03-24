@@ -19,10 +19,11 @@ export type Settings = {
 };
 
 export type TranslateRequest = {
-  id: string;
+  id: number | string;
   text: string;
   targetLang: string;
   mode: "optimistic" | "semantic";
+  force?: boolean;
   context?: string;
   speaker?: string;
   customPrompt?: string;
