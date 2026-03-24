@@ -11,7 +11,7 @@ This feature is intentionally separated from Persian language support. Persian t
 - Feature status: In Progress
 - Branch: `feature/add-static-direction-support`
 - Created on: 2026-03-24
-- Current phase status: Phase 1 completed, next phase is live-surface direction application
+- Current phase status: Phase 4 completed
 
 ## Executive Summary
 
@@ -153,12 +153,16 @@ type LanguageDirection = "ltr" | "rtl";
 
 ## Phase 4: Verification And Cleanup
 
-- Status: Planned
+- Status: Completed
 - Goal: build validation and code cleanup
 - Technical tasks:
   - run build
   - review direction usage coverage
   - remove dead code if found
+- Result:
+  - build passed successfully
+  - live overlay and history direction coverage was verified
+  - no additional cleanup was required in this phase
 
 ## Acceptance Criteria
 
@@ -194,11 +198,12 @@ If current target language is not a sufficient proxy for saved history rendering
 - completed Phase 1 shared metadata foundation
 - completed Phase 2 live translation direction support
 - completed Phase 3 history translation direction support using current settings as the direction source
+- completed Phase 4 verification and cleanup
 
 ## Current Execution State
 
 - Branch ready: Yes
 - Planning document ready: Yes
 - Implementation started: Yes
-- Current completed phase: Phase 3
-- Recommended next action: Execute Phase 4 for verification and cleanup
+- Current completed phase: Phase 4
+- Recommended next action: if approved, package remaining commits and prepare a contribution path through a fork-based pull request workflow
