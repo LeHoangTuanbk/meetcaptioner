@@ -38,12 +38,12 @@ The current UI does not apply explicit direction to translation surfaces. As a r
 
 ## What Exists
 
-- Shared language metadata now exists in [language-metadata.ts](/home/mehdi/repositories/meetcaptioner/entrypoints/shared/language-metadata.ts)
+- Shared language metadata now exists in [language-metadata.ts](../../../entrypoints/shared/language-metadata.ts)
 - Direction metadata is already available through `getLanguageDirection`
 - Existing language consumers now read from a shared source:
-  - [content/constants.ts](/home/mehdi/repositories/meetcaptioner/entrypoints/content/constants.ts)
-  - [options/components/constants.ts](/home/mehdi/repositories/meetcaptioner/entrypoints/options/components/constants.ts)
-  - [background/utils.ts](/home/mehdi/repositories/meetcaptioner/entrypoints/background/utils.ts)
+  - [content/constants.ts](../../../entrypoints/content/constants.ts)
+  - [options/components/constants.ts](../../../entrypoints/options/components/constants.ts)
+  - [background/utils.ts](../../../entrypoints/background/utils.ts)
 
 ## What Is Missing
 
