@@ -60,7 +60,7 @@ This feature does not own direction infrastructure. It should consume the direct
 
 ## Phase 1: Add Persian To Shared Language Metadata
 
-- Status: Not Started
+- Status: Completed
 - Tasks:
   - add `{ code: "fa", name: "Persian", direction: "rtl" }`
   - verify consumers automatically receive the new language
@@ -82,5 +82,5 @@ This feature does not own direction infrastructure. It should consume the direct
 
 - Branch ready: Yes
 - Planning document ready: Yes
-- Implementation started: No
-- Recommended next action: wait for PR `#9` to merge or rebase this branch onto the merged direction-support changes before implementation begins
+- Implementation started: Yes
+- Recommended next action: validate end-to-end Persian target-language flow before starting Phase 2 UI and runtime checks

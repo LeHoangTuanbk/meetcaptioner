@@ -9,6 +9,7 @@ export type LanguageOption = {
 export const LANGUAGE_OPTIONS = [
   { code: "vi", name: "Vietnamese", direction: "ltr" },
   { code: "en", name: "English", direction: "ltr" },
+  { code: "fa", name: "Persian", direction: "rtl" },
   { code: "zh", name: "Chinese", direction: "ltr" },
   { code: "ja", name: "Japanese", direction: "ltr" },
   { code: "ko", name: "Korean", direction: "ltr" },
