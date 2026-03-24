@@ -38,6 +38,10 @@ function incrementTranslationEpoch(captionId: number): number {
 }
 
 function getTranslationConfigError(): string | null {
+  if (settings.provider === "ollama") {
+    return null;
+  }
+
   const apiKey =
     settings.provider === "anthropic"
       ? settings.anthropicApiKey
@@ -67,6 +71,11 @@ export function isTranslationConfigured(): boolean {
 
 export function openTranslationSettings(): void {
   chrome.runtime.sendMessage({ action: "openOptions" });
+}
+
+export function cleanupTranslationState(captionId: number): void {
+  pendingTranslations.delete(captionId);
+  translationEpochs.delete(captionId);
 }
 
 export async function translateCaption(

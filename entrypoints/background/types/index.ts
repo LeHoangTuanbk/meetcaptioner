@@ -31,7 +31,7 @@ export type TranslateRequest = {
 
 export type TranslateResponse = {
   success: boolean;
-  id?: string;
+  id?: number | string;
   translation?: string;
   mode?: string;
   error?: string;
