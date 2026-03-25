@@ -3,10 +3,16 @@ import { createElement } from "./libs";
 import { retranslateCaption } from "./translation";
 import { scrollToBottomIfNeeded } from "./render";
 import { TranslationStatus } from "./constants";
+import { settings } from "./state";
+import { getLanguageDirection } from "../shared/language-metadata";
 
 function removeDots(transEl: HTMLElement): void {
   const dotsEl = transEl.querySelector(".mc-dots");
   if (dotsEl) dotsEl.remove();
+}
+
+function applyTranslationDirection(element: HTMLElement): void {
+  element.setAttribute("dir", getLanguageDirection(settings.targetLanguage));
 }
 
 export function updateCaptionTranslation(captionObj: Caption): void {
@@ -39,6 +45,8 @@ export function updateCaptionTranslation(captionObj: Caption): void {
     });
     wrapper.appendChild(transEl);
   }
+
+  applyTranslationDirection(transEl);
 
   let dotsEl = transEl.querySelector(".mc-dots") as HTMLElement | null;
 
@@ -134,6 +142,7 @@ export function startEditTranslation(captionObj: Caption): void {
     className: "mc-translation-edit",
     value: currentText,
   }) as HTMLTextAreaElement;
+  input.setAttribute("dir", getLanguageDirection(settings.targetLanguage));
 
   const saveEdit = () => {
     const newText = input.value.trim();
