@@ -13,6 +13,9 @@ export default defineConfig({
     permissions: ["storage"],
     host_permissions: [
       "https://meet.google.com/*",
+      "https://teams.microsoft.com/*",
+      "https://*.teams.microsoft.com/*",
+      "https://*.zoom.us/*",
       "https://api.anthropic.com/*",
       "https://api.openai.com/*",
       "http://localhost/*",

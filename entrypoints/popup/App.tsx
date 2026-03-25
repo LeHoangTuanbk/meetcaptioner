@@ -8,7 +8,7 @@ export default function App() {
       <header className="mb-5">
         <h1 className="text-lg font-semibold text-white">MeetCaptioner</h1>
         <p className="text-xs text-slate-500 mt-0.5">
-          Real-time caption translation for Google Meet
+          Real-time caption translation for supported browser meetings
         </p>
       </header>
 
@@ -23,9 +23,9 @@ export default function App() {
               <p className="text-xs text-slate-400 leading-relaxed">
                 Turn on{" "}
                 <span className="text-slate-300 font-medium">
-                  Closed Captions
+                  native captions
                 </span>{" "}
-                in your Google Meet call
+                in your supported meeting provider
               </p>
             </div>
           </div>

@@ -4,7 +4,12 @@ import {
 } from "./platform-runtime";
 
 export default defineContentScript({
-  matches: ["https://meet.google.com/*"],
+  matches: [
+    "https://meet.google.com/*",
+    "https://teams.microsoft.com/*",
+    "https://*.teams.microsoft.com/*",
+    "https://*.zoom.us/*",
+  ],
   runAt: "document_start",
 
   main() {
