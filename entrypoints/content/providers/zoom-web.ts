@@ -1,6 +1,38 @@
 import { getProviderLabel } from "../../shared/meeting-session";
 import type { MeetingProvider } from "./types";
 
+function normalizeZoomTitle(rawTitle: string): string | undefined {
+  const title = rawTitle
+    .replace(/\s*-\s*Zoom\s*$/i, "")
+    .replace(/\s*\|\s*Zoom\s*$/i, "")
+    .trim();
+
+  return title || undefined;
+}
+
+function extractZoomMeetingNumber(url: URL): string | undefined {
+  const pathMatch = url.pathname.match(/\/(?:wc\/join|j|w)\/(\d+)/);
+  if (pathMatch?.[1]) {
+    return pathMatch[1];
+  }
+
+  const confno = url.searchParams.get("confno");
+  return confno || undefined;
+}
+
+function extractZoomMeetingId(url: URL): string | undefined {
+  const meetingId =
+    url.searchParams.get("mn") ||
+    url.searchParams.get("mid") ||
+    url.searchParams.get("meetingId");
+
+  if (meetingId) {
+    return meetingId;
+  }
+
+  return extractZoomMeetingNumber(url);
+}
+
 export const zoomWebProvider: MeetingProvider = {
   platform: "zoom-web",
 
@@ -25,9 +57,12 @@ export const zoomWebProvider: MeetingProvider = {
     return {
       platform: "zoom-web",
       providerLabel: getProviderLabel("zoom-web"),
-      title: document.title || undefined,
+      title: normalizeZoomTitle(document.title),
       sourceUrl: window.location.href,
-      identifiers: {},
+      identifiers: {
+        meetingId: extractZoomMeetingId(new URL(window.location.href)),
+        meetingNumber: extractZoomMeetingNumber(new URL(window.location.href)),
+      },
     };
   },
 
@@ -66,4 +101,10 @@ export const zoomWebProvider: MeetingProvider = {
   isCaptioningCurrentlyAvailable() {
     return false;
   },
+};
+
+export const zoomWebProviderInternals = {
+  extractZoomMeetingId,
+  extractZoomMeetingNumber,
+  normalizeZoomTitle,
 };
