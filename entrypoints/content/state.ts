@@ -7,7 +7,7 @@ export let settings: Settings = {
   provider: "openai",
   anthropicApiKey: "",
   openaiApiKey: "",
-  model: "gpt-4.1-nano",
+  model: "gpt-5-mini",
   targetLanguage: "en",
   translationEnabled: false,
   customPrompt: DEFAULT_CUSTOM_PROMPT,

@@ -8,10 +8,12 @@ This feature is intentionally separated from static direction support. Direction
 
 ## Metadata
 
-- Feature status: Deferred
-- Branch: Not created yet
+- Feature status: In Review
+- Branch: `feature/add-persian-language-support`
 - Created on: 2026-03-24
-- Dependency note: depends on shared language metadata work from the static direction support track
+- Tracking issue: `#10`
+- Tracking pull request: `#11`
+- Dependency note: depends on direction-support work tracked in issue `#8` and PR `#9`
 
 ## Executive Summary
 
@@ -49,6 +51,8 @@ This feature does not own direction infrastructure. It should consume the direct
 
 - this feature should be implemented after the static direction support branch is in a usable state
 - the preferred implementation path is to update the shared language metadata module instead of patching multiple duplicated constants
+- while PR `#9` is unmerged, this branch should stay rebased on top of the direction-support branch to minimize conflicts
+- translation UX changes required by the Persian flow now live in this branch because target-language switching and manual re-translation needed to behave correctly for RTL/LTR transitions
 
 ## Planned Phases
 
@@ -58,28 +62,72 @@ This feature does not own direction infrastructure. It should consume the direct
 
 ## Phase 1: Add Persian To Shared Language Metadata
 
-- Status: Not Started
+- Status: Completed
 - Tasks:
   - add `{ code: "fa", name: "Persian", direction: "rtl" }`
   - verify consumers automatically receive the new language
 
 ## Phase 2: Validate End-To-End Translation Flow
 
-- Status: Not Started
+- Status: Completed
 - Tasks:
   - select Persian in live UI
   - validate prompt language resolution
   - test translation rendering with the direction-support infrastructure already in place
 
+## Phase 3: Translation UX Hardening
+
+- Status: Completed
+- Tasks:
+  - clear stale translations before manual re-translation requests
+  - auto-start translation when the target-language dropdown changes
+  - protect the UI from stale async responses overwriting newer translations
+
+## Phase 4: Settings Validation And Review Feedback
+
+- Status: Completed
+- Tasks:
+  - update OpenAI settings validation to use model lookup instead of a generation request
+  - address Copilot review feedback around translation-state cleanup and request/response typing
+  - align the PR description with the actual implementation scope
+
+## Manual QA Checklist
+
+- build the extension with `pnpm build`
+- load `.output/chrome-mv3` in `chrome://extensions`
+- verify `Persian` appears in the target-language dropdown
+- verify selecting `Persian` immediately starts translation for existing captions
+- verify existing translations are cleared before new responses arrive when changing target language
+- verify manual `Translate` and `↻` actions also clear stale translations before the new response
+- verify translated Persian text renders RTL in the overlay
+- verify translation editing keeps RTL direction
+- verify saved translations remain readable in history
+- verify OpenAI settings save succeeds without output-limit errors when a valid key and supported model are selected
+
 ## Risks
 
 - Persian added before direction support lands could produce a low-quality UX
 - partial rollout could update one consumer but miss another if shared metadata is bypassed
+- stacked-branch development can create reviewer confusion if the dependency PR is not merged first
+
+## Progress Log
+
+## 2026-03-24
+
+- created the dedicated Persian support branch and feature plan
+- added Persian to shared language metadata with RTL direction
+- validated end-to-end Persian exposure in target-language consumers
+- added static direction handling to translated surfaces through the dependency branch
+- improved translation UX for language switching and manual re-translation
+- updated OpenAI settings validation to avoid false output-limit failures during settings save
+- addressed Copilot review feedback on translation configuration, cleanup, and typing
+- opened and synced upstream PR `#11`
 
 ## Current Execution State
 
-- Branch ready: No
+- Branch ready: Yes
 - Planning document ready: Yes
-- Implementation started: No
-- Recommended next action: create a dedicated Persian support branch after the direction-support work reaches a stable checkpoint
-
+- Implementation started: Yes
+- Current completed phases: Phase 4
+- Current PR status: Ready for review
+- Recommended next action: merge dependency PR `#9`, then merge PR `#11`, followed by one final Persian QA pass on top of upstream `main`

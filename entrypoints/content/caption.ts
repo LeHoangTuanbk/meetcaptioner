@@ -9,7 +9,7 @@ import {
   setWaveTimeout,
   clearSemanticTimer,
 } from "./state";
-import { translateCaption } from "./translation";
+import { translateCaption, cleanupTranslationState } from "./translation";
 import { renderCaptions, scrollToBottomIfNeeded } from "./render";
 import { updateCaptionTranslation } from "./caption-ui";
 import {
@@ -106,6 +106,7 @@ export function addOrUpdateCaption(
     const removed = captions.shift();
     if (removed) {
       clearSemanticTimer(removed.id);
+      cleanupTranslationState(removed.id);
     }
   }
 
