@@ -71,6 +71,9 @@ export function useSessionDetail(session: MeetingSession) {
 
   const displayTitle = getMeetingDisplayTitle(session);
   const displayIdentifier = getPrimaryMeetingIdentifier(session.identifiers);
+  const identifierEntries = Object.entries(session.identifiers).filter(
+    ([, value]) => Boolean(value)
+  ) as Array<[string, string]>;
 
   const formattedStartTime = formatDateTime(session.startTime);
   const formattedEndTime = session.endTime ? formatTime(session.endTime) : null;
@@ -95,6 +98,7 @@ export function useSessionDetail(session: MeetingSession) {
     hasTranslations,
     displayTitle,
     displayIdentifier,
+    identifierEntries,
     formattedStartTime,
     formattedEndTime,
     exportSession,

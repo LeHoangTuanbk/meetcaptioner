@@ -19,6 +19,7 @@ export const SessionDetail = ({
     hasTranslations,
     displayTitle,
     displayIdentifier,
+    identifierEntries,
     formattedStartTime,
     formattedEndTime,
     exportSession,
@@ -87,6 +88,27 @@ export const SessionDetail = ({
       </div>
 
       <div className="bg-slate-800/30 border border-slate-700/50 rounded-xl overflow-hidden">
+        <div className="border-b border-slate-700/50 bg-slate-800/50 px-4 py-3">
+          <div className="grid gap-2 text-xs text-slate-400 sm:grid-cols-2">
+            <div>
+              <span className="text-slate-500">Provider:</span>{" "}
+              <span className="text-slate-200">{session.providerLabel}</span>
+            </div>
+            <div>
+              <span className="text-slate-500">Primary ID:</span>{" "}
+              <span className="text-slate-200">{displayIdentifier}</span>
+            </div>
+            {identifierEntries.map(([key, value]) => (
+              <div key={key}>
+                <span className="text-slate-500">{key}:</span>{" "}
+                <span className="text-slate-200">{value}</span>
+              </div>
+            ))}
+          </div>
+          <p className="mt-2 truncate text-xs text-slate-500">
+            {session.meetingUrl}
+          </p>
+        </div>
         <div className="grid grid-cols-2 gap-px bg-slate-700/50">
           <div className="bg-slate-800 px-4 py-2 text-sm font-medium text-slate-400">
             Caption

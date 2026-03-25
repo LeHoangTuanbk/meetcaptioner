@@ -10,6 +10,8 @@ export default function App() {
     setSelectedSession,
     searchQuery,
     setSearchQuery,
+    providerFilter,
+    setProviderFilter,
     translationDirection,
     storageInfo,
     filteredSessions,
@@ -25,6 +27,13 @@ export default function App() {
       </div>
     );
   }
+
+  const providerFilters = [
+    { id: "all", label: "All Providers" },
+    { id: "google-meet", label: "Google Meet" },
+    { id: "microsoft-teams", label: "Teams Web" },
+    { id: "zoom-web", label: "Zoom Web App" },
+  ] as const;
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100">
@@ -83,6 +92,22 @@ export default function App() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="flex-1 px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:border-slate-600"
               />
+              <div className="flex flex-wrap items-center gap-2">
+                {providerFilters.map((filter) => (
+                  <button
+                    key={filter.id}
+                    onClick={() => setProviderFilter(filter.id)}
+                    className={
+                      "px-3 py-2 text-sm rounded-lg border transition-colors cursor-pointer " +
+                      (providerFilter === filter.id
+                        ? "bg-emerald-500/20 border-emerald-400/40 text-emerald-300"
+                        : "bg-slate-800 border-slate-700 text-slate-400 hover:text-white hover:border-slate-600")
+                    }
+                  >
+                    {filter.label}
+                  </button>
+                ))}
+              </div>
               {sessions.length > 0 && (
                 <button
                   onClick={clearAllHistory}
@@ -97,6 +122,8 @@ export default function App() {
               <div className="text-center py-16 text-slate-500">
                 {searchQuery
                   ? "No meetings match your search"
+                  : providerFilter !== "all"
+                    ? "No meetings saved for this provider yet"
                   : "No meeting history yet"}
               </div>
             ) : (
