@@ -174,3 +174,11 @@ node_modules
 dist
 build
 .output
+
+# >>> codex-session-isolator >>>
+# Managed by Codex Session Isolator launcher wizard.
+vsc_launcher.*
+.vsc_launcher/
+.codex/*
+!.codex/config.toml
+# <<< codex-session-isolator <<<
