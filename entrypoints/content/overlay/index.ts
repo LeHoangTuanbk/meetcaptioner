@@ -3,6 +3,7 @@ import { settings, overlay, setOverlay, setCaptionList } from "../state";
 import { createElement } from "../libs";
 import { renderCaptions } from "../render";
 import { makeDraggable, makeResizable } from "./interactions";
+import { createCaptureGuide, syncCaptureGuide } from "./capture-guide";
 import { createHeader } from "./header";
 import { createScrollButton } from "./scroll-button";
 
@@ -36,6 +37,7 @@ export function createOverlay(): void {
     resizeHandleBR,
     resizeHandleBL,
     resizeHandleB,
+    createCaptureGuide(),
   ]);
 
   if (!settings.translationEnabled) {
@@ -54,4 +56,5 @@ export function createOverlay(): void {
   makeResizable(overlayEl, resizeHandleB, "b");
 
   renderCaptions();
+  syncCaptureGuide();
 }

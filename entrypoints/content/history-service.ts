@@ -1,7 +1,10 @@
 import type { MeetingSession, SavedCaption, Caption } from "./types";
+import type { MeetingSessionMetadata } from "./providers/types";
 import { debounce } from "./libs";
+import { buildMeetingSessionSearchableText } from "../shared/meeting-session";
 
 let currentSession: MeetingSession | null = null;
+let getLatestMetadata: (() => MeetingSessionMetadata) | null = null;
 
 const allCaptions = new Map<number, SavedCaption>();
 
@@ -9,29 +12,44 @@ function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
 
-function getMeetingCodeFromUrl(): string {
-  const match = window.location.pathname.match(
-    /\/([a-z]{3}-[a-z]{4}-[a-z]{3})/
-  );
-  return match ? match[1] : "unknown";
+function refreshSessionMetadata(): void {
+  if (!currentSession || !getLatestMetadata) {
+    return;
+  }
+
+  const metadata = getLatestMetadata();
+  currentSession.platform = metadata.platform;
+  currentSession.providerLabel = metadata.providerLabel;
+  currentSession.meetingUrl = metadata.sourceUrl;
+  currentSession.identifiers = {
+    ...currentSession.identifiers,
+    ...metadata.identifiers,
+  };
+
+  if (!currentSession.title && metadata.title) {
+    currentSession.title = metadata.title;
+  }
 }
 
-function getMeetingTitle(): string | undefined {
-  const el = document.querySelector("[data-meeting-title]");
-  return el?.getAttribute("data-meeting-title") || undefined;
-}
-
-export function initMeetingSession(): void {
+export function initMeetingSession(
+  metadata: MeetingSessionMetadata,
+  metadataProvider?: () => MeetingSessionMetadata
+): void {
   if (currentSession) return;
 
   currentSession = {
     id: generateId(),
-    meetingUrl: window.location.href,
-    meetingCode: getMeetingCodeFromUrl(),
-    title: getMeetingTitle(),
+    platform: metadata.platform,
+    providerLabel: metadata.providerLabel,
+    meetingUrl: metadata.sourceUrl,
+    title: metadata.title,
+    identifiers: metadata.identifiers,
+    searchableText: "",
     startTime: Date.now(),
     captions: [],
   };
+
+  getLatestMetadata = metadataProvider || null;
 }
 
 export function addCaptionToHistory(caption: Caption): void {
@@ -60,11 +78,12 @@ export function updateCaptionInHistory(
 async function saveToStorage(): Promise<void> {
   if (!currentSession) return;
 
-  if (!currentSession.title) {
-    currentSession.title = getMeetingTitle();
-  }
+  refreshSessionMetadata();
 
   currentSession.captions = Array.from(allCaptions.values());
+  currentSession.searchableText = buildMeetingSessionSearchableText(
+    currentSession
+  );
   currentSession.endTime = Date.now();
 
   try {
@@ -81,7 +100,11 @@ export const saveCaptionsDebounced = debounce(saveToStorage, 500);
 
 export function updateSessionEndTime(): void {
   if (!currentSession) return;
+  refreshSessionMetadata();
   currentSession.endTime = Date.now();
+  currentSession.searchableText = buildMeetingSessionSearchableText(
+    currentSession
+  );
   saveToStorage();
 }
 

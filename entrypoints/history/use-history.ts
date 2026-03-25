@@ -139,17 +139,7 @@ export function useHistory() {
   const filteredSessions = useMemo(() => {
     if (!searchQuery) return sessions;
     const query = searchQuery.toLowerCase();
-    return sessions.filter(
-      (session) =>
-        session.meetingCode.toLowerCase().includes(query) ||
-        session.title?.toLowerCase().includes(query) ||
-        session.captions.some(
-          (c) =>
-            c.speaker.toLowerCase().includes(query) ||
-            c.text.toLowerCase().includes(query) ||
-            c.translation?.toLowerCase().includes(query)
-        )
-    );
+    return sessions.filter((session) => session.searchableText.includes(query));
   }, [sessions, searchQuery]);
 
   return {

@@ -18,6 +18,7 @@ export const SessionDetail = ({
   const {
     hasTranslations,
     displayTitle,
+    displayIdentifier,
     formattedStartTime,
     formattedEndTime,
     exportSession,
@@ -37,6 +38,10 @@ export const SessionDetail = ({
           <div>
             <h2 className="text-xl font-semibold text-white">{displayTitle}</h2>
             <p className="text-sm text-slate-400">
+              <span className="mr-2">{session.providerLabel}</span>
+              <span className="mr-2 text-slate-600">•</span>
+              <span className="mr-2">{displayIdentifier}</span>
+              <span className="mr-2 text-slate-600">•</span>
               {formattedStartTime}
               {formattedEndTime && ` - ${formattedEndTime}`}
             </p>

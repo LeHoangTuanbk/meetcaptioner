@@ -1,11 +1,14 @@
-import type { MeetingSession } from "./types";
+import type { MeetingSession, StoredMeetingSession } from "./types";
+import { normalizeMeetingSession } from "../shared/meeting-session";
 
 export async function getMeetingHistory(): Promise<{
   success: boolean;
   sessions: MeetingSession[];
 }> {
   const result = await chrome.storage.local.get("meetingHistory");
-  const sessions = (result.meetingHistory as MeetingSession[]) || [];
+  const sessions = ((result.meetingHistory as StoredMeetingSession[]) || []).map(
+    normalizeMeetingSession
+  );
   return { success: true, sessions };
 }
 
@@ -13,12 +16,13 @@ export async function saveMeetingSession(
   session: MeetingSession
 ): Promise<{ success: boolean }> {
   const { sessions } = await getMeetingHistory();
+  const normalizedSession = normalizeMeetingSession(session);
 
-  const existingIndex = sessions.findIndex((s) => s.id === session.id);
+  const existingIndex = sessions.findIndex((s) => s.id === normalizedSession.id);
   if (existingIndex >= 0) {
-    sessions[existingIndex] = session;
+    sessions[existingIndex] = normalizedSession;
   } else {
-    sessions.push(session);
+    sessions.push(normalizedSession);
   }
 
   sessions.sort((a, b) => b.startTime - a.startTime);
@@ -43,7 +47,7 @@ export async function updateMeetingSession(
   const { sessions } = await getMeetingHistory();
   const index = sessions.findIndex((s) => s.id === sessionId);
   if (index >= 0) {
-    sessions[index] = { ...sessions[index], ...updates };
+    sessions[index] = normalizeMeetingSession({ ...sessions[index], ...updates });
     await chrome.storage.local.set({ meetingHistory: sessions });
   }
   return { success: true };

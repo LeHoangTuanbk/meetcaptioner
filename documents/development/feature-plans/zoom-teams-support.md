@@ -80,6 +80,7 @@ The implementation path should explicitly satisfy these user-facing requirements
 4. the history page must support filtering by provider
 5. the history page must support searching by provider-aware session metadata
 6. the extension should store as much useful session metadata as is realistically available for each provider
+7. implementation work must update and keep in sync all relevant project documentation
 
 These requirements apply to all supported browser providers:
 
@@ -475,6 +476,22 @@ These are not required for the first implementation, but they are worth tracking
 - `re-open capture guide` action from the overlay
 - provider-specific troubleshooting links in the modal
 - internal provider capability scorecard for maintenance
+
+## Documentation Sync Requirement
+
+Every meaningful implementation change in this initiative should update the relevant documentation in the same delivery cycle.
+
+At minimum, keep these surfaces synchronized when behavior changes:
+
+- initiative and phase plan documents
+- `README.md`
+- popup and options instructional copy where applicable
+- store and deployment notes under `documents/deployment/notes/`
+- any QA checklist or troubleshooting notes introduced during implementation
+
+Recommended rule:
+
+- no provider capability, UX behavior, or limitation should ship without matching documentation updates
 
 ## Current Execution State
 

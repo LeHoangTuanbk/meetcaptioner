@@ -72,6 +72,10 @@ Surfaces to review:
 - history page copy if platform labels are added
 - store submission notes and permission justifications
 
+Documentation sync rule:
+
+- when any supported provider behavior changes, the related product and operational docs should be updated in the same phase or PR
+
 ## Workstream 2: History Experience
 
 History should no longer feel Meet-shaped.
@@ -195,6 +199,7 @@ Deliverables:
 - options text updated
 - README updated
 - internal docs updated
+- deployment and store notes updated where scope or permissions changed
 
 Required wording discipline:
 

@@ -1,5 +1,9 @@
 import { useMemo } from "react";
 import type { MeetingSession } from "./types";
+import {
+  getMeetingDisplayTitle,
+  getPrimaryMeetingIdentifier,
+} from "../../shared/meeting-session";
 
 export const formatDateTime = (timestamp: number): string => {
   return new Date(timestamp).toLocaleString("en-US", {
@@ -25,7 +29,7 @@ const buildExportContent = (
   session: MeetingSession,
   type: ExportType
 ): string => {
-  const title = session.title || `Meeting ${session.meetingCode}`;
+  const title = getMeetingDisplayTitle(session);
   let content = `${title}\n${"=".repeat(title.length)}\n\n`;
 
   for (const caption of session.captions) {
@@ -65,7 +69,8 @@ export function useSessionDetail(session: MeetingSession) {
     [session.captions]
   );
 
-  const displayTitle = session.title || `Meeting ${session.meetingCode}`;
+  const displayTitle = getMeetingDisplayTitle(session);
+  const displayIdentifier = getPrimaryMeetingIdentifier(session.identifiers);
 
   const formattedStartTime = formatDateTime(session.startTime);
   const formattedEndTime = session.endTime ? formatTime(session.endTime) : null;
@@ -74,7 +79,7 @@ export function useSessionDetail(session: MeetingSession) {
     const date = new Date(session.startTime).toISOString().slice(0, 10);
     const filename = session.title
       ? session.title.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase()
-      : session.meetingCode;
+      : displayIdentifier;
 
     const content = buildExportContent(session, type);
     downloadFile(content, `${filename}_${date}_${type}.txt`);
@@ -89,6 +94,7 @@ export function useSessionDetail(session: MeetingSession) {
   return {
     hasTranslations,
     displayTitle,
+    displayIdentifier,
     formattedStartTime,
     formattedEndTime,
     exportSession,

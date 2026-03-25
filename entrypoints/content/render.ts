@@ -1,5 +1,12 @@
 import type { Caption } from "./types";
-import { captions, settings, isCCEnabled, captionList, overlay } from "./state";
+import {
+  captions,
+  settings,
+  isCCEnabled,
+  captionList,
+  overlay,
+  emptyStateMessage,
+} from "./state";
 import { createElement, copyToClipboard } from "./libs";
 import { updateCaptionTranslation, startEditTranslation } from "./caption-ui";
 import { manualTranslate, retranslateCaption } from "./translation";
@@ -57,10 +64,12 @@ export function renderCaptions(updateOnly = false): void {
         document.createTextNode("Start speaking to see captions")
       );
     } else {
-      empty.appendChild(document.createTextNode("Waiting for captions..."));
+      empty.appendChild(
+        document.createTextNode(emptyStateMessage.waitingTitle)
+      );
       empty.appendChild(document.createElement("br"));
       empty.appendChild(
-        document.createTextNode("Please, turn on CC in Google Meet")
+        document.createTextNode(emptyStateMessage.waitingBody)
       );
     }
     captionList.appendChild(empty);

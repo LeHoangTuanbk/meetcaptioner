@@ -1,5 +1,9 @@
 import type { Caption, Settings } from "./types";
 import { DEFAULT_CUSTOM_PROMPT } from "./constants";
+import type {
+  PlatformEmptyState,
+  ProviderCaptureGuide,
+} from "./providers/types";
 
 export const captions: Caption[] = [];
 
@@ -27,6 +31,15 @@ export function setCCEnabled(enabled: boolean) {
   isCCEnabled = enabled;
 }
 
+export let emptyStateMessage: PlatformEmptyState = {
+  waitingTitle: "Waiting for captions...",
+  waitingBody: "Enable captions in your meeting to start capturing text",
+};
+
+export function setEmptyStateMessage(message: PlatformEmptyState) {
+  emptyStateMessage = message;
+}
+
 export const semanticTimers = new Map<number, ReturnType<typeof setTimeout>>();
 
 export function clearSemanticTimer(captionId: number) {
@@ -41,6 +54,9 @@ export let overlay: HTMLElement | null = null;
 export let captionList: HTMLElement | null = null;
 export let waveElement: HTMLElement | null = null;
 export let waveTimeout: ReturnType<typeof setTimeout> | null = null;
+export let captureGuide: ProviderCaptureGuide | null = null;
+export let isCaptureGuideOpen = false;
+export let captureGuideElement: HTMLElement | null = null;
 export let isMinimized = false;
 export let savedPosition: {
   left: string;
@@ -63,6 +79,18 @@ export function setWaveElement(el: HTMLElement | null) {
 
 export function setWaveTimeout(timeout: ReturnType<typeof setTimeout> | null) {
   waveTimeout = timeout;
+}
+
+export function setCaptureGuide(guide: ProviderCaptureGuide | null) {
+  captureGuide = guide;
+}
+
+export function setCaptureGuideOpen(open: boolean) {
+  isCaptureGuideOpen = open;
+}
+
+export function setCaptureGuideElement(el: HTMLElement | null) {
+  captureGuideElement = el;
 }
 
 export function setMinimized(minimized: boolean) {

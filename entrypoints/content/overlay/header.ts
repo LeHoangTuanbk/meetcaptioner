@@ -14,6 +14,7 @@ import {
   isTranslationConfigured,
   openTranslationSettings,
 } from "../translation";
+import { openCaptureGuide } from "./capture-guide";
 import { saveOverlaySettings } from "./settings";
 
 export function createHeader(): {
@@ -100,6 +101,13 @@ export function createHeader(): {
     onClick: () => chrome.runtime.sendMessage({ action: "openOptions" }),
   });
 
+  const captureHelpBtn = createElement("button", {
+    className: "mc-btn",
+    "data-tooltip": "Capture Help",
+    textContent: "?",
+    onClick: () => openCaptureGuide(),
+  });
+
   const minimizeBtn = createElement("button", {
     className: "mc-btn",
     "data-tooltip": "Minimize",
@@ -139,6 +147,7 @@ export function createHeader(): {
   );
 
   const miniControls = createElement("div", { className: "mc-header-mini" }, [
+    captureHelpBtn,
     settingsBtn,
     minimizeBtn,
   ]);
