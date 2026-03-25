@@ -19,7 +19,7 @@ export const DEFAULT_SETTINGS: Settings = {
   openaiApiKey: "",
   ollamaBaseUrl: "http://localhost:11434",
   ollamaApiKey: "",
-  model: "gpt-4.1-nano",
+  model: "gpt-5-mini",
   targetLanguage: "en",
   translationEnabled: false,
   customPrompt: DEFAULT_CUSTOM_PROMPT,

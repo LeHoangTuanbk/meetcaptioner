@@ -8,10 +8,12 @@ This feature is intentionally separated from Persian language support. Persian t
 
 ## Metadata
 
-- Feature status: In Progress
+- Feature status: In Review
 - Branch: `feature/add-static-direction-support`
 - Created on: 2026-03-24
 - Current phase status: Phase 4 completed
+- Tracking issue: `#8`
+- Tracking pull request: `#9`
 
 ## Executive Summary
 
@@ -45,11 +47,11 @@ The current UI does not apply explicit direction to translation surfaces. As a r
   - [options/components/constants.ts](../../../entrypoints/options/components/constants.ts)
   - [background/utils.ts](../../../entrypoints/background/utils.ts)
 
-## What Is Missing
+## What Was Missing Before Implementation
 
-- No translation surface uses `dir` from language metadata yet
-- No translation edit surface uses `dir` from language metadata yet
-- History translation rendering is not direction-aware yet
+- No translation surface used `dir` from language metadata
+- No translation edit surface used `dir` from language metadata
+- History translation rendering was not direction-aware
 
 ## Product Goals
 
@@ -199,6 +201,8 @@ If current target language is not a sufficient proxy for saved history rendering
 - completed Phase 2 live translation direction support
 - completed Phase 3 history translation direction support using current settings as the direction source
 - completed Phase 4 verification and cleanup
+- addressed Copilot feedback on repository-relative links in the plan document
+- synced PR `#9` for upstream review
 
 ## Current Execution State
 
@@ -206,4 +210,5 @@ If current target language is not a sufficient proxy for saved history rendering
 - Planning document ready: Yes
 - Implementation started: Yes
 - Current completed phase: Phase 4
-- Recommended next action: if approved, package remaining commits and prepare a contribution path through a fork-based pull request workflow
+- Current PR status: Ready for review
+- Recommended next action: merge PR `#9`, then rebase or merge dependent feature branches on top of upstream `main`
