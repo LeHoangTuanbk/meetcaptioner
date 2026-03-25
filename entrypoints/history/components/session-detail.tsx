@@ -1,14 +1,17 @@
 import type { MeetingSession } from "./types";
 import { useSessionDetail } from "./use-session-detail";
+import type { LanguageDirection } from "../../shared/language-metadata";
 
 type SessionDetailProps = {
   session: MeetingSession;
+  translationDirection: LanguageDirection;
   onBack: () => void;
   onDelete: () => void;
 };
 
 export const SessionDetail = ({
   session,
+  translationDirection,
   onBack,
   onDelete,
 }: SessionDetailProps) => {
@@ -104,7 +107,10 @@ export const SessionDetail = ({
               </div>
               <div className="bg-slate-800/50 p-4">
                 {caption.translation ? (
-                  <p className="text-sm text-blue-300 italic">
+                  <p
+                    className="text-sm text-blue-300 italic"
+                    dir={translationDirection}
+                  >
                     {caption.translation}
                   </p>
                 ) : (

@@ -10,6 +10,7 @@ export default function App() {
     setSelectedSession,
     searchQuery,
     setSearchQuery,
+    translationDirection,
     storageInfo,
     filteredSessions,
     deleteSession,
@@ -68,6 +69,7 @@ export default function App() {
         {selectedSession ? (
           <SessionDetail
             session={selectedSession}
+            translationDirection={translationDirection}
             onBack={() => setSelectedSession(null)}
             onDelete={() => deleteSession(selectedSession.id)}
           />
