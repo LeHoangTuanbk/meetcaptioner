@@ -15,7 +15,7 @@ const finalizationTimers = new Map<number, ReturnType<typeof setTimeout>>();
 const FINALIZE_DELAY = 1500;
 
 function getMeetingCodeFromUrl(): string | undefined {
-  const match = window.location.pathname.match(/\/([a-z]{3}-[a-z]{4}-[a-z]{3})/);
+  const match = window.location.pathname.match(/\/([a-z]{3}-[a-z]{4}-[a-z]{3})(?:\/|$)/);
   return match ? match[1] : undefined;
 }
 
@@ -134,10 +134,11 @@ export const googleMeetProvider: MeetingProvider = {
   platform: "google-meet",
 
   matchesUrl(url) {
-    return (
-      /^\/[a-z]{3}-[a-z]{4}-[a-z]{3}$/.test(url.pathname) ||
-      url.pathname === "/new"
-    );
+    return getGoogleMeetPageKind(url) !== null;
+  },
+
+  matchesPageContext(url) {
+    return getGoogleMeetPageKind(url) !== null;
   },
 
   bootstrap() {
@@ -273,4 +274,22 @@ export const googleMeetProvider: MeetingProvider = {
   isCaptioningCurrentlyAvailable() {
     return document.querySelector('[role="region"].vNKgIf.UDinHf') !== null;
   },
+};
+
+function getGoogleMeetPageKind(
+  url: URL
+): "meeting" | "new" | null {
+  if (url.pathname === "/new") {
+    return "new";
+  }
+
+  if (/^\/[a-z]{3}-[a-z]{4}-[a-z]{3}(?:\/)?$/.test(url.pathname)) {
+    return "meeting";
+  }
+
+  return null;
+}
+
+export const googleMeetProviderInternals = {
+  getGoogleMeetPageKind,
 };

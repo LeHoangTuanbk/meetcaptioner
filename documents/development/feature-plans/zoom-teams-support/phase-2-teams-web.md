@@ -8,7 +8,7 @@ This phase is the first real test of whether the new provider architecture is co
 
 ## Phase Metadata
 
-- Phase status: Planned
+- Phase status: In Progress
 - Parent initiative: [zoom-teams-support.md](../zoom-teams-support.md)
 - Dependency: Phase 1 completed
 - Recommended PR title: `feat: add microsoft teams web caption provider`
@@ -42,6 +42,7 @@ Implement a new `microsoft-teams` provider that:
 In scope:
 
 - Teams meeting pages running in the browser
+- browser meeting entry paths under both `teams.microsoft.com` and `teams.live.com`
 
 Out of scope:
 
@@ -266,6 +267,12 @@ Validation:
 - no runaway duplication
 - empty texts are ignored
 
+Current implementation note:
+
+- an initial heuristic Teams Web caption observer has been added and activated
+- the observer uses semantic and accessibility-oriented selector heuristics rather than hardcoded stable Teams DOM contracts
+- live validation against a real Teams Web meeting is still required before treating the provider as production-stable
+
 ## Step 4: Finalization And Update Semantics
 
 Deliverables:
@@ -396,6 +403,23 @@ Mitigation:
 - Teams sessions save into history with platform identity
 - Teams guidance modal content is available and accurate enough for real use
 - Google Meet baseline still passes smoke testing
+
+## Progress Log
+
+## 2026-03-25
+
+- activated the Teams Web provider in the runtime registry
+- added heuristic caption observation scaffolding for Teams Web
+- added Teams metadata extraction helpers for `meetingId`, `threadId`, and title normalization
+- kept Zoom Web as a planned provider only
+
+## Current Execution State
+
+- Provider activated: Yes
+- Metadata extraction implemented: Yes
+- Caption observer implemented: Initial heuristic version
+- Real browser validation completed: No
+- Recommended next action: run a live Teams Web smoke test and refine selectors using real DOM observations
 
 ## Recommended Commit Breakdown
 

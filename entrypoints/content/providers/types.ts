@@ -31,6 +31,7 @@ export type MeetingSessionMetadata = {
 export type MeetingProvider = {
   platform: MeetingPlatform;
   matchesUrl(url: URL): boolean;
+  matchesPageContext?(url: URL): boolean;
   bootstrap(): Promise<void> | void;
   startCaptionObserver(): () => void;
   getSessionMetadata(): MeetingSessionMetadata;

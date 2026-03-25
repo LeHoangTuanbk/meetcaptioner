@@ -62,6 +62,25 @@ export function getProviderLabel(platform: MeetingPlatform): string {
   return PLATFORM_LABELS[platform];
 }
 
+export function getMeetingIdentifierLabel(
+  key: keyof MeetingSessionIdentifiers
+): string {
+  switch (key) {
+    case "meetingCode":
+      return "Meeting Code";
+    case "meetingId":
+      return "Meeting ID";
+    case "conferenceId":
+      return "Conference ID";
+    case "meetingNumber":
+      return "Meeting Number";
+    case "threadId":
+      return "Thread ID";
+    default:
+      return key;
+  }
+}
+
 export function inferMeetingPlatform(
   meetingUrl: string,
   fallback: MeetingPlatform = "google-meet"

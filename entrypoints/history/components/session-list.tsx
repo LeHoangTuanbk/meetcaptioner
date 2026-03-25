@@ -181,6 +181,14 @@ export const SessionList = ({ sessions, onSelect, onDelete, onUpdateTitle }: Ses
                     {getPrimaryMeetingIdentifier(session.identifiers)}
                   </span>
                 </div>
+                {Object.entries(session.identifiers).some(([, value]) => Boolean(value)) && (
+                  <p className="mb-3 text-xs text-slate-500">
+                    {Object.entries(session.identifiers)
+                      .filter(([, value]) => Boolean(value))
+                      .map(([key, value]) => `${key}: ${value}`)
+                      .join(" • ")}
+                  </p>
+                )}
                 <p className="text-sm text-slate-400 mb-3">
                   {formatTime(session.startTime)}
                   {session.endTime && ` - ${formatTime(session.endTime)}`}

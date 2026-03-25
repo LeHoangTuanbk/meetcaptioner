@@ -45,6 +45,10 @@ export const zoomWebProvider: MeetingProvider = {
     );
   },
 
+  matchesPageContext(url) {
+    return this.matchesUrl(url);
+  },
+
   bootstrap() {
     return undefined;
   },

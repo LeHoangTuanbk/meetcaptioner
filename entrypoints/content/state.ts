@@ -26,6 +26,10 @@ export function getNextCaptionId() {
   return ++captionIdCounter;
 }
 
+export function resetCaptionIdCounter() {
+  captionIdCounter = 0;
+}
+
 export let isCCEnabled = false;
 export function setCCEnabled(enabled: boolean) {
   isCCEnabled = enabled;
@@ -101,4 +105,27 @@ export function setSavedPosition(
   pos: { left: string; top: string; width: string; height: string } | null
 ) {
   savedPosition = pos;
+}
+
+export function resetContentState(): void {
+  captions.length = 0;
+  resetCaptionIdCounter();
+  isCCEnabled = false;
+  emptyStateMessage = {
+    waitingTitle: "Waiting for captions...",
+    waitingBody: "Enable captions in your meeting to start capturing text",
+  };
+  captureGuide = null;
+  isCaptureGuideOpen = false;
+  overlay = null;
+  captionList = null;
+  waveElement = null;
+  captureGuideElement = null;
+  isMinimized = false;
+  savedPosition = null;
+
+  if (waveTimeout) {
+    clearTimeout(waveTimeout);
+    waveTimeout = null;
+  }
 }

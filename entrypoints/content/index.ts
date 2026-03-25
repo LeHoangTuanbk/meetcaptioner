@@ -1,22 +1,23 @@
-import {
-  initializePlatformRuntime,
-  isSupportedMeetingPage,
-} from "./platform-runtime";
+import { initializePlatformRuntime } from "./platform-runtime";
+
+const INITIAL_RETRY_DELAY_MS = 1000;
+const RETRY_INTERVAL_MS = 1000;
+const MAX_RETRY_ATTEMPTS = 30;
+
+let bootStarted = false;
 
 export default defineContentScript({
   matches: [
     "https://meet.google.com/*",
     "https://teams.microsoft.com/*",
     "https://*.teams.microsoft.com/*",
+    "https://teams.live.com/*",
+    "https://*.teams.live.com/*",
     "https://*.zoom.us/*",
   ],
   runAt: "document_start",
 
   main() {
-    if (!isSupportedMeetingPage()) {
-      return;
-    }
-
     // Prevent double injection
     if (document.querySelector('meta[name="meetcaptioner-injected"]')) {
       return;
@@ -27,14 +28,54 @@ export default defineContentScript({
     meta.content = "true";
     (document.head || document.documentElement).appendChild(meta);
 
+    void bootWithRetry();
+
     if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", init);
+      document.addEventListener("DOMContentLoaded", () => {
+        void bootWithRetry();
+      });
     } else {
-      setTimeout(init, 1000);
+      setTimeout(() => {
+        void bootWithRetry();
+      }, INITIAL_RETRY_DELAY_MS);
     }
   },
 });
 
-async function init(): Promise<void> {
-  await initializePlatformRuntime();
+async function bootWithRetry(): Promise<void> {
+  if (bootStarted) {
+    return;
+  }
+
+  bootStarted = true;
+  let attempts = 0;
+
+  const tryInit = async () => {
+    attempts += 1;
+
+    try {
+      const initialized = await initializePlatformRuntime();
+      if (initialized || attempts >= MAX_RETRY_ATTEMPTS) {
+        return;
+      }
+    } catch (error) {
+      console.error("MeetCaptioner init retry failed", error);
+      if (attempts >= MAX_RETRY_ATTEMPTS) {
+        return;
+      }
+    }
+
+    window.setTimeout(() => {
+      void tryInit();
+    }, RETRY_INTERVAL_MS);
+  };
+
+  if (document.readyState !== "loading") {
+    window.setTimeout(() => {
+      void tryInit();
+    }, INITIAL_RETRY_DELAY_MS);
+    return;
+  }
+
+  await tryInit();
 }

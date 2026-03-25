@@ -12,6 +12,70 @@ function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
 
+function isMeaningfulTitle(title: string | undefined): boolean {
+  if (!title) {
+    return false;
+  }
+
+  const normalized = title.trim();
+  if (!normalized) {
+    return false;
+  }
+
+  return (
+    !/^microsoft teams$/i.test(normalized) &&
+    !/^teams$/i.test(normalized) &&
+    !/^microsoft teams meeting$/i.test(normalized)
+  );
+}
+
+function getTitleQualityScore(title: string | undefined): number {
+  if (!title || !title.trim()) {
+    return 0;
+  }
+
+  const normalized = title.trim();
+
+  if (
+    /^microsoft teams$/i.test(normalized) ||
+    /^teams$/i.test(normalized) ||
+    /^microsoft teams meeting$/i.test(normalized)
+  ) {
+    return 1;
+  }
+
+  if (/^meeting with /i.test(normalized) || /^call with /i.test(normalized)) {
+    return 3;
+  }
+
+  return 2;
+}
+
+function shouldReplaceTitle(
+  currentTitle: string | undefined,
+  nextTitle: string | undefined
+): boolean {
+  if (!nextTitle || !nextTitle.trim()) {
+    return false;
+  }
+
+  const currentScore = getTitleQualityScore(currentTitle);
+  const nextScore = getTitleQualityScore(nextTitle);
+
+  if (nextScore > currentScore) {
+    return true;
+  }
+
+  if (
+    nextScore === currentScore &&
+    nextTitle.trim().length > (currentTitle?.trim().length || 0)
+  ) {
+    return true;
+  }
+
+  return !isMeaningfulTitle(currentTitle) && isMeaningfulTitle(nextTitle);
+}
+
 function refreshSessionMetadata(): void {
   if (!currentSession || !getLatestMetadata) {
     return;
@@ -26,7 +90,7 @@ function refreshSessionMetadata(): void {
     ...metadata.identifiers,
   };
 
-  if (!currentSession.title && metadata.title) {
+  if (shouldReplaceTitle(currentSession.title, metadata.title)) {
     currentSession.title = metadata.title;
   }
 }
@@ -110,4 +174,10 @@ export function updateSessionEndTime(): void {
 
 export function getCurrentSessionId(): string | null {
   return currentSession?.id || null;
+}
+
+export function resetMeetingSession(): void {
+  currentSession = null;
+  getLatestMetadata = null;
+  allCaptions.clear();
 }

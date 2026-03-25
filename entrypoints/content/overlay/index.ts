@@ -1,5 +1,12 @@
 import "../styles/index.css";
-import { settings, overlay, setOverlay, setCaptionList } from "../state";
+import {
+  settings,
+  overlay,
+  setOverlay,
+  setCaptionList,
+  setCaptureGuideElement,
+  setWaveElement,
+} from "../state";
 import { createElement } from "../libs";
 import { renderCaptions } from "../render";
 import { makeDraggable, makeResizable } from "./interactions";
@@ -57,4 +64,15 @@ export function createOverlay(): void {
 
   renderCaptions();
   syncCaptureGuide();
+}
+
+export function destroyOverlay(): void {
+  if (overlay?.parentNode) {
+    overlay.parentNode.removeChild(overlay);
+  }
+
+  setOverlay(null);
+  setCaptionList(null);
+  setWaveElement(null);
+  setCaptureGuideElement(null);
 }

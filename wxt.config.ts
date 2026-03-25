@@ -15,6 +15,8 @@ export default defineConfig({
       "https://meet.google.com/*",
       "https://teams.microsoft.com/*",
       "https://*.teams.microsoft.com/*",
+      "https://teams.live.com/*",
+      "https://*.teams.live.com/*",
       "https://*.zoom.us/*",
       "https://api.anthropic.com/*",
       "https://api.openai.com/*",
