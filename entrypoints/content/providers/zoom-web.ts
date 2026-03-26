@@ -2,7 +2,7 @@ import { captions, isCCEnabled, setCCEnabled } from "../state";
 import { addOrUpdateCaption, finalizeCaption } from "../caption";
 import { renderCaptions } from "../render";
 import { closeCaptureGuide } from "../overlay/capture-guide";
-import { querySelectorAllDeep } from "../libs";
+import { isSimilarText, isTextGrowing, querySelectorAllDeep } from "../libs";
 import { getProviderLabel } from "../../shared/meeting-session";
 import type { MeetingProvider } from "./types";
 
@@ -21,9 +21,11 @@ const SYSTEM_TEXT_PATTERN =
   /^(connecting|local data storage.*|captions will be shown in .+|english \(us\)|you have left the meeting|you left the meeting|joining meeting.*|meeting recording.*)$/i;
 
 const elementToCaptionId = new WeakMap<Element, number>();
-const elementLastText = new WeakMap<Element, string>();
+const elementLastVisibleText = new WeakMap<Element, string>();
 const elementLastSpeaker = new WeakMap<Element, string>();
+const elementAccumulatedText = new WeakMap<Element, string>();
 const finalizationTimers = new Map<number, ReturnType<typeof setTimeout>>();
+const captionUpdatedAt = new Map<number, number>();
 
 function normalizeWhitespace(text: string): string {
   return text.replace(/\s+/g, " ").trim();
@@ -67,11 +69,12 @@ function isLikelySystemMessage(text: string): boolean {
   return SYSTEM_TEXT_PATTERN.test(text);
 }
 
-function splitIntoSentenceCandidates(text: string): string[] {
-  return text
-    .split(/(?<=[.!?])\s+/)
-    .map((part) => normalizeWhitespace(part))
-    .filter(Boolean);
+function rememberCaptionUpdate(captionId: number): void {
+  captionUpdatedAt.set(captionId, Date.now());
+}
+
+function cleanupCaptionUpdate(captionId: number): void {
+  captionUpdatedAt.delete(captionId);
 }
 
 function getOverlapLength(previousText: string, nextText: string): number {
@@ -102,6 +105,10 @@ function resolveZoomTextTransition(
     return { mode: "update", text: nextText };
   }
 
+  if (isTextGrowing(previousText, nextText) || isSimilarText(previousText, nextText)) {
+    return { mode: "update", text: nextText };
+  }
+
   const overlapLength = getOverlapLength(previousText, nextText);
   if (overlapLength >= 8) {
     const deltaText = normalizeWhitespace(nextText.slice(overlapLength));
@@ -112,6 +119,160 @@ function resolveZoomTextTransition(
   }
 
   return { mode: "replace", text: nextText };
+}
+
+function extractZoomDeltaText(
+  previousVisibleText: string,
+  nextVisibleText: string
+): string {
+  const previousText = normalizeWhitespace(previousVisibleText);
+  const nextText = normalizeWhitespace(nextVisibleText);
+
+  if (!previousText) {
+    return nextText;
+  }
+
+  if (previousText === nextText) {
+    return "";
+  }
+
+  if (nextText.startsWith(previousText)) {
+    return normalizeWhitespace(nextText.slice(previousText.length));
+  }
+
+  if (previousText.includes(nextText)) {
+    return "";
+  }
+
+  if (nextText.includes(previousText)) {
+    const startIndex = nextText.indexOf(previousText) + previousText.length;
+    return normalizeWhitespace(nextText.slice(startIndex));
+  }
+
+  const overlapLength = getOverlapLength(previousText, nextText);
+  if (overlapLength >= 4) {
+    return normalizeWhitespace(nextText.slice(overlapLength));
+  }
+
+  return nextText;
+}
+
+function mergeZoomRollingTranscript(
+  accumulatedText: string,
+  previousVisibleText: string,
+  nextVisibleText: string
+): string {
+  const normalizedAccumulated = normalizeWhitespace(accumulatedText);
+  const normalizedPreviousVisible = normalizeWhitespace(previousVisibleText);
+  const normalizedNextVisible = normalizeWhitespace(nextVisibleText);
+
+  if (!normalizedAccumulated) {
+    return normalizedNextVisible;
+  }
+
+  if (!normalizedPreviousVisible || normalizedPreviousVisible === normalizedNextVisible) {
+    return normalizedAccumulated;
+  }
+
+  if (normalizedAccumulated.endsWith(normalizedNextVisible)) {
+    return normalizedAccumulated;
+  }
+
+  if (normalizedPreviousVisible.includes(normalizedNextVisible)) {
+    return normalizedAccumulated;
+  }
+
+  if (normalizedNextVisible.includes(normalizedPreviousVisible)) {
+    const startIndex =
+      normalizedNextVisible.indexOf(normalizedPreviousVisible) +
+      normalizedPreviousVisible.length;
+    const deltaText = normalizeWhitespace(normalizedNextVisible.slice(startIndex));
+    return deltaText
+      ? normalizeWhitespace(`${normalizedAccumulated} ${deltaText}`)
+      : normalizedAccumulated;
+  }
+
+  const overlapLength = getOverlapLength(normalizedPreviousVisible, normalizedNextVisible);
+  if (overlapLength >= 6) {
+    const deltaText = normalizeWhitespace(normalizedNextVisible.slice(overlapLength));
+    return deltaText
+      ? normalizeWhitespace(`${normalizedAccumulated} ${deltaText}`)
+      : normalizedAccumulated;
+  }
+
+  if (
+    isTextGrowing(normalizedPreviousVisible, normalizedNextVisible) ||
+    isSimilarText(normalizedPreviousVisible, normalizedNextVisible)
+  ) {
+    const suffixGuess = normalizeWhitespace(
+      normalizedNextVisible.slice(normalizedPreviousVisible.length)
+    );
+
+    return suffixGuess
+      ? normalizeWhitespace(`${normalizedAccumulated} ${suffixGuess}`)
+      : normalizedAccumulated;
+  }
+
+  return normalizeWhitespace(`${normalizedAccumulated} ${normalizedNextVisible}`);
+}
+
+function isShortContinuationText(text: string): boolean {
+  if (text.length <= 24) {
+    return true;
+  }
+
+  if (/^[a-z]/.test(text)) {
+    return true;
+  }
+
+  return /^(and|but|or|so|because|then|okay|ok|yes|no|yeah|uh|um|hmm|mm-hmm)\b/i.test(
+    text
+  );
+}
+
+function hasTerminalPunctuation(text: string): boolean {
+  return /[.!?]["')\]]?$/.test(text.trim());
+}
+
+function mergeRollingTexts(previousText: string, nextText: string): string {
+  if (!previousText) {
+    return nextText;
+  }
+
+  if (previousText.includes(nextText)) {
+    return previousText;
+  }
+
+  if (nextText.includes(previousText)) {
+    return nextText;
+  }
+
+  const overlapLength = getOverlapLength(previousText, nextText);
+  if (overlapLength >= 1) {
+    return normalizeWhitespace(previousText + nextText.slice(overlapLength));
+  }
+
+  return normalizeWhitespace(`${previousText} ${nextText}`);
+}
+
+function shouldMergeIntoExistingCaption(
+  previousText: string,
+  nextText: string
+): boolean {
+  if (isSimilarText(previousText, nextText) || isTextGrowing(previousText, nextText)) {
+    return true;
+  }
+
+  if (isShortContinuationText(nextText)) {
+    return true;
+  }
+
+  if (!hasTerminalPunctuation(previousText)) {
+    return true;
+  }
+
+  const overlapLength = getOverlapLength(previousText, nextText);
+  return overlapLength >= 8;
 }
 
 function getExplicitSubtitleItems(): Element[] {
@@ -416,6 +577,7 @@ function cancelFinalization(captionId: number): void {
 
   clearTimeout(timer);
   finalizationTimers.delete(captionId);
+  cleanupCaptionUpdate(captionId);
 }
 
 function finalizePendingCaptions(): void {
@@ -426,6 +588,58 @@ function finalizePendingCaptions(): void {
   }
 }
 
+function getLatestCaptionForSpeaker(
+  speaker: string,
+  excludeCaptionId?: number
+): (typeof captions)[number] | null {
+  for (let index = captions.length - 1; index >= 0; index -= 1) {
+    const caption = captions[index];
+    if (caption.speaker !== speaker) {
+      continue;
+    }
+
+    if (excludeCaptionId !== undefined && caption.id === excludeCaptionId) {
+      continue;
+    }
+
+    return caption;
+  }
+
+  return null;
+}
+
+function deriveNextCaptionTextForSpeaker(
+  speaker: string,
+  visibleText: string,
+  excludeCaptionId?: number
+): string {
+  const latestSpeakerCaption = getLatestCaptionForSpeaker(speaker, excludeCaptionId);
+  if (!latestSpeakerCaption) {
+    return visibleText;
+  }
+
+  const deltaText = extractZoomDeltaText(latestSpeakerCaption.text, visibleText);
+  if (deltaText) {
+    return deltaText;
+  }
+
+  return visibleText;
+}
+
+function hasInterveningSpeakerAfterCaption(
+  captionId: number,
+  speaker: string
+): boolean {
+  const captionIndex = captions.findIndex((item) => item.id === captionId);
+  if (captionIndex < 0) {
+    return false;
+  }
+
+  return captions
+    .slice(captionIndex + 1)
+    .some((item) => item.speaker !== speaker);
+}
+
 function processCaptionEntry(entry: Element): void {
   const extracted = extractSpeakerAndText(entry);
   if (!extracted) {
@@ -433,23 +647,19 @@ function processCaptionEntry(entry: Element): void {
   }
 
   const { speaker } = extracted;
-  const sentenceCandidates = splitIntoSentenceCandidates(extracted.text);
-  const text =
-    sentenceCandidates.length > 0
-      ? sentenceCandidates[sentenceCandidates.length - 1]
-      : extracted.text;
+  const text = normalizeWhitespace(extracted.text);
 
   if (isLikelySystemMessage(text)) {
     return;
   }
 
-  const lastText = elementLastText.get(entry);
+  const lastVisibleText = elementLastVisibleText.get(entry);
   const lastSpeaker = elementLastSpeaker.get(entry);
-  if (lastText === text && lastSpeaker === speaker) {
+  if (lastVisibleText === text && lastSpeaker === speaker) {
     return;
   }
 
-  elementLastText.set(entry, text);
+  elementLastVisibleText.set(entry, text);
   elementLastSpeaker.set(entry, speaker);
 
   const existingCaptionId = elementToCaptionId.get(entry);
@@ -459,6 +669,8 @@ function processCaptionEntry(entry: Element): void {
       cancelFinalization(existingCaptionId);
       const newId = addOrUpdateCaption(null, speaker, text);
       elementToCaptionId.set(entry, newId);
+      elementAccumulatedText.set(entry, text);
+      rememberCaptionUpdate(newId);
       scheduleFinalization(newId);
       return;
     }
@@ -469,11 +681,49 @@ function processCaptionEntry(entry: Element): void {
         : speaker;
 
     if (caption.speaker === resolvedSpeaker) {
+      if (hasInterveningSpeakerAfterCaption(existingCaptionId, resolvedSpeaker)) {
+        const previousVisibleText = lastVisibleText || caption.text;
+        const nextCaptionText =
+          deriveNextCaptionTextForSpeaker(
+            resolvedSpeaker,
+            extractZoomDeltaText(previousVisibleText, text) || text,
+            existingCaptionId
+          ) || text;
+
+        cancelFinalization(existingCaptionId);
+        finalizeCaption(existingCaptionId);
+
+        const newId = addOrUpdateCaption(null, resolvedSpeaker, nextCaptionText);
+        elementToCaptionId.set(entry, newId);
+        elementAccumulatedText.set(entry, nextCaptionText);
+        rememberCaptionUpdate(newId);
+        scheduleFinalization(newId);
+        return;
+      }
+
       if (caption.text !== text) {
-        const transition = resolveZoomTextTransition(caption.text, text);
+        const previousVisibleText = lastVisibleText || caption.text;
+        const accumulatedText =
+          elementAccumulatedText.get(entry) || caption.text || previousVisibleText;
+        const mergedTranscript = mergeZoomRollingTranscript(
+          accumulatedText,
+          previousVisibleText,
+          text
+        );
+        const transition = resolveZoomTextTransition(caption.text, mergedTranscript);
 
         if (transition.mode === "update") {
           addOrUpdateCaption(existingCaptionId, resolvedSpeaker, transition.text);
+          elementAccumulatedText.set(entry, transition.text);
+          rememberCaptionUpdate(existingCaptionId);
+          scheduleFinalization(existingCaptionId);
+          return;
+        }
+
+        if (shouldMergeIntoExistingCaption(caption.text, transition.text)) {
+          const mergedText = mergeRollingTexts(caption.text, transition.text);
+          addOrUpdateCaption(existingCaptionId, resolvedSpeaker, mergedText);
+          rememberCaptionUpdate(existingCaptionId);
           scheduleFinalization(existingCaptionId);
           return;
         }
@@ -483,9 +733,13 @@ function processCaptionEntry(entry: Element): void {
 
         const newId = addOrUpdateCaption(null, resolvedSpeaker, transition.text);
         elementToCaptionId.set(entry, newId);
+        elementAccumulatedText.set(entry, transition.text);
+        rememberCaptionUpdate(newId);
         scheduleFinalization(newId);
         return;
       } else {
+        elementAccumulatedText.set(entry, caption.text);
+        rememberCaptionUpdate(existingCaptionId);
         scheduleFinalization(existingCaptionId);
       }
       return;
@@ -494,8 +748,13 @@ function processCaptionEntry(entry: Element): void {
     cancelFinalization(existingCaptionId);
     finalizeCaption(existingCaptionId);
 
-    const newId = addOrUpdateCaption(null, speaker, text);
+    const nextCaptionText =
+      deriveNextCaptionTextForSpeaker(speaker, text, existingCaptionId) || text;
+
+    const newId = addOrUpdateCaption(null, speaker, nextCaptionText);
     elementToCaptionId.set(entry, newId);
+    elementAccumulatedText.set(entry, nextCaptionText);
+    rememberCaptionUpdate(newId);
     scheduleFinalization(newId);
     return;
   }
@@ -504,6 +763,8 @@ function processCaptionEntry(entry: Element): void {
 
   const newId = addOrUpdateCaption(null, speaker, text);
   elementToCaptionId.set(entry, newId);
+  elementAccumulatedText.set(entry, text);
+  rememberCaptionUpdate(newId);
   scheduleFinalization(newId);
 }
 
