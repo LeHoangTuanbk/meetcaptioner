@@ -15,6 +15,7 @@ export default defineContentScript({
     "https://*.teams.live.com/*",
     "https://*.zoom.us/*",
   ],
+  allFrames: true,
   runAt: "document_start",
 
   main() {
