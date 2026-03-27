@@ -14,6 +14,7 @@ import {
   getProviderForPageContext,
   getProviderForUrl,
 } from "./providers/registry";
+import { resetTranslationState } from "./translation";
 import {
   resetContentState,
   setCaptureGuide,
@@ -152,6 +153,7 @@ function teardownPlatformRuntime(): void {
   updateSessionEndTime();
   destroyOverlay();
   resetMeetingSession();
+  resetTranslationState();
   resetContentState();
 
   runtimeInitialized = false;

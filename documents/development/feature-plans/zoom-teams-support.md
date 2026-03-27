@@ -10,8 +10,8 @@ The goal of this document set is to make implementation incremental, testable, a
 
 ## Metadata
 
-- Feature status: Planned
-- Feature status: Completed
+- Initial feature status: Planned
+- Current feature status: Completed
 - Branch: `feature/add-zoom-teams-support`
 - Created on: 2026-03-25
 - Current phase status: Planned implementation completed

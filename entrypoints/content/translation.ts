@@ -78,6 +78,11 @@ export function cleanupTranslationState(captionId: number): void {
   translationEpochs.delete(captionId);
 }
 
+export function resetTranslationState(): void {
+  pendingTranslations.clear();
+  translationEpochs.clear();
+}
+
 export async function translateCaption(
   captionObj: Caption,
   mode: "optimistic" | "semantic" = "semantic",

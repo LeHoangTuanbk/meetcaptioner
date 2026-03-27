@@ -85,10 +85,22 @@ function refreshSessionMetadata(): void {
   currentSession.platform = metadata.platform;
   currentSession.providerLabel = metadata.providerLabel;
   currentSession.meetingUrl = metadata.sourceUrl;
-  currentSession.identifiers = {
-    ...currentSession.identifiers,
-    ...metadata.identifiers,
+
+  const mergedIdentifiers: typeof currentSession.identifiers = {
+    ...(currentSession.identifiers || {}),
   };
+  if (metadata.identifiers) {
+    for (const [key, value] of Object.entries(metadata.identifiers)) {
+      if (
+        value !== undefined &&
+        value !== null &&
+        (typeof value !== "string" || value.trim() !== "")
+      ) {
+        mergedIdentifiers[key as keyof typeof mergedIdentifiers] = value;
+      }
+    }
+  }
+  currentSession.identifiers = mergedIdentifiers;
 
   if (shouldReplaceTitle(currentSession.title, metadata.title)) {
     currentSession.title = metadata.title;
