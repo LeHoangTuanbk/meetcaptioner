@@ -1,3 +1,11 @@
+export type {
+  MeetingPlatform,
+  MeetingSession,
+  MeetingSessionIdentifiers,
+  SavedCaption,
+  StoredMeetingSession,
+} from "../../shared/meeting-session";
+
 export const PROVIDERS = {
   anthropic: "anthropic",
   openai: "openai",
@@ -19,10 +27,11 @@ export type Settings = {
 };
 
 export type TranslateRequest = {
-  id: string;
+  id: number | string;
   text: string;
   targetLang: string;
   mode: "optimistic" | "semantic";
+  force?: boolean;
   context?: string;
   speaker?: string;
   customPrompt?: string;
@@ -30,7 +39,7 @@ export type TranslateRequest = {
 
 export type TranslateResponse = {
   success: boolean;
-  id?: string;
+  id?: number | string;
   translation?: string;
   mode?: string;
   error?: string;
@@ -53,19 +62,4 @@ export type OllamaModelSummary = {
     parameter_size: string;
     quantization_level: string;
   };
-};
-
-export type MeetingSession = {
-  id: string;
-  meetingUrl: string;
-  meetingCode: string;
-  startTime: number;
-  endTime?: number;
-  captions: Array<{
-    speaker: string;
-    text: string;
-    translation?: string;
-    time: string;
-    timestamp: number;
-  }>;
 };

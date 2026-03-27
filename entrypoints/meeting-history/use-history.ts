@@ -1,11 +1,18 @@
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
-import type { MeetingSession } from "./components";
+import type { MeetingPlatform, MeetingSession } from "./components";
+import {
+  getLanguageDirection,
+  type LanguageDirection,
+} from "../shared/language-metadata";
+import { buildMeetingSessionSearchableText } from "../shared/meeting-session";
 
 type StorageInfo = {
   bytesUsed: number;
   quota: number;
 };
+
+export type ProviderFilter = "all" | MeetingPlatform;
 
 export function useHistory() {
   const [sessions, setSessions] = useState<MeetingSession[]>([]);
@@ -14,6 +21,9 @@ export function useHistory() {
     null
   );
   const [searchQuery, setSearchQuery] = useState("");
+  const [providerFilter, setProviderFilter] = useState<ProviderFilter>("all");
+  const [translationDirection, setTranslationDirection] =
+    useState<LanguageDirection>("ltr");
   const [storageInfo, setStorageInfo] = useState<StorageInfo>({
     bytesUsed: 0,
     quota: 5242880,
@@ -22,6 +32,7 @@ export function useHistory() {
   useEffect(() => {
     loadHistory();
     loadStorageInfo();
+    loadTranslationDirection();
   }, []);
 
   const loadHistory = async () => {
@@ -52,6 +63,21 @@ export function useHistory() {
       }
     } catch {
       // Storage info load failed silently
+    }
+  };
+
+  const loadTranslationDirection = async () => {
+    try {
+      const response = await chrome.runtime.sendMessage({
+        action: "getSettings",
+      });
+      if (response?.success && response.settings?.targetLanguage) {
+        setTranslationDirection(
+          getLanguageDirection(response.settings.targetLanguage)
+        );
+      }
+    } catch {
+      // Translation direction load failed silently
     }
   };
 
@@ -100,12 +126,30 @@ export function useHistory() {
       });
       setSessions((prev) =>
         prev.map((s) =>
-          s.id === sessionId ? { ...s, title: title || undefined } : s
+          s.id === sessionId
+            ? {
+                ...s,
+                title: title || undefined,
+                searchableText: buildMeetingSessionSearchableText({
+                  ...s,
+                  title: title || undefined,
+                }),
+              }
+            : s
         )
       );
       if (selectedSession?.id === sessionId) {
         setSelectedSession((prev) =>
-          prev ? { ...prev, title: title || undefined } : null
+          prev
+            ? {
+                ...prev,
+                title: title || undefined,
+                searchableText: buildMeetingSessionSearchableText({
+                  ...prev,
+                  title: title || undefined,
+                }),
+              }
+            : null
         );
       }
       toast.success("Title updated");
@@ -115,20 +159,15 @@ export function useHistory() {
   };
 
   const filteredSessions = useMemo(() => {
-    if (!searchQuery) return sessions;
+    const baseSessions =
+      providerFilter === "all"
+        ? sessions
+        : sessions.filter((session) => session.platform === providerFilter);
+
+    if (!searchQuery) return baseSessions;
     const query = searchQuery.toLowerCase();
-    return sessions.filter(
-      (session) =>
-        session.meetingCode.toLowerCase().includes(query) ||
-        session.title?.toLowerCase().includes(query) ||
-        session.captions.some(
-          (c) =>
-            c.speaker.toLowerCase().includes(query) ||
-            c.text.toLowerCase().includes(query) ||
-            c.translation?.toLowerCase().includes(query)
-        )
-    );
-  }, [sessions, searchQuery]);
+    return baseSessions.filter((session) => session.searchableText.includes(query));
+  }, [sessions, searchQuery, providerFilter]);
 
   return {
     sessions,
@@ -137,6 +176,9 @@ export function useHistory() {
     setSelectedSession,
     searchQuery,
     setSearchQuery,
+    providerFilter,
+    setProviderFilter,
+    translationDirection,
     storageInfo,
     filteredSessions,
     deleteSession,

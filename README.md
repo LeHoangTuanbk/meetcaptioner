@@ -1,6 +1,6 @@
 # MeetCaptioner
 
-A powerful Chrome extension that captures Google Meet captions in real-time with live translation support powered by AI.
+A powerful Chrome extension that captures browser meeting captions in real-time with live translation support powered by AI.
 
 ![Chrome Extension](https://img.shields.io/badge/Platform-Chrome%20Extension-4285F4?logo=googlechrome&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
@@ -9,20 +9,22 @@ A powerful Chrome extension that captures Google Meet captions in real-time with
 
 ## Features
 
-- **Real-time Caption Capture** - Automatically captures captions from Google Meet with speaker identification
-- **Live AI Translation** - Translate captions to 18+ languages using OpenAI, Anthropic, or Ollama (local/cloud)
+- **Real-time Caption Capture** - Automatically captures captions from supported browser meetings with speaker identification
+- **Live AI Translation** - Translate captions to 19+ languages using OpenAI, Anthropic, or Ollama (local/cloud)
 - **Floating Overlay** - Draggable, resizable overlay that doesn't interfere with your meeting
 - **Meeting History** - Auto-saves all your meeting captions locally for later review
 - **Export Options** - Export captions and translations to text files
 - **Editable Translations** - Click to edit any translation manually
 - **Smart Fallback** - Automatic model switching when rate limits are hit
+- **Direction-Aware Translation UI** - RTL/LTR direction is applied from language metadata in the overlay and history views
+- **Faster Re-Translation UX** - Changing the target language or triggering manual re-translation clears stale output and starts a fresh request immediately
 - **Privacy First** - All data stored locally, no external servers
 
 ## Screenshots
 
 ![MeetCaptioner Demo](documents/deployment/images/github/demo.png)
 
-_Real-time caption capture and AI translation in Google Meet_
+_Real-time caption capture and AI translation across supported browser meetings_
 
 ## Installation
 
@@ -31,8 +33,8 @@ _Real-time caption capture and AI translation in Google Meet_
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/LeHoangTuanbk/MeetCaptioner
-   cd meet-captioner
+   git clone https://github.com/LeHoangTuanbk/meetcaptioner.git
+   cd meetcaptioner
    ```
 
 2. **Install dependencies**
@@ -69,13 +71,22 @@ _Real-time caption capture and AI translation in Google Meet_
 2. Choose your AI provider (OpenAI, Anthropic, or Ollama)
 3. Enter your API key (or configure Ollama server URL for local LLM)
 4. Select your preferred model and target language
-5. Enable translation toggle in the overlay
+5. Open a supported meeting in the browser and enable native captions
+6. Enable translation toggle in the overlay
+
+### Supported Meeting Platforms
+
+- Google Meet
+- Microsoft Teams Web
+- Zoom Web App
+
+> Note: Native desktop Zoom and native desktop Teams apps are not supported.
 
 ### Supported AI Providers
 
 | Provider  | Models                                                     |
 | --------- | ---------------------------------------------------------- |
-| OpenAI    | GPT-4.1 Nano, GPT-4.1 Mini, GPT-5 Nano                     |
+| OpenAI    | GPT-5 Mini, GPT-5.2, GPT-5.1, GPT-5 Nano, GPT-4.1, GPT-4.1 Mini |
 | Anthropic | Claude Haiku 4.5, Claude Sonnet 4.5, Claude Opus 4.5       |
 | Ollama    | Any local model (Qwen, Llama, Gemma, etc.) or Ollama Cloud |
 
@@ -83,7 +94,13 @@ _Real-time caption capture and AI translation in Google Meet_
 
 ### Supported Languages
 
-Vietnamese, English, Chinese, Japanese, Korean, Spanish, French, German, Portuguese, Russian, Arabic, Hindi, Italian, Thai, Indonesian, Dutch, Polish, Turkish
+Vietnamese, English, Persian, Chinese, Japanese, Korean, Spanish, French, German, Portuguese, Russian, Arabic, Hindi, Italian, Thai, Indonesian, Dutch, Polish, Turkish
+
+### Translation UX Notes
+
+- Changing the target language in the overlay immediately triggers re-translation for existing captions
+- Existing translated text is cleared before a new translation request completes, reducing stale-language flashes
+- OpenAI settings validation uses model lookup instead of a generation request, which avoids false save failures caused by output token limits
 
 ## Tech Stack
 
@@ -98,8 +115,9 @@ Vietnamese, English, Chinese, Japanese, Korean, Spanish, French, German, Portugu
 ```
 meet-captioner/
 ├── entrypoints/
-│   ├── content/          # Content script (caption capture, overlay)
+│   ├── content/          # Content script (provider detection, caption capture, overlay)
 │   │   ├── styles/       # CSS modules
+│   │   ├── providers/    # Meeting platform adapters
 │   │   ├── caption.ts    # Caption management
 │   │   ├── overlay.ts    # Floating UI
 │   │   ├── render.ts     # DOM rendering
@@ -107,7 +125,7 @@ meet-captioner/
 │   ├── background.ts     # Service worker (API calls, storage)
 │   ├── popup/            # Extension popup
 │   ├── options/          # Settings page
-│   └── history/          # Meeting history page
+│   └── meeting-history/  # Meeting history page
 ├── public/               # Static assets
 └── wxt.config.ts         # WXT configuration
 ```

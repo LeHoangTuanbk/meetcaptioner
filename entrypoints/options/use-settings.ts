@@ -6,7 +6,8 @@ type Provider = "anthropic" | "openai" | "ollama";
 
 const validateApiKey = async (
   provider: Provider,
-  apiKey: string
+  apiKey: string,
+  model?: string
 ): Promise<{ valid: boolean; error?: string }> => {
   if (provider === "ollama") return { valid: true };
   if (!apiKey) return { valid: true };
@@ -39,25 +40,26 @@ const validateApiKey = async (
       }
       return { valid: true };
     } else {
+      const modelToValidate = model || "gpt-5-mini";
       const response = await fetch(
-        "https://api.openai.com/v1/chat/completions",
+        `https://api.openai.com/v1/models/${encodeURIComponent(modelToValidate)}`,
         {
-          method: "POST",
+          method: "GET",
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${apiKey}`,
           },
-          body: JSON.stringify({
-            model: "gpt-4.1-nano",
-            max_completion_tokens: 1,
-            messages: [{ role: "user", content: "Hi" }],
-          }),
         }
       );
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
         if (response.status === 401) {
           return { valid: false, error: "Invalid OpenAI API key" };
+        }
+        if (response.status === 404) {
+          return {
+            valid: false,
+            error: `OpenAI model not available: ${modelToValidate}`,
+          };
         }
         return {
           valid: false,
@@ -119,7 +121,8 @@ export function useSettings() {
         if (currentKey && currentKey !== originalApiKey) {
           const validation = await validateApiKey(
             settings.provider,
-            currentKey
+            currentKey,
+            settings.model
           );
           if (!validation.valid) {
             toast.error(validation.error || "Invalid API key");
@@ -170,7 +173,7 @@ export function useSettings() {
   };
 
   const openHistory = () => {
-    chrome.tabs.create({ url: chrome.runtime.getURL("history.html") });
+    chrome.tabs.create({ url: chrome.runtime.getURL("meeting-history.html") });
   };
 
   return {

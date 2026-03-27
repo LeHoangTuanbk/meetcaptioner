@@ -1,20 +1,20 @@
 # Chrome Web Store Description
 
 ## Short Summary (from manifest)
-Capture and translate Google Meet captions in real-time
+Capture and translate browser meeting captions in real-time
 
 ## Full Description (copy below for store listing)
 
 ---
 
-Never miss a word in your Google Meet calls again.
+Never miss a word in your browser meetings again.
 
 MeetCaptioner captures live captions and translates them instantly using AI — perfect for international meetings, language learners, or anyone who needs accurate meeting notes.
 
 🎯 KEY FEATURES
 
-• Real-time Caption Capture — Automatically captures every word spoken in your Google Meet with speaker identification
-• AI-Powered Translation — Translate to 18+ languages using OpenAI, Anthropic, or Ollama (local/cloud)
+• Real-time Caption Capture — Automatically captures every word spoken in supported browser meetings with speaker identification
+• AI-Powered Translation — Translate to 19+ languages using OpenAI, Anthropic, or Ollama (local/cloud)
 • Floating Overlay — Draggable, resizable panel that stays out of your way
 • Meeting History — All your captions are auto-saved locally for later review
 • Export Options — Download captions and translations as text files
@@ -24,12 +24,12 @@ MeetCaptioner captures live captions and translates them instantly using AI — 
 
 🌍 SUPPORTED LANGUAGES
 
-Vietnamese, English, Chinese, Japanese, Korean, Spanish, French, German, Portuguese, Russian, Arabic, Hindi, Italian, Thai, Indonesian, Dutch, Polish, Turkish
+Vietnamese, English, Persian, Chinese, Japanese, Korean, Spanish, French, German, Portuguese, Russian, Arabic, Hindi, Italian, Thai, Indonesian, Dutch, Polish, Turkish
 
 🤖 AI PROVIDERS
 
 Choose your preferred AI provider:
-• OpenAI (GPT-4.1 Nano, GPT-4.1 Mini, GPT-4.1, GPT-5 Nano, GPT-5 Mini, GPT-5)
+• OpenAI (GPT-4.1 Mini, GPT-4.1, GPT-5 Nano, GPT-5.1, GPT-5.2, GPT-5 Mini)
 • Anthropic (Claude Haiku 4.5, Claude Sonnet 4.5, Claude Opus 4.5)
 • Ollama (Local LLM or Ollama Cloud) — Run models like Qwen, Llama, Gemma locally for free
 
@@ -48,11 +48,19 @@ Your API keys and meeting data stay on your device. We don't collect, store, or 
 📋 HOW TO USE
 
 1. Install the extension
-2. Join a Google Meet call
-3. Enable captions in Google Meet
+2. Join a supported browser meeting
+3. Enable native captions or live transcription in the meeting platform
 4. Configure your API key in Settings
 5. Toggle translation ON in the overlay
 6. Watch real-time translations appear!
+
+SUPPORTED MEETING PLATFORMS
+
+• Google Meet
+• Microsoft Teams Web
+• Zoom Web App
+
+Note: Native desktop Zoom and native desktop Teams apps are not supported.
 
 ---
 
@@ -65,7 +73,7 @@ Made with ❤️ for better communication across languages.
 
 ### Single Purpose Description
 ```
-MeetCaptioner captures and displays real-time captions from Google Meet meetings with AI-powered translation. It provides a floating overlay showing original captions alongside translations, helping users understand multilingual conversations and save meeting transcripts. Users can choose from cloud AI providers (OpenAI, Anthropic) or run local LLMs via Ollama for privacy-focused translation.
+MeetCaptioner captures and displays real-time captions from supported browser meetings with AI-powered translation. It provides a floating overlay showing original captions alongside translations, helping users understand multilingual conversations and save meeting transcripts. Users can choose from cloud AI providers (OpenAI, Anthropic) or run local LLMs via Ollama for privacy-focused translation.
 ```
 
 ### Storage Permission Justification
@@ -78,13 +86,17 @@ The storage permission is required to:
 All data is stored locally on the user's device and never transmitted to external servers.
 ```
 
-### Host Permission Justification (meet.google.com)
-1. meet.google.com - Inject content script to capture live captions, read speaker names/timestamps, and render translation overlay on Meet page.
+### Host Permission Justification
+1. meet.google.com - Inject content script to capture live captions, read speaker names and timestamps, and render the translation overlay on Google Meet.
 
-2. api.anthropic.com & api.openai.com - Send caption text for AI translation using user's own API key. No data sent without user configuration.
+2. teams.microsoft.com / teams.live.com - Inject content script to detect supported Teams Web meeting surfaces, capture visible caption text, and render the translation overlay.
 
-3. localhost/127.0.0.1 - Support local Ollama LLM for privacy-focused translation without external servers.
+3. *.zoom.us - Inject content script into supported Zoom Web App meeting surfaces, capture visible subtitle text, and render the translation overlay.
 
-4. ollama.com - Support Ollama Cloud service for users preferring hosted option.
+4. api.anthropic.com & api.openai.com - Send caption text for AI translation using user's own API key. No data sent without user configuration.
+
+5. localhost/127.0.0.1 - Support local Ollama LLM for privacy-focused translation without external servers.
+
+6. ollama.com - Support Ollama Cloud service for users preferring hosted option.
 
 All API keys stored locally. Users choose their provider and must configure before any data is sent.

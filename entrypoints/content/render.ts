@@ -1,9 +1,17 @@
 import type { Caption } from "./types";
-import { captions, settings, isCCEnabled, captionList, overlay } from "./state";
+import {
+  captions,
+  settings,
+  isCCEnabled,
+  captionList,
+  overlay,
+  emptyStateMessage,
+} from "./state";
 import { createElement, copyToClipboard } from "./libs";
 import { updateCaptionTranslation, startEditTranslation } from "./caption-ui";
 import { manualTranslate, retranslateCaption } from "./translation";
 import { TranslationStatus } from "./constants";
+import { getLanguageDirection } from "../shared/language-metadata";
 
 export function scrollToBottomIfNeeded(): void {
   if (!overlay) return;
@@ -56,10 +64,12 @@ export function renderCaptions(updateOnly = false): void {
         document.createTextNode("Start speaking to see captions")
       );
     } else {
-      empty.appendChild(document.createTextNode("Waiting for captions..."));
+      empty.appendChild(
+        document.createTextNode(emptyStateMessage.waitingTitle)
+      );
       empty.appendChild(document.createElement("br"));
       empty.appendChild(
-        document.createTextNode("Please, turn on CC in Google Meet")
+        document.createTextNode(emptyStateMessage.waitingBody)
       );
     }
     captionList.appendChild(empty);
@@ -132,6 +142,8 @@ export function renderCaptions(updateOnly = false): void {
 }
 
 function createCaptionElement(c: Caption): HTMLElement {
+  const translationDirection = getLanguageDirection(settings.targetLanguage);
+
   const speaker = createElement("div", {
     className: "mc-speaker",
     textContent: c.speaker,
@@ -166,6 +178,7 @@ function createCaptionElement(c: Caption): HTMLElement {
       }
     },
     "data-tooltip": "Click to edit, double-click to copy",
+    dir: translationDirection,
   });
   translationWrapper.appendChild(translation);
 

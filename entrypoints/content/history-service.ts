@@ -1,7 +1,10 @@
 import type { MeetingSession, SavedCaption, Caption } from "./types";
+import type { MeetingSessionMetadata } from "./providers/types";
 import { debounce } from "./libs";
+import { buildMeetingSessionSearchableText } from "../shared/meeting-session";
 
 let currentSession: MeetingSession | null = null;
+let getLatestMetadata: (() => MeetingSessionMetadata) | null = null;
 
 const allCaptions = new Map<number, SavedCaption>();
 
@@ -9,29 +12,120 @@ function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
 
-function getMeetingCodeFromUrl(): string {
-  const match = window.location.pathname.match(
-    /\/([a-z]{3}-[a-z]{4}-[a-z]{3})/
+function isMeaningfulTitle(title: string | undefined): boolean {
+  if (!title) {
+    return false;
+  }
+
+  const normalized = title.trim();
+  if (!normalized) {
+    return false;
+  }
+
+  return (
+    !/^microsoft teams$/i.test(normalized) &&
+    !/^teams$/i.test(normalized) &&
+    !/^microsoft teams meeting$/i.test(normalized)
   );
-  return match ? match[1] : "unknown";
 }
 
-function getMeetingTitle(): string | undefined {
-  const el = document.querySelector("[data-meeting-title]");
-  return el?.getAttribute("data-meeting-title") || undefined;
+function getTitleQualityScore(title: string | undefined): number {
+  if (!title || !title.trim()) {
+    return 0;
+  }
+
+  const normalized = title.trim();
+
+  if (
+    /^microsoft teams$/i.test(normalized) ||
+    /^teams$/i.test(normalized) ||
+    /^microsoft teams meeting$/i.test(normalized)
+  ) {
+    return 1;
+  }
+
+  if (/^meeting with /i.test(normalized) || /^call with /i.test(normalized)) {
+    return 3;
+  }
+
+  return 2;
 }
 
-export function initMeetingSession(): void {
+function shouldReplaceTitle(
+  currentTitle: string | undefined,
+  nextTitle: string | undefined
+): boolean {
+  if (!nextTitle || !nextTitle.trim()) {
+    return false;
+  }
+
+  const currentScore = getTitleQualityScore(currentTitle);
+  const nextScore = getTitleQualityScore(nextTitle);
+
+  if (nextScore > currentScore) {
+    return true;
+  }
+
+  if (
+    nextScore === currentScore &&
+    nextTitle.trim().length > (currentTitle?.trim().length || 0)
+  ) {
+    return true;
+  }
+
+  return !isMeaningfulTitle(currentTitle) && isMeaningfulTitle(nextTitle);
+}
+
+function refreshSessionMetadata(): void {
+  if (!currentSession || !getLatestMetadata) {
+    return;
+  }
+
+  const metadata = getLatestMetadata();
+  currentSession.platform = metadata.platform;
+  currentSession.providerLabel = metadata.providerLabel;
+  currentSession.meetingUrl = metadata.sourceUrl;
+
+  const mergedIdentifiers: typeof currentSession.identifiers = {
+    ...(currentSession.identifiers || {}),
+  };
+  if (metadata.identifiers) {
+    for (const [key, value] of Object.entries(metadata.identifiers)) {
+      if (
+        value !== undefined &&
+        value !== null &&
+        (typeof value !== "string" || value.trim() !== "")
+      ) {
+        mergedIdentifiers[key as keyof typeof mergedIdentifiers] = value;
+      }
+    }
+  }
+  currentSession.identifiers = mergedIdentifiers;
+
+  if (shouldReplaceTitle(currentSession.title, metadata.title)) {
+    currentSession.title = metadata.title;
+  }
+}
+
+export function initMeetingSession(
+  metadata: MeetingSessionMetadata,
+  metadataProvider?: () => MeetingSessionMetadata
+): void {
   if (currentSession) return;
 
   currentSession = {
     id: generateId(),
-    meetingUrl: window.location.href,
-    meetingCode: getMeetingCodeFromUrl(),
-    title: getMeetingTitle(),
+    platform: metadata.platform,
+    providerLabel: metadata.providerLabel,
+    meetingUrl: metadata.sourceUrl,
+    title: metadata.title,
+    identifiers: metadata.identifiers,
+    searchableText: "",
     startTime: Date.now(),
     captions: [],
   };
+
+  getLatestMetadata = metadataProvider || null;
 }
 
 export function addCaptionToHistory(caption: Caption): void {
@@ -60,11 +154,12 @@ export function updateCaptionInHistory(
 async function saveToStorage(): Promise<void> {
   if (!currentSession) return;
 
-  if (!currentSession.title) {
-    currentSession.title = getMeetingTitle();
-  }
+  refreshSessionMetadata();
 
   currentSession.captions = Array.from(allCaptions.values());
+  currentSession.searchableText = buildMeetingSessionSearchableText(
+    currentSession
+  );
   currentSession.endTime = Date.now();
 
   try {
@@ -81,10 +176,20 @@ export const saveCaptionsDebounced = debounce(saveToStorage, 500);
 
 export function updateSessionEndTime(): void {
   if (!currentSession) return;
+  refreshSessionMetadata();
   currentSession.endTime = Date.now();
+  currentSession.searchableText = buildMeetingSessionSearchableText(
+    currentSession
+  );
   saveToStorage();
 }
 
 export function getCurrentSessionId(): string | null {
   return currentSession?.id || null;
+}
+
+export function resetMeetingSession(): void {
+  currentSession = null;
+  getLatestMetadata = null;
+  allCaptions.clear();
 }

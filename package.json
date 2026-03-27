@@ -1,7 +1,7 @@
 {
   "name": "meet-captioner",
-  "version": "2.0.0",
-  "description": "Capture Google Meet captions with floating overlay, translate real-time wih LLMs",
+  "version": "2.3.0",
+  "description": "Capture browser meeting captions with floating overlay and real-time translation",
   "type": "module",
   "scripts": {
     "dev": "wxt",
@@ -12,6 +12,8 @@
   "keywords": [
     "chrome-extension",
     "google-meet",
+    "microsoft-teams",
+    "zoom",
     "caption",
     "translation"
   ],

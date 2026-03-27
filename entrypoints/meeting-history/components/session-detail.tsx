@@ -1,20 +1,25 @@
 import type { MeetingSession } from "./types";
 import { useSessionDetail } from "./use-session-detail";
+import type { LanguageDirection } from "../../shared/language-metadata";
 
 type SessionDetailProps = {
   session: MeetingSession;
+  translationDirection: LanguageDirection;
   onBack: () => void;
   onDelete: () => void;
 };
 
 export const SessionDetail = ({
   session,
+  translationDirection,
   onBack,
   onDelete,
 }: SessionDetailProps) => {
   const {
     hasTranslations,
     displayTitle,
+    displayIdentifier,
+    metadataRows,
     formattedStartTime,
     formattedEndTime,
     exportSession,
@@ -34,6 +39,10 @@ export const SessionDetail = ({
           <div>
             <h2 className="text-xl font-semibold text-white">{displayTitle}</h2>
             <p className="text-sm text-slate-400">
+              <span className="mr-2">{session.providerLabel}</span>
+              <span className="mr-2 text-slate-600">•</span>
+              <span className="mr-2">{displayIdentifier}</span>
+              <span className="mr-2 text-slate-600">•</span>
               {formattedStartTime}
               {formattedEndTime && ` - ${formattedEndTime}`}
             </p>
@@ -79,6 +88,25 @@ export const SessionDetail = ({
       </div>
 
       <div className="bg-slate-800/30 border border-slate-700/50 rounded-xl overflow-hidden">
+        <div className="border-b border-slate-700/50 bg-slate-800/50 px-4 py-3">
+          <div className="grid gap-3 text-xs text-slate-400 sm:grid-cols-2 xl:grid-cols-3">
+            {metadataRows.map((row) => (
+              <div key={row.label}>
+                <div className="text-slate-500">{row.label}</div>
+                <div
+                  className={
+                    "mt-1 text-slate-200 " +
+                    (row.label === "Meeting URL"
+                      ? "break-all text-[11px]"
+                      : "break-words")
+                  }
+                >
+                  {row.value}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
         <div className="grid grid-cols-2 gap-px bg-slate-700/50">
           <div className="bg-slate-800 px-4 py-2 text-sm font-medium text-slate-400">
             Caption
@@ -104,7 +132,10 @@ export const SessionDetail = ({
               </div>
               <div className="bg-slate-800/50 p-4">
                 {caption.translation ? (
-                  <p className="text-sm text-blue-300 italic">
+                  <p
+                    className="text-sm text-blue-300 italic"
+                    dir={translationDirection}
+                  >
                     {caption.translation}
                   </p>
                 ) : (

@@ -1,5 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import type { MeetingSession } from "./types";
+import {
+  getMeetingDisplayTitle,
+  getPrimaryMeetingIdentifier,
+} from "../../shared/meeting-session";
 
 const ITEMS_PER_PAGE = 20;
 
@@ -70,7 +74,7 @@ const SessionTitle = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(session.title || "");
 
-  const displayTitle = session.title || `Meeting ${session.meetingCode}`;
+  const displayTitle = getMeetingDisplayTitle(session);
 
   const handleSave = () => {
     const trimmed = editValue.trim();
@@ -98,7 +102,7 @@ const SessionTitle = ({
         onBlur={handleSave}
         onKeyDown={handleKeyDown}
         onClick={(e) => e.stopPropagation()}
-        placeholder={`Meeting ${session.meetingCode}`}
+        placeholder={`Meeting ${getPrimaryMeetingIdentifier(session.identifiers)}`}
         className="bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-sm font-medium w-64 focus:outline-none focus:border-slate-500"
         autoFocus
       />
@@ -169,6 +173,22 @@ export const SessionList = ({ sessions, onSelect, onDelete, onUpdateTitle }: Ses
                     {session.captions.length} caption{session.captions.length !== 1 ? "s" : ""}
                   </span>
                 </div>
+                <div className="mb-3 flex items-center gap-2">
+                  <span className="rounded-full bg-slate-700/80 px-2 py-1 text-[11px] font-medium text-slate-200">
+                    {session.providerLabel}
+                  </span>
+                  <span className="text-xs text-slate-500">
+                    {getPrimaryMeetingIdentifier(session.identifiers)}
+                  </span>
+                </div>
+                {Object.entries(session.identifiers).some(([, value]) => Boolean(value)) && (
+                  <p className="mb-3 text-xs text-slate-500">
+                    {Object.entries(session.identifiers)
+                      .filter(([, value]) => Boolean(value))
+                      .map(([key, value]) => `${key}: ${value}`)
+                      .join(" • ")}
+                  </p>
+                )}
                 <p className="text-sm text-slate-400 mb-3">
                   {formatTime(session.startTime)}
                   {session.endTime && ` - ${formatTime(session.endTime)}`}

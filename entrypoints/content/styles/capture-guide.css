@@ -1,0 +1,125 @@
+.mc-capture-guide {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.mc-capture-guide.mc-open {
+  display: flex;
+}
+
+.mc-capture-guide-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 10, 24, 0.78);
+  backdrop-filter: blur(4px);
+}
+
+.mc-capture-guide-modal {
+  position: relative;
+  width: min(420px, calc(100% - 32px));
+  max-height: calc(100% - 32px);
+  overflow: auto;
+  background: rgba(20, 24, 46, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  padding: 18px;
+}
+
+.mc-capture-guide-title {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.mc-capture-guide-body {
+  margin-top: 8px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.mc-capture-guide-steps {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mc-capture-guide-step {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.mc-capture-guide-step-number {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #10b981;
+  color: #081018;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.mc-capture-guide-step-content {
+  min-width: 0;
+}
+
+.mc-capture-guide-step-title {
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.mc-capture-guide-step-detail {
+  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.mc-capture-guide-troubleshooting {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(245, 158, 11, 0.12);
+  color: #fcd34d;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.mc-capture-guide-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+.mc-capture-guide-close {
+  border: none;
+  border-radius: 10px;
+  background: #10b981;
+  color: #081018;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.mc-capture-guide-close:hover {
+  background: #34d399;
+}

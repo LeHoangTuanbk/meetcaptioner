@@ -1,4 +1,10 @@
 import type { TranslationStatus } from "./constants";
+export type {
+  MeetingPlatform,
+  MeetingSession,
+  MeetingSessionIdentifiers,
+  SavedCaption,
+} from "../shared/meeting-session";
 
 export type Caption = {
   id: number;
@@ -27,22 +33,4 @@ export type TranslateResponse = {
   success: boolean;
   translation?: string;
   error?: string;
-};
-
-export type SavedCaption = {
-  speaker: string;
-  text: string;
-  translation?: string;
-  time: string;
-  timestamp: number;
-};
-
-export type MeetingSession = {
-  id: string;
-  meetingUrl: string;
-  meetingCode: string;
-  title?: string;
-  startTime: number;
-  endTime?: number;
-  captions: SavedCaption[];
 };

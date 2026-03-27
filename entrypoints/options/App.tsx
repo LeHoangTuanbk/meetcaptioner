@@ -55,7 +55,7 @@ export default function App() {
               MeetCaptioner Settings
             </h1>
             <p className="text-slate-400">
-              Configure translation settings for Google Meet captions
+              Configure translation settings for supported browser meeting captions
             </p>
           </div>
           <button

@@ -1,22 +1,32 @@
-import { DEFAULT_CUSTOM_PROMPT } from "./constants";
-import { updateSettings } from "./state";
-import { createOverlay, updateUIFromSettings } from "./overlay";
-import { startObserver } from "./observer";
-import { initMeetingSession, updateSessionEndTime } from "./history-service";
+import { initializePlatformRuntime } from "./platform-runtime";
+
+const INITIAL_RETRY_DELAY_MS = 1000;
+const RETRY_INTERVAL_MS = 1000;
+const MAX_RETRY_ATTEMPTS = 30;
+
+let bootStarted = false;
 
 export default defineContentScript({
-  matches: ["https://meet.google.com/*"],
+  matches: [
+    "https://meet.google.com/*",
+    "https://teams.microsoft.com/l/meetup-join/*",
+    "https://teams.microsoft.com/meet/*",
+    "https://teams.microsoft.com/v2/*",
+    "https://*.teams.microsoft.com/l/meetup-join/*",
+    "https://*.teams.microsoft.com/meet/*",
+    "https://*.teams.microsoft.com/v2/*",
+    "https://teams.live.com/meet/*",
+    "https://teams.live.com/v2/*",
+    "https://*.teams.live.com/meet/*",
+    "https://*.teams.live.com/v2/*",
+    "https://*.zoom.us/wc/*",
+    "https://*.zoom.us/j/*",
+    "https://*.zoom.us/w/*",
+  ],
+  allFrames: true,
   runAt: "document_start",
 
   main() {
-    const isMeetingUrl = /\/[a-z]{3}-[a-z]{4}-[a-z]{3}($|\?)/.test(
-      window.location.pathname
-    );
-
-    if (!isMeetingUrl && window.location.pathname !== "/new") {
-      return;
-    }
-
     // Prevent double injection
     if (document.querySelector('meta[name="meetcaptioner-injected"]')) {
       return;
@@ -27,42 +37,54 @@ export default defineContentScript({
     meta.content = "true";
     (document.head || document.documentElement).appendChild(meta);
 
+    void bootWithRetry();
+
     if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", init);
+      document.addEventListener("DOMContentLoaded", () => {
+        void bootWithRetry();
+      });
     } else {
-      setTimeout(init, 1000);
+      setTimeout(() => {
+        void bootWithRetry();
+      }, INITIAL_RETRY_DELAY_MS);
     }
   },
 });
 
-async function loadSettings(): Promise<void> {
-  try {
-    const response = await chrome.runtime.sendMessage({
-      action: "getSettings",
-    });
-    if (response?.success && response.settings) {
-      const saved = response.settings;
-      updateSettings(saved);
-      if (saved.customPrompt !== undefined) {
-        updateSettings({ customPrompt: saved.customPrompt });
-      } else {
-        updateSettings({ customPrompt: DEFAULT_CUSTOM_PROMPT });
-      }
-      updateUIFromSettings();
-    }
-  } catch {
-    // Settings could not be loaded, using defaults
+async function bootWithRetry(): Promise<void> {
+  if (bootStarted) {
+    return;
   }
-}
 
-async function init(): Promise<void> {
-  createOverlay();
-  await loadSettings();
-  startObserver();
+  bootStarted = true;
+  let attempts = 0;
 
-  initMeetingSession();
+  const tryInit = async () => {
+    attempts += 1;
 
-  window.addEventListener("beforeunload", () => {
-    updateSessionEndTime();
-  });
+    try {
+      const initialized = await initializePlatformRuntime();
+      if (initialized || attempts >= MAX_RETRY_ATTEMPTS) {
+        return;
+      }
+    } catch (error) {
+      console.error("MeetCaptioner init retry failed", error);
+      if (attempts >= MAX_RETRY_ATTEMPTS) {
+        return;
+      }
+    }
+
+    window.setTimeout(() => {
+      void tryInit();
+    }, RETRY_INTERVAL_MS);
+  };
+
+  if (document.readyState !== "loading") {
+    window.setTimeout(() => {
+      void tryInit();
+    }, INITIAL_RETRY_DELAY_MS);
+    return;
+  }
+
+  await tryInit();
 }

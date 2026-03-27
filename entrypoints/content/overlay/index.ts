@@ -1,8 +1,16 @@
 import "../styles/index.css";
-import { settings, overlay, setOverlay, setCaptionList } from "../state";
+import {
+  settings,
+  overlay,
+  setOverlay,
+  setCaptionList,
+  setCaptureGuideElement,
+  setWaveElement,
+} from "../state";
 import { createElement } from "../libs";
 import { renderCaptions } from "../render";
 import { makeDraggable, makeResizable } from "./interactions";
+import { createCaptureGuide, syncCaptureGuide } from "./capture-guide";
 import { createHeader } from "./header";
 import { createScrollButton } from "./scroll-button";
 
@@ -36,6 +44,7 @@ export function createOverlay(): void {
     resizeHandleBR,
     resizeHandleBL,
     resizeHandleB,
+    createCaptureGuide(),
   ]);
 
   if (!settings.translationEnabled) {
@@ -54,4 +63,16 @@ export function createOverlay(): void {
   makeResizable(overlayEl, resizeHandleB, "b");
 
   renderCaptions();
+  syncCaptureGuide();
+}
+
+export function destroyOverlay(): void {
+  if (overlay?.parentNode) {
+    overlay.parentNode.removeChild(overlay);
+  }
+
+  setOverlay(null);
+  setCaptionList(null);
+  setWaveElement(null);
+  setCaptureGuideElement(null);
 }

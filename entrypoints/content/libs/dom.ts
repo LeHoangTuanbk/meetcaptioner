@@ -13,6 +13,46 @@ type ElementAttrs = {
   [key: string]: unknown;
 };
 
+function collectShadowHosts(root: ParentNode): Element[] {
+  const hosts: Element[] = [];
+
+  const treeWalker = document.createTreeWalker(
+    root,
+    NodeFilter.SHOW_ELEMENT,
+    null
+  );
+
+  let currentNode = treeWalker.currentNode as Element | null;
+  while (currentNode) {
+    if (currentNode.shadowRoot) {
+      hosts.push(currentNode);
+    }
+    currentNode = treeWalker.nextNode() as Element | null;
+  }
+
+  return hosts;
+}
+
+export function querySelectorAllDeep(selector: string, root: ParentNode = document): Element[] {
+  const results = new Set<Element>();
+
+  if ("querySelectorAll" in root) {
+    for (const element of Array.from(root.querySelectorAll(selector))) {
+      results.add(element);
+    }
+  }
+
+  for (const host of collectShadowHosts(root)) {
+    if (host.shadowRoot) {
+      for (const element of querySelectorAllDeep(selector, host.shadowRoot)) {
+        results.add(element);
+      }
+    }
+  }
+
+  return Array.from(results);
+}
+
 export function createElement<K extends keyof HTMLElementTagNameMap>(
   tag: K,
   attrs: ElementAttrs = {},

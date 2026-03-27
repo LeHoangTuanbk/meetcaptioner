@@ -1,5 +1,10 @@
 import { useMemo } from "react";
 import type { MeetingSession } from "./types";
+import {
+  getMeetingDisplayTitle,
+  getMeetingIdentifierLabel,
+  getPrimaryMeetingIdentifier,
+} from "../../shared/meeting-session";
 
 export const formatDateTime = (timestamp: number): string => {
   return new Date(timestamp).toLocaleString("en-US", {
@@ -19,13 +24,28 @@ export const formatTime = (timestamp: number): string => {
   });
 };
 
+export const formatDuration = (start: number, end?: number): string | null => {
+  if (!end) return null;
+
+  const diff = end - start;
+  const minutes = Math.floor(diff / 60000);
+
+  if (minutes < 60) {
+    return `${minutes}m`;
+  }
+
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+  return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
+};
+
 type ExportType = "captions" | "translations" | "both";
 
 const buildExportContent = (
   session: MeetingSession,
   type: ExportType
 ): string => {
-  const title = session.title || `Meeting ${session.meetingCode}`;
+  const title = getMeetingDisplayTitle(session);
   let content = `${title}\n${"=".repeat(title.length)}\n\n`;
 
   for (const caption of session.captions) {
@@ -65,16 +85,46 @@ export function useSessionDetail(session: MeetingSession) {
     [session.captions]
   );
 
-  const displayTitle = session.title || `Meeting ${session.meetingCode}`;
+  const displayTitle = getMeetingDisplayTitle(session);
+  const displayIdentifier = getPrimaryMeetingIdentifier(session.identifiers);
+  const identifierEntries = Object.entries(session.identifiers)
+    .filter(([, value]) => Boolean(value))
+    .map(([key, value]) => ({
+      key,
+      label: getMeetingIdentifierLabel(
+        key as keyof typeof session.identifiers
+      ),
+      value: value as string,
+    }));
 
   const formattedStartTime = formatDateTime(session.startTime);
   const formattedEndTime = session.endTime ? formatTime(session.endTime) : null;
+  const formattedDuration = formatDuration(session.startTime, session.endTime);
+
+  const metadataRows = [
+    { label: "Provider", value: session.providerLabel },
+    { label: "Title", value: session.title || "Untitled session" },
+    { label: "Primary ID", value: displayIdentifier },
+    { label: "Meeting URL", value: session.meetingUrl },
+    { label: "Started", value: formattedStartTime },
+    ...(formattedEndTime
+      ? [{ label: "Ended", value: formattedEndTime }]
+      : []),
+    ...(formattedDuration
+      ? [{ label: "Duration", value: formattedDuration }]
+      : []),
+    { label: "Captured captions", value: String(session.captions.length) },
+    ...identifierEntries.map((entry) => ({
+      label: entry.label,
+      value: entry.value,
+    })),
+  ];
 
   const exportSession = (type: ExportType) => {
     const date = new Date(session.startTime).toISOString().slice(0, 10);
     const filename = session.title
       ? session.title.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase()
-      : session.meetingCode;
+      : displayIdentifier;
 
     const content = buildExportContent(session, type);
     downloadFile(content, `${filename}_${date}_${type}.txt`);
@@ -89,8 +139,12 @@ export function useSessionDetail(session: MeetingSession) {
   return {
     hasTranslations,
     displayTitle,
+    displayIdentifier,
+    identifierEntries,
+    metadataRows,
     formattedStartTime,
     formattedEndTime,
+    formattedDuration,
     exportSession,
     handleDelete,
   };
