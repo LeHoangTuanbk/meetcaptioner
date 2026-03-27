@@ -8,8 +8,8 @@ export default defineConfig({
   }),
   manifest: {
     name: "MeetCaptioner",
-    description: "Capture and translate Google Meet captions in real-time",
-    version: "2.0.3",
+    description: "Capture and translate browser meeting captions in real-time",
+    version: "2.1.0",
     permissions: ["storage"],
     host_permissions: [
       "https://meet.google.com/*",

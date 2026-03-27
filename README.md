@@ -1,6 +1,6 @@
 # MeetCaptioner
 
-A powerful Chrome extension that captures Google Meet captions in real-time with live translation support powered by AI.
+A powerful Chrome extension that captures browser meeting captions in real-time with live translation support powered by AI.
 
 ![Chrome Extension](https://img.shields.io/badge/Platform-Chrome%20Extension-4285F4?logo=googlechrome&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
@@ -9,7 +9,7 @@ A powerful Chrome extension that captures Google Meet captions in real-time with
 
 ## Features
 
-- **Real-time Caption Capture** - Automatically captures captions from Google Meet with speaker identification
+- **Real-time Caption Capture** - Automatically captures captions from supported browser meetings with speaker identification
 - **Live AI Translation** - Translate captions to 19+ languages using OpenAI, Anthropic, or Ollama (local/cloud)
 - **Floating Overlay** - Draggable, resizable overlay that doesn't interfere with your meeting
 - **Meeting History** - Auto-saves all your meeting captions locally for later review
@@ -24,7 +24,7 @@ A powerful Chrome extension that captures Google Meet captions in real-time with
 
 ![MeetCaptioner Demo](documents/deployment/images/github/demo.png)
 
-_Real-time caption capture and AI translation in Google Meet_
+_Real-time caption capture and AI translation across supported browser meetings_
 
 ## Installation
 
@@ -71,7 +71,16 @@ _Real-time caption capture and AI translation in Google Meet_
 2. Choose your AI provider (OpenAI, Anthropic, or Ollama)
 3. Enter your API key (or configure Ollama server URL for local LLM)
 4. Select your preferred model and target language
-5. Enable translation toggle in the overlay
+5. Open a supported meeting in the browser and enable native captions
+6. Enable translation toggle in the overlay
+
+### Supported Meeting Platforms
+
+- Google Meet
+- Microsoft Teams Web
+- Zoom Web App
+
+> Note: Native desktop Zoom and native desktop Teams apps are not supported.
 
 ### Supported AI Providers
 
@@ -106,8 +115,9 @@ Vietnamese, English, Persian, Chinese, Japanese, Korean, Spanish, French, German
 ```
 meet-captioner/
 ├── entrypoints/
-│   ├── content/          # Content script (caption capture, overlay)
+│   ├── content/          # Content script (provider detection, caption capture, overlay)
 │   │   ├── styles/       # CSS modules
+│   │   ├── providers/    # Meeting platform adapters
 │   │   ├── caption.ts    # Caption management
 │   │   ├── overlay.ts    # Floating UI
 │   │   ├── render.ts     # DOM rendering
@@ -115,7 +125,7 @@ meet-captioner/
 │   ├── background.ts     # Service worker (API calls, storage)
 │   ├── popup/            # Extension popup
 │   ├── options/          # Settings page
-│   └── history/          # Meeting history page
+│   └── meeting-history/  # Meeting history page
 ├── public/               # Static assets
 └── wxt.config.ts         # WXT configuration
 ```
