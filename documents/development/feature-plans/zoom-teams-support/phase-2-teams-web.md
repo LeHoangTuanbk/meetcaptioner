@@ -8,7 +8,7 @@ This phase is the first real test of whether the new provider architecture is co
 
 ## Phase Metadata
 
-- Phase status: In Progress
+- Phase status: Completed
 - Parent initiative: [zoom-teams-support.md](../zoom-teams-support.md)
 - Dependency: Phase 1 completed
 - Recommended PR title: `feat: add microsoft teams web caption provider`
@@ -223,8 +223,8 @@ Likely files to change:
 - `README.md`
 - `entrypoints/popup/App.tsx`
 - `entrypoints/options/App.tsx`
-- `entrypoints/history/use-history.ts`
-- `entrypoints/history/components/session-list.tsx`
+- `entrypoints/meeting-history/use-history.ts`
+- `entrypoints/meeting-history/components/session-list.tsx`
 
 ## Implementation Steps
 
@@ -417,9 +417,10 @@ Mitigation:
 
 - Provider activated: Yes
 - Metadata extraction implemented: Yes
-- Caption observer implemented: Initial heuristic version
-- Real browser validation completed: No
-- Recommended next action: run a live Teams Web smoke test and refine selectors using real DOM observations
+- Caption observer implemented: Yes
+- Real browser validation completed: Yes
+- Remaining risk level: Medium
+- Recommended next action: keep Teams Web in maintenance mode and only make targeted fixes if future QA reveals new DOM regressions
 
 ## Recommended Commit Breakdown
 

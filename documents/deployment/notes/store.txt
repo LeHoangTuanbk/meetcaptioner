@@ -14,7 +14,7 @@ MeetCaptioner captures live captions and translates them instantly using AI — 
 🎯 KEY FEATURES
 
 • Real-time Caption Capture — Automatically captures every word spoken in supported browser meetings with speaker identification
-• AI-Powered Translation — Translate to 18+ languages using OpenAI, Anthropic, or Ollama (local/cloud)
+• AI-Powered Translation — Translate to 19+ languages using OpenAI, Anthropic, or Ollama (local/cloud)
 • Floating Overlay — Draggable, resizable panel that stays out of your way
 • Meeting History — All your captions are auto-saved locally for later review
 • Export Options — Download captions and translations as text files
@@ -24,12 +24,12 @@ MeetCaptioner captures live captions and translates them instantly using AI — 
 
 🌍 SUPPORTED LANGUAGES
 
-Vietnamese, English, Chinese, Japanese, Korean, Spanish, French, German, Portuguese, Russian, Arabic, Hindi, Italian, Thai, Indonesian, Dutch, Polish, Turkish
+Vietnamese, English, Persian, Chinese, Japanese, Korean, Spanish, French, German, Portuguese, Russian, Arabic, Hindi, Italian, Thai, Indonesian, Dutch, Polish, Turkish
 
 🤖 AI PROVIDERS
 
 Choose your preferred AI provider:
-• OpenAI (GPT-4.1 Nano, GPT-4.1 Mini, GPT-4.1, GPT-5 Nano, GPT-5 Mini, GPT-5)
+• OpenAI (GPT-4.1 Mini, GPT-4.1, GPT-5 Nano, GPT-5.1, GPT-5.2, GPT-5 Mini)
 • Anthropic (Claude Haiku 4.5, Claude Sonnet 4.5, Claude Opus 4.5)
 • Ollama (Local LLM or Ollama Cloud) — Run models like Qwen, Llama, Gemma locally for free
 
@@ -53,6 +53,14 @@ Your API keys and meeting data stay on your device. We don't collect, store, or 
 4. Configure your API key in Settings
 5. Toggle translation ON in the overlay
 6. Watch real-time translations appear!
+
+SUPPORTED MEETING PLATFORMS
+
+• Google Meet
+• Microsoft Teams Web
+• Zoom Web App
+
+Note: Native desktop Zoom and native desktop Teams apps are not supported.
 
 ---
 

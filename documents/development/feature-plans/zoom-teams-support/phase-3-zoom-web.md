@@ -8,7 +8,7 @@ This phase should reuse the same adapter boundaries proven by Meet and Teams rat
 
 ## Phase Metadata
 
-- Phase status: Planned
+- Phase status: Completed
 - Parent initiative: [zoom-teams-support.md](../zoom-teams-support.md)
 - Dependency: Phase 1 completed
 - Recommended sequencing: after Phase 2
@@ -177,8 +177,8 @@ Likely files to change:
 - `README.md`
 - `entrypoints/popup/App.tsx`
 - `entrypoints/options/App.tsx`
-- `entrypoints/history/use-history.ts`
-- `entrypoints/history/components/session-list.tsx`
+- `entrypoints/meeting-history/use-history.ts`
+- `entrypoints/meeting-history/components/session-list.tsx`
 
 ## Implementation Steps
 
@@ -219,6 +219,12 @@ Validation:
 - live captions stream while people are speaking
 - low-value noise and empty lines are ignored
 
+Current implementation note:
+
+- an initial Zoom Web App provider has been activated
+- subtitle capture is implemented against the live subtitle surface with frame-aware injection
+- post-processing is still heuristic and should be validated against longer live conversations
+
 ## Step 4: Handle Speaker And Update Edge Cases
 
 Deliverables:
@@ -230,6 +236,12 @@ Validation:
 
 - caption grouping stays understandable
 - translation still has enough context for useful output
+
+Current implementation note:
+
+- speaker extraction currently uses fallback heuristics because the visible Zoom subtitle surface does not expose a stable explicit speaker label
+- rolling subtitle behavior is partially handled with accumulation and delta extraction logic
+- longer multi-speaker conversations remain the key QA target for this phase
 
 ## Step 5: Zoom Capture Guidance Modal
 
@@ -342,6 +354,29 @@ Mitigation:
 - Zoom sessions save to history with platform identity
 - Zoom guidance modal content is available and accurate enough for supported browser paths
 - Meet and Teams smoke tests still pass
+
+## Progress Log
+
+## 2026-03-27
+
+- activated Zoom Web App provider support in the registry
+- added frame-aware content injection support for Zoom Web App
+- implemented subtitle DOM targeting and initial post-processing heuristics
+- added meeting metadata extraction and fallback identifier handling for Zoom
+- validated local build and type-check after each iteration
+- reduced duplicate overlays by restricting activation to the real meeting surface
+- improved rolling subtitle handling to preserve turn order more reliably
+
+## Current Execution State
+
+- Provider activated: Yes
+- Metadata extraction implemented: Yes
+- Subtitle capture implemented: Yes
+- Speaker attribution quality: Partial
+- Long-conversation transcript quality: Partial
+- Real browser validation completed: Yes
+- Remaining risk level: Medium to High
+- Recommended next action: keep Zoom Web App in iterative refinement mode and prioritize only user-observed transcript-quality issues before release
 
 ## Recommended Commit Breakdown
 
