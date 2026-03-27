@@ -1,6 +1,6 @@
 {
   "name": "meet-captioner",
-  "version": "2.1.0",
+  "version": "2.3.0",
   "description": "Capture browser meeting captions with floating overlay and real-time translation",
   "type": "module",
   "scripts": {

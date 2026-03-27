@@ -9,8 +9,8 @@ model_reasoning_effort = "high"
 
 # GPT-5.4 in Codex supports experimental 1M context.
 # Standard window is 272K; above that usage is billed at 2x.
-model_context_window = 1050000
-model_auto_compact_token_limit = 1000000
+# model_context_window = 1050000
+# model_auto_compact_token_limit = 1000000
 
 [features]
 runtime_metrics = true
