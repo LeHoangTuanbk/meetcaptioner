@@ -1,0 +1,34 @@
+name: Auto Assign PR
+
+on:
+  pull_request_target:
+    types: [opened, reopened]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  assign-author:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assign PR to its author
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const author = context.payload.pull_request.user.login;
+            // Skip bot authors (e.g. dependabot) which can't be assigned.
+            if (context.payload.pull_request.user.type === "Bot") {
+              core.info(`Skipping bot author: ${author}`);
+              return;
+            }
+            if (context.payload.pull_request.assignees.length > 0) {
+              core.info("PR already has assignees, skipping.");
+              return;
+            }
+            await github.rest.issues.addAssignees({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              assignees: [author],
+            });
+            core.info(`Assigned PR #${context.payload.pull_request.number} to ${author}`);
