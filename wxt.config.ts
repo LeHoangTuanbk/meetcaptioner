@@ -1,6 +1,9 @@
 import { defineConfig } from "wxt";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import pkg from "./package.json";
+
+const version = (process.env.VERSION || pkg.version).replace(/^v/, "");
 
 export default defineConfig({
   vite: () => ({
@@ -9,7 +12,7 @@ export default defineConfig({
   manifest: {
     name: "MeetCaptioner",
     description: "Capture and translate Google Meet captions in real-time",
-    version: "2.0.3",
+    version,
     permissions: ["storage"],
     host_permissions: [
       "https://meet.google.com/*",
