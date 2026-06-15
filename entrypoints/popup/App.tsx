@@ -65,7 +65,7 @@ export default function App() {
         </button>
         <button
           onClick={() =>
-            chrome.tabs.create({ url: chrome.runtime.getURL("history.html") })
+            chrome.tabs.create({ url: chrome.runtime.getURL("meeting-history.html") })
           }
           className="w-full py-2.5 bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer"
         >

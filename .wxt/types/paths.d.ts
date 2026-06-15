@@ -7,11 +7,11 @@ declare module "wxt/browser" {
     | "/"
     | "/background.js"
     | "/content-scripts/content.js"
-    | "/history.html"
     | "/icon-128.png"
     | "/icon-16.png"
     | "/icon-32.png"
     | "/icon-48.png"
+    | "/meeting-history.html"
     | "/options.html"
     | "/popup.html"
   type HtmlPublicPath = Extract<PublicPath, `${string}.html`>
