@@ -170,7 +170,7 @@ export function useSettings() {
   };
 
   const openHistory = () => {
-    chrome.tabs.create({ url: chrome.runtime.getURL("history.html") });
+    chrome.tabs.create({ url: chrome.runtime.getURL("meeting-history.html") });
   };
 
   return {
