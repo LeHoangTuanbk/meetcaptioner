@@ -15,6 +15,11 @@ export const MODELS: Record<string, string[]> = {
     "gpt-5-mini",
     "gpt-5",
   ],
+  [PROVIDERS.gemini]: [
+    "gemini-3.1-flash-lite",
+    "gemini-3.5-flash",
+    "gemini-3.1-pro-preview",
+  ],
   [PROVIDERS.ollama]: [],
 };
 
@@ -25,6 +30,7 @@ export const DEFAULT_SETTINGS: Settings = {
   provider: PROVIDERS.openai,
   anthropicApiKey: "",
   openaiApiKey: "",
+  geminiApiKey: "",
   ollamaBaseUrl: "http://localhost:11434",
   ollamaApiKey: "",
   model: "gpt-4.1-nano",

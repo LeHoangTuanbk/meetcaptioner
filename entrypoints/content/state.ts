@@ -7,6 +7,7 @@ export let settings: Settings = {
   provider: "openai",
   anthropicApiKey: "",
   openaiApiKey: "",
+  geminiApiKey: "",
   model: "gpt-4.1-nano",
   targetLanguage: "en",
   translationEnabled: false,

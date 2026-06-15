@@ -1,7 +1,8 @@
 export type Settings = {
-  provider: "anthropic" | "openai" | "ollama";
+  provider: "anthropic" | "openai" | "gemini" | "ollama";
   anthropicApiKey: string;
   openaiApiKey: string;
+  geminiApiKey: string;
   ollamaBaseUrl: string;
   ollamaApiKey: string;
   model: string;
@@ -17,6 +18,7 @@ export const DEFAULT_SETTINGS: Settings = {
   provider: "openai",
   anthropicApiKey: "",
   openaiApiKey: "",
+  geminiApiKey: "",
   ollamaBaseUrl: "http://localhost:11434",
   ollamaApiKey: "",
   model: "gpt-4.1-nano",

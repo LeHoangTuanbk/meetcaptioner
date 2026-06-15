@@ -10,7 +10,7 @@ A powerful Chrome extension that captures Google Meet captions in real-time with
 ## Features
 
 - **Real-time Caption Capture** - Automatically captures captions from Google Meet with speaker identification
-- **Live AI Translation** - Translate captions to 18+ languages using OpenAI, Anthropic, or Ollama (local/cloud)
+- **Live AI Translation** - Translate captions to 18+ languages using OpenAI, Anthropic, Google Gemini, or Ollama (local/cloud)
 - **Floating Overlay** - Draggable, resizable overlay that doesn't interfere with your meeting
 - **Meeting History** - Auto-saves all your meeting captions locally for later review
 - **Export Options** - Export captions and translations to text files
@@ -66,20 +66,23 @@ _Real-time caption capture and AI translation in Google Meet_
 ## Configuration
 
 1. Click the extension icon and go to **Settings**
-2. Choose your AI provider (OpenAI, Anthropic, or Ollama)
+2. Choose your AI provider (OpenAI, Anthropic, Google Gemini, or Ollama)
 3. Enter your API key (or configure Ollama server URL for local LLM)
 4. Select your preferred model and target language
 5. Enable translation toggle in the overlay
 
 ### Supported AI Providers
 
-| Provider  | Models                                                     |
-| --------- | ---------------------------------------------------------- |
-| OpenAI    | GPT-4.1 Nano, GPT-4.1 Mini, GPT-5 Nano                     |
-| Anthropic | Claude Haiku 4.5, Claude Sonnet 4.5, Claude Opus 4.5       |
-| Ollama    | Any local model (Qwen, Llama, Gemma, etc.) or Ollama Cloud |
+| Provider  | Models                                                            |
+| --------- | ----------------------------------------------------------------- |
+| OpenAI    | GPT-4.1 Nano, GPT-4.1 Mini, GPT-5 Nano                            |
+| Anthropic | Claude Haiku 4.5, Claude Sonnet 4.5, Claude Opus 4.5              |
+| Gemini    | Gemini 3.1 Flash-Lite, Gemini 3.5 Flash, Gemini 3.1 Pro (Preview)|
+| Ollama    | Any local model (Qwen, Llama, Gemma, etc.) or Ollama Cloud        |
 
 > **Note:** For Ollama local, you need to configure CORS. See [setup guide](https://objectgraph.com/blog/ollama-cors/).
+>
+> **Gemini:** Get a free API key from [Google AI Studio](https://aistudio.google.com/app/apikey).
 
 ### Supported Languages
 
@@ -150,7 +153,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [WXT](https://wxt.dev) for the amazing extension framework
 - [Tailwind CSS](https://tailwindcss.com) for the utility-first CSS
-- [OpenAI](https://openai.com), [Anthropic](https://anthropic.com), and [Ollama](https://ollama.com) for AI APIs
+- [OpenAI](https://openai.com), [Anthropic](https://anthropic.com), [Google Gemini](https://ai.google.dev), and [Ollama](https://ollama.com) for AI APIs
 
 ---
 

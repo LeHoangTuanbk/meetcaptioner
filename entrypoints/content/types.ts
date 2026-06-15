@@ -14,9 +14,10 @@ export type Caption = {
 };
 
 export type Settings = {
-  provider: "anthropic" | "openai" | "ollama";
+  provider: "anthropic" | "openai" | "gemini" | "ollama";
   anthropicApiKey: string;
   openaiApiKey: string;
+  geminiApiKey: string;
   model: string;
   targetLanguage: string;
   translationEnabled: boolean;

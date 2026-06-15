@@ -3,18 +3,37 @@ import { useState } from "react";
 type ApiKeyInputProps = {
   value: string;
   onChange: (value: string) => void;
-  provider: "anthropic" | "openai" | "ollama";
+  provider: "anthropic" | "openai" | "gemini" | "ollama";
+};
+
+const PROVIDER_META: Record<
+  "anthropic" | "openai" | "gemini",
+  { placeholder: string; name: string; guideUrl: string }
+> = {
+  anthropic: {
+    placeholder: "sk-ant-...",
+    name: "Anthropic",
+    guideUrl:
+      "https://pickaxe.co/post/how-to-get-your-claude-api-key-a-step-by-step-guide",
+  },
+  openai: {
+    placeholder: "sk-proj-...",
+    name: "OpenAI",
+    guideUrl:
+      "https://pickaxe.co/post/how-to-get-your-openai-api-key-a-step-by-step-guide",
+  },
+  gemini: {
+    placeholder: "AIza...",
+    name: "Gemini",
+    guideUrl: "https://aistudio.google.com/app/apikey",
+  },
 };
 
 export function ApiKeyInput({ value, onChange, provider }: ApiKeyInputProps) {
   const [showKey, setShowKey] = useState(false);
 
-  const placeholder = provider === "anthropic" ? "sk-ant-..." : "sk-proj-...";
-  const providerName = provider === "anthropic" ? "Anthropic" : "OpenAI";
-  const guideUrl =
-    provider === "anthropic"
-      ? "https://pickaxe.co/post/how-to-get-your-claude-api-key-a-step-by-step-guide"
-      : "https://pickaxe.co/post/how-to-get-your-openai-api-key-a-step-by-step-guide";
+  const meta = PROVIDER_META[provider as keyof typeof PROVIDER_META] ?? PROVIDER_META.openai;
+  const { placeholder, name: providerName, guideUrl } = meta;
 
   return (
     <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700/50">

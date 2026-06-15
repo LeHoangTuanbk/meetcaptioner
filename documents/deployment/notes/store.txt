@@ -14,7 +14,7 @@ MeetCaptioner captures live captions and translates them instantly using AI — 
 🎯 KEY FEATURES
 
 • Real-time Caption Capture — Automatically captures every word spoken in your Google Meet with speaker identification
-• AI-Powered Translation — Translate to 18+ languages using OpenAI, Anthropic, or Ollama (local/cloud)
+• AI-Powered Translation — Translate to 18+ languages using OpenAI, Anthropic, Google Gemini, or Ollama (local/cloud)
 • Floating Overlay — Draggable, resizable panel that stays out of your way
 • Meeting History — All your captions are auto-saved locally for later review
 • Export Options — Download captions and translations as text files
@@ -31,6 +31,7 @@ Vietnamese, English, Chinese, Japanese, Korean, Spanish, French, German, Portugu
 Choose your preferred AI provider:
 • OpenAI (GPT-4.1 Nano, GPT-4.1 Mini, GPT-4.1, GPT-5 Nano, GPT-5 Mini, GPT-5)
 • Anthropic (Claude Haiku 4.5, Claude Sonnet 4.5, Claude Opus 4.5)
+• Google Gemini (Gemini 3.1 Flash-Lite, Gemini 3.5 Flash, Gemini 3.1 Pro)
 • Ollama (Local LLM or Ollama Cloud) — Run models like Qwen, Llama, Gemma locally for free
 
 💡 PERFECT FOR
@@ -65,7 +66,7 @@ Made with ❤️ for better communication across languages.
 
 ### Single Purpose Description
 ```
-MeetCaptioner captures and displays real-time captions from Google Meet meetings with AI-powered translation. It provides a floating overlay showing original captions alongside translations, helping users understand multilingual conversations and save meeting transcripts. Users can choose from cloud AI providers (OpenAI, Anthropic) or run local LLMs via Ollama for privacy-focused translation.
+MeetCaptioner captures and displays real-time captions from Google Meet meetings with AI-powered translation. It provides a floating overlay showing original captions alongside translations, helping users understand multilingual conversations and save meeting transcripts. Users can choose from cloud AI providers (OpenAI, Anthropic, Google Gemini) or run local LLMs via Ollama for privacy-focused translation.
 ```
 
 ### Storage Permission Justification
@@ -81,7 +82,7 @@ All data is stored locally on the user's device and never transmitted to externa
 ### Host Permission Justification (meet.google.com)
 1. meet.google.com - Inject content script to capture live captions, read speaker names/timestamps, and render translation overlay on Meet page.
 
-2. api.anthropic.com & api.openai.com - Send caption text for AI translation using user's own API key. No data sent without user configuration.
+2. api.anthropic.com, api.openai.com & generativelanguage.googleapis.com - Send caption text for AI translation using user's own API key. No data sent without user configuration.
 
 3. localhost/127.0.0.1 - Support local Ollama LLM for privacy-focused translation without external servers.
 
