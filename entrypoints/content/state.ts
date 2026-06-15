@@ -18,6 +18,17 @@ export function updateSettings(newSettings: Partial<Settings>) {
   settings = { ...settings, ...newSettings };
 }
 
+export function getActiveApiKey(): string {
+  switch (settings.provider) {
+    case "anthropic":
+      return settings.anthropicApiKey;
+    case "gemini":
+      return settings.geminiApiKey;
+    default:
+      return settings.openaiApiKey;
+  }
+}
+
 export let captionIdCounter = 0;
 export function getNextCaptionId() {
   return ++captionIdCounter;

@@ -1,4 +1,4 @@
-import { LANGUAGES } from "../constants";
+import { LANGUAGES, MAX_AUTO_TRANSLATE_DISTANCE } from "../constants";
 import {
   settings,
   overlay,
@@ -7,9 +7,13 @@ import {
   setMinimized,
   savedPosition,
   setSavedPosition,
+  getActiveApiKey,
 } from "../state";
 import { createElement } from "../libs";
-import { translateAllExistingCaptions } from "../translation";
+import {
+  enqueueNearbyCaptions,
+  clearTranslationQueue,
+} from "../translation-queue";
 import { saveOverlaySettings } from "./settings";
 
 export function createHeader(): {
@@ -58,11 +62,7 @@ export function createHeader(): {
         : "Translation OFF",
       onClick: async () => {
         if (!settings.translationEnabled) {
-          const apiKey =
-            settings.provider === "anthropic"
-              ? settings.anthropicApiKey
-              : settings.openaiApiKey;
-          if (!apiKey) {
+          if (!getActiveApiKey()) {
             chrome.runtime.sendMessage({ action: "openOptions" });
             return;
           }
@@ -71,7 +71,11 @@ export function createHeader(): {
         await saveOverlaySettings({ translationEnabled: newEnabled });
 
         if (newEnabled) {
-          translateAllExistingCaptions();
+          // Translate what's on screen first, then nearby captions; skip
+          // anything too far from the viewport.
+          enqueueNearbyCaptions(MAX_AUTO_TRANSLATE_DISTANCE);
+        } else {
+          clearTranslationQueue();
         }
       },
     },
