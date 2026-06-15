@@ -9,7 +9,7 @@ import {
   setWaveTimeout,
   clearSemanticTimer,
 } from "./state";
-import { translateCaption } from "./translation";
+import { enqueueTranslation } from "./translation-queue";
 import { renderCaptions, scrollToBottomIfNeeded } from "./render";
 import { updateCaptionTranslation } from "./caption-ui";
 import {
@@ -142,7 +142,7 @@ export function finalizeCaption(captionId: number): void {
       return;
     }
 
-    translateCaption(caption, "semantic");
+    enqueueTranslation(caption.id);
   }
 
   saveCaptionsDebounced();

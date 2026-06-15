@@ -1,5 +1,5 @@
 import type { Caption, TranslateResponse } from "./types";
-import { captions, settings } from "./state";
+import { captions, settings, getActiveApiKey } from "./state";
 import { updateCaptionTranslation } from "./caption-ui";
 import {
   updateCaptionInHistory,
@@ -32,10 +32,7 @@ export async function translateCaption(
     return;
   }
 
-  const apiKey =
-    settings.provider === "anthropic"
-      ? settings.anthropicApiKey
-      : settings.openaiApiKey;
+  const apiKey = getActiveApiKey();
 
   if (!force && !settings.translationEnabled) {
     return;
@@ -106,17 +103,4 @@ export function retranslateCaption(captionObj: Caption): void {
 
 export function manualTranslate(captionObj: Caption): void {
   translateCaption(captionObj, "semantic", true);
-}
-
-export async function translateAllExistingCaptions(): Promise<void> {
-  const untranslated = captions.filter(
-    (c) =>
-      !c.translation &&
-      c.translationStatus !== TranslationStatus.Translating &&
-      !pendingTranslations.has(c.id)
-  );
-
-  for (const caption of untranslated) {
-    await translateCaption(caption, "semantic");
-  }
 }

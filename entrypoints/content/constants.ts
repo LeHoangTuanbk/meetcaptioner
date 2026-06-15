@@ -1,5 +1,14 @@
 export const MAX_CAPTIONS = 200;
 export const SEMANTIC_DELAY = 1500;
+
+// Smart translation scheduling
+// Max simultaneous translation requests (controls throughput & rate-limit risk)
+export const TRANSLATION_CONCURRENCY = 3;
+// When turning translation ON, only auto-translate captions within this many
+// pixels of the overlay viewport. Anything farther is skipped (manual only).
+export const MAX_AUTO_TRANSLATE_DISTANCE = 1500;
+// When scrolling, prefetch captions this close to the viewport.
+export const SCROLL_PREFETCH_MARGIN = 300;
 // TODO: Refining, Semantic, Optimistic has not been used yet. Consider refactor code
 export const TranslationStatus = {
   Pending: "pending",

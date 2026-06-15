@@ -1,7 +1,9 @@
 import "../styles/index.css";
 import { settings, overlay, setOverlay, setCaptionList } from "../state";
+import { SCROLL_PREFETCH_MARGIN } from "../constants";
 import { createElement } from "../libs";
 import { renderCaptions } from "../render";
+import { enqueueNearbyCaptions } from "../translation-queue";
 import { makeDraggable, makeResizable } from "./interactions";
 import { createHeader } from "./header";
 import { createScrollButton } from "./scroll-button";
@@ -47,6 +49,17 @@ export function createOverlay(): void {
 
   const scrollBtn = createScrollButton(content, overlayEl);
   overlayEl.appendChild(scrollBtn);
+
+  // Progressively translate captions as the user scrolls into them, so older
+  // text gets translated on demand when it comes into view.
+  let scrollTimer: ReturnType<typeof setTimeout> | null = null;
+  content.addEventListener("scroll", () => {
+    if (!settings.translationEnabled) return;
+    if (scrollTimer) clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => {
+      enqueueNearbyCaptions(SCROLL_PREFETCH_MARGIN);
+    }, 250);
+  });
 
   makeDraggable(overlayEl, header);
   makeResizable(overlayEl, resizeHandleBR, "br");
