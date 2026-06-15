@@ -11,6 +11,7 @@ import { useSettings } from "./use-settings";
 const PROVIDERS = [
   { id: "openai", name: "OpenAI (GPT)" },
   { id: "anthropic", name: "Anthropic (Claude)" },
+  { id: "gemini", name: "Google (Gemini)" },
   { id: "ollama", name: "Ollama (Local/Cloud)" },
 ];
 
@@ -71,7 +72,10 @@ export default function App() {
             label="AI Provider"
             value={settings.provider}
             onChange={(v) =>
-              updateSetting("provider", v as "anthropic" | "openai" | "ollama")
+              updateSetting(
+                "provider",
+                v as "anthropic" | "openai" | "gemini" | "ollama"
+              )
             }
             options={PROVIDERS}
           />

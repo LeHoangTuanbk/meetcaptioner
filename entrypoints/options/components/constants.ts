@@ -12,6 +12,11 @@ export const MODELS: Record<string, readonly { id: string; name: string }[]> = {
     { id: "gpt-5-mini", name: "GPT-5 Mini" },
     { id: "gpt-5", name: "GPT-5" },
   ],
+  gemini: [
+    { id: "gemini-3.1-flash-lite", name: "Gemini 3.1 Flash-Lite (Fastest)" },
+    { id: "gemini-3.5-flash", name: "Gemini 3.5 Flash" },
+    { id: "gemini-3.1-pro-preview", name: "Gemini 3.1 Pro (Preview)" },
+  ],
   ollama: [],
 };
 

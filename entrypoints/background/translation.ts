@@ -1,4 +1,4 @@
-import type { TranslateRequest, TranslateResponse } from "./types";
+import type { TranslateRequest, TranslateResponse, Settings } from "./types";
 import { PROVIDERS } from "./types";
 import { MODELS } from "./constants";
 import { RateLimitError } from "./errors";
@@ -6,7 +6,19 @@ import { sanitizeError } from "./utils";
 import { getSettings } from "./settings";
 import { translateWithAnthropic } from "./providers/anthropic";
 import { translateWithOpenAI } from "./providers/openai";
+import { translateWithGemini } from "./providers/gemini";
 import { translateWithOllama } from "./providers/ollama";
+
+function getApiKey(settings: Settings): string {
+  switch (settings.provider) {
+    case PROVIDERS.anthropic:
+      return settings.anthropicApiKey;
+    case PROVIDERS.gemini:
+      return settings.geminiApiKey;
+    default:
+      return settings.openaiApiKey;
+  }
+}
 
 export async function translate(
   request: TranslateRequest
@@ -28,10 +40,7 @@ export async function translate(
       };
     }
   } else {
-    const apiKey =
-      settings.provider === PROVIDERS.anthropic
-        ? settings.anthropicApiKey
-        : settings.openaiApiKey;
+    const apiKey = getApiKey(settings);
 
     if (!apiKey) {
       return {
@@ -68,10 +77,7 @@ export async function translate(
     }
   }
 
-  const apiKey =
-    settings.provider === PROVIDERS.anthropic
-      ? settings.anthropicApiKey
-      : settings.openaiApiKey;
+  const apiKey = getApiKey(settings);
 
   const modelList = MODELS[settings.provider];
   const startIndex = modelList.indexOf(settings.model);
@@ -87,7 +93,9 @@ export async function translate(
       const translation =
         settings.provider === PROVIDERS.anthropic
           ? await translateWithAnthropic(request, apiKey, model)
-          : await translateWithOpenAI(request, apiKey, model);
+          : settings.provider === PROVIDERS.gemini
+            ? await translateWithGemini(request, apiKey, model)
+            : await translateWithOpenAI(request, apiKey, model);
 
       return {
         success: true,

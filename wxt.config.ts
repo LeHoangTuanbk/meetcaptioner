@@ -15,6 +15,7 @@ export default defineConfig({
       "https://meet.google.com/*",
       "https://api.anthropic.com/*",
       "https://api.openai.com/*",
+      "https://generativelanguage.googleapis.com/*",
       "http://localhost/*",
       "http://localhost:11434/*",
       "http://127.0.0.1/*",

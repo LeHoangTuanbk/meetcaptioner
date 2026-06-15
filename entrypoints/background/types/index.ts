@@ -1,6 +1,7 @@
 export const PROVIDERS = {
   anthropic: "anthropic",
   openai: "openai",
+  gemini: "gemini",
   ollama: "ollama",
 } as const;
 
@@ -10,6 +11,7 @@ export type Settings = {
   provider: Provider;
   anthropicApiKey: string;
   openaiApiKey: string;
+  geminiApiKey: string;
   ollamaBaseUrl: string;
   ollamaApiKey: string;
   model: string;
