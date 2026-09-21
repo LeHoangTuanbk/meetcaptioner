@@ -1,14 +1,18 @@
-import type { Caption } from "./types";
-import { captions, settings, overlay } from "./state";
-import { translateCaption } from "./translation";
-import { TranslationStatus, TRANSLATION_CONCURRENCY } from "./constants";
+import type { Caption } from "@content/types";
+import { captions, settings } from "@content/state";
+import { translateCaption } from "@content/translation";
+import {
+  TranslationStatus,
+  TRANSLATION_CONCURRENCY,
+} from "@content/constants";
+import { getContentElement } from "@content/overlay/runtime";
 
 // Caption ids waiting to be translated, and those currently in flight.
 const queue = new Set<number>();
 const inFlight = new Set<number>();
 
 function getScrollContainer(): HTMLElement | null {
-  return (overlay?.querySelector(".mc-content") as HTMLElement | null) ?? null;
+  return getContentElement();
 }
 
 // 0 when the caption is visible in the overlay viewport, otherwise the pixel

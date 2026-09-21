@@ -1,14 +1,20 @@
-import { DEFAULT_CUSTOM_PROMPT } from "./constants";
-import { updateSettings } from "./state";
-import { createOverlay, updateUIFromSettings } from "./overlay";
-import { startObserver } from "./observer";
-import { initMeetingSession, updateSessionEndTime } from "./history-service";
+import type { ContentScriptContext } from "wxt/utils/content-script-context";
+import { DEFAULT_CUSTOM_PROMPT } from "@content/constants";
+import { updateSettings } from "@content/state";
+import { createOverlay } from "@content/overlay";
+import { startObserver } from "@content/observer";
+import {
+  initMeetingSession,
+  updateSessionEndTime,
+} from "@content/history-service";
+import "@content/overlay/styles.css";
 
 export default defineContentScript({
   matches: ["https://meet.google.com/*"],
   runAt: "document_start",
+  cssInjectionMode: "ui",
 
-  main() {
+  main(ctx) {
     const isMeetingUrl = /\/[a-z]{3}-[a-z]{4}-[a-z]{3}($|\?)/.test(
       window.location.pathname
     );
@@ -28,9 +34,9 @@ export default defineContentScript({
     (document.head || document.documentElement).appendChild(meta);
 
     if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", init);
+      document.addEventListener("DOMContentLoaded", () => init(ctx), { once: true });
     } else {
-      setTimeout(init, 1000);
+      setTimeout(() => init(ctx), 1000);
     }
   },
 });
@@ -48,15 +54,14 @@ async function loadSettings(): Promise<void> {
       } else {
         updateSettings({ customPrompt: DEFAULT_CUSTOM_PROMPT });
       }
-      updateUIFromSettings();
     }
   } catch {
     // Settings could not be loaded, using defaults
   }
 }
 
-async function init(): Promise<void> {
-  createOverlay();
+async function init(ctx: ContentScriptContext): Promise<void> {
+  await createOverlay(ctx);
   await loadSettings();
   startObserver();
 

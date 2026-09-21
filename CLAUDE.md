@@ -22,3 +22,8 @@ Before installing anything, remember to check package.json to select the most ap
 
 - Minimalism clean modern style
 - Using minimalist design principles like Apple's apps, following the philosophy of Jony Ive.
+
+## Coding style
+
+- Use modern React coding patter: Custom hook, Container Presentation.
+- File lines is around 100-120 lines. If longer, split into smaller files.

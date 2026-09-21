@@ -1,35 +1,34 @@
-import type { Caption } from "./types";
-import { MAX_CAPTIONS, TranslationStatus } from "./constants";
+import type { Caption } from "@content/types";
+import { MAX_CAPTIONS, TranslationStatus } from "@content/constants";
 import {
   captions,
   settings,
   getNextCaptionId,
-  waveElement,
   waveTimeout,
   setWaveTimeout,
   clearSemanticTimer,
-} from "./state";
-import { enqueueTranslation } from "./translation-queue";
-import { renderCaptions, scrollToBottomIfNeeded } from "./render";
-import { updateCaptionTranslation } from "./caption-ui";
+  setWaveActiveState,
+  notifyStateChange,
+} from "@content/state";
+import { enqueueTranslation } from "@content/translation-queue";
+import { scrollToBottomIfNeeded } from "@content/overlay/runtime";
 import {
   saveCaptionsDebounced,
   addCaptionToHistory,
   updateCaptionInHistory,
-} from "./history-service";
+} from "@content/history-service";
 
 export function setWaveActive(active: boolean): void {
-  if (!waveElement) return;
   if (active) {
-    waveElement.classList.add("mc-active");
+    setWaveActiveState(true);
     if (waveTimeout) clearTimeout(waveTimeout);
     setWaveTimeout(
       setTimeout(() => {
-        waveElement?.classList.remove("mc-active");
+        setWaveActiveState(false);
       }, 3000)
     );
   } else {
-    waveElement.classList.remove("mc-active");
+    setWaveActiveState(false);
     if (waveTimeout) clearTimeout(waveTimeout);
   }
 }
@@ -63,20 +62,7 @@ export function addOrUpdateCaption(
       }
       caption.isFinalized = false;
 
-      const captionEl = document.querySelector(
-        `[data-caption-id="${captionId}"]`
-      );
-      if (captionEl) {
-        const textEl = captionEl.querySelector(".mc-original");
-        const timeEl = captionEl.querySelector(".mc-time");
-        if (textEl) textEl.textContent = text;
-        if (timeEl) timeEl.textContent = caption.time;
-
-        if (needsRetranslate || !caption.translation) {
-          updateCaptionTranslation(caption);
-        }
-      }
-
+      notifyStateChange();
       scrollToBottomIfNeeded();
 
       updateCaptionInHistory(captionId, { text });
@@ -109,7 +95,8 @@ export function addOrUpdateCaption(
     }
   }
 
-  renderCaptions(false);
+  notifyStateChange();
+  scrollToBottomIfNeeded();
   saveCaptionsDebounced();
 
   return newId;

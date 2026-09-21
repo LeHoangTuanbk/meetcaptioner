@@ -1,15 +1,25 @@
-import type { Caption, TranslateResponse } from "./types";
-import { captions, settings, getActiveApiKey } from "./state";
-import { updateCaptionTranslation } from "./caption-ui";
+import type { Caption, TranslateResponse } from "@content/types";
+import {
+  captions,
+  settings,
+  getActiveApiKey,
+  notifyStateChange,
+} from "@content/state";
+import { scrollToBottomIfNeeded } from "@content/overlay/runtime";
 import {
   updateCaptionInHistory,
   saveCaptionsDebounced,
-} from "./history-service";
-import { TranslationStatus } from "./constants";
+} from "@content/history-service";
+import { TranslationStatus } from "@content/constants";
 
 const pendingTranslations = new Set<number>();
 
 const CONTEXT_CAPTION_COUNT = 5;
+
+function refreshCaption(): void {
+  notifyStateChange();
+  scrollToBottomIfNeeded();
+}
 
 function buildContext(currentCaption: Caption): string {
   const currentIndex = captions.findIndex((c) => c.id === currentCaption.id);
@@ -41,7 +51,7 @@ export async function translateCaption(
   if (!apiKey) {
     captionObj.translationStatus = TranslationStatus.Error;
     captionObj.translationError = "No API key configured";
-    updateCaptionTranslation(captionObj);
+    refreshCaption();
     return;
   }
 
@@ -57,7 +67,7 @@ export async function translateCaption(
   try {
     pendingTranslations.add(captionId);
     captionObj.translationStatus = TranslationStatus.Translating;
-    updateCaptionTranslation(captionObj);
+    refreshCaption();
 
     const response = (await chrome.runtime.sendMessage({
       action: "translate",
@@ -79,17 +89,17 @@ export async function translateCaption(
       if (stillExistsInUI) {
         captionObj.translation = response.translation;
         captionObj.translationStatus = TranslationStatus.Semantic;
-        updateCaptionTranslation(captionObj);
+        refreshCaption();
       }
     } else if (stillExistsInUI) {
       captionObj.translationStatus = TranslationStatus.Error;
       captionObj.translationError = response?.error || "Translation failed";
-      updateCaptionTranslation(captionObj);
+      refreshCaption();
     }
   } catch (e) {
     captionObj.translationStatus = TranslationStatus.Error;
     captionObj.translationError = String(e);
-    updateCaptionTranslation(captionObj);
+    refreshCaption();
   } finally {
     pendingTranslations.delete(captionId);
   }

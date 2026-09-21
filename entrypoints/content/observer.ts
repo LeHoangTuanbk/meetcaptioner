@@ -1,6 +1,5 @@
-import { captions, isCCEnabled, setCCEnabled } from "./state";
-import { addOrUpdateCaption, finalizeCaption } from "./caption";
-import { renderCaptions } from "./render";
+import { captions, isCCEnabled, setCCEnabled } from "@content/state";
+import { addOrUpdateCaption, finalizeCaption } from "@content/caption";
 
 let currentCaptionRegion: HTMLElement | null = null;
 
@@ -152,9 +151,6 @@ export function startObserver(): void {
 
       if (!isCCEnabled) {
         setCCEnabled(true);
-        if (captions.length === 0) {
-          renderCaptions();
-        }
       }
 
       observer = new MutationObserver(debouncedExtract);

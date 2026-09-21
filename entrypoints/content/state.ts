@@ -1,7 +1,26 @@
-import type { Caption, Settings } from "./types";
-import { DEFAULT_CUSTOM_PROMPT } from "./constants";
+import type { Caption, Settings } from "@content/types";
+import { DEFAULT_CUSTOM_PROMPT } from "@content/constants";
 
 export const captions: Caption[] = [];
+
+type StateListener = () => void;
+
+const listeners = new Set<StateListener>();
+let stateVersion = 0;
+
+export function subscribe(listener: StateListener): () => void {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+export function getStateVersion(): number {
+  return stateVersion;
+}
+
+export function notifyStateChange(): void {
+  stateVersion += 1;
+  listeners.forEach((listener) => listener());
+}
 
 export let settings: Settings = {
   provider: "openai",
@@ -16,6 +35,7 @@ export let settings: Settings = {
 
 export function updateSettings(newSettings: Partial<Settings>) {
   settings = { ...settings, ...newSettings };
+  notifyStateChange();
 }
 
 export function getActiveApiKey(): string {
@@ -37,6 +57,13 @@ export function getNextCaptionId() {
 export let isCCEnabled = false;
 export function setCCEnabled(enabled: boolean) {
   isCCEnabled = enabled;
+  notifyStateChange();
+}
+
+export let isWaveActive = false;
+export function setWaveActiveState(active: boolean): void {
+  isWaveActive = active;
+  notifyStateChange();
 }
 
 export const semanticTimers = new Map<number, ReturnType<typeof setTimeout>>();
@@ -49,40 +76,8 @@ export function clearSemanticTimer(captionId: number) {
   }
 }
 
-export let overlay: HTMLElement | null = null;
-export let captionList: HTMLElement | null = null;
-export let waveElement: HTMLElement | null = null;
 export let waveTimeout: ReturnType<typeof setTimeout> | null = null;
-export let isMinimized = false;
-export let savedPosition: {
-  left: string;
-  top: string;
-  width: string;
-  height: string;
-} | null = null;
-
-export function setOverlay(el: HTMLElement | null) {
-  overlay = el;
-}
-
-export function setCaptionList(el: HTMLElement | null) {
-  captionList = el;
-}
-
-export function setWaveElement(el: HTMLElement | null) {
-  waveElement = el;
-}
 
 export function setWaveTimeout(timeout: ReturnType<typeof setTimeout> | null) {
   waveTimeout = timeout;
-}
-
-export function setMinimized(minimized: boolean) {
-  isMinimized = minimized;
-}
-
-export function setSavedPosition(
-  pos: { left: string; top: string; width: string; height: string } | null
-) {
-  savedPosition = pos;
 }

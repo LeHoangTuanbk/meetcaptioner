@@ -1,0 +1,65 @@
+@import "tailwindcss";
+@source "./**/*.{ts,tsx}";
+
+.mc-content-scroll *::selection {
+  background: rgb(255 255 255 / 85%);
+  color: #1a1a2e;
+}
+
+.mc-content-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.mc-content-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mc-content-scroll::-webkit-scrollbar-thumb {
+  border-radius: 2px;
+  background: rgb(255 255 255 / 15%);
+}
+
+.mc-dots {
+  animation: mc-blink 1s ease-in-out infinite;
+}
+
+.mc-wave-bar-active {
+  animation: mc-wave 1s ease-in-out infinite;
+}
+
+.mc-caption-enter {
+  animation: mc-fade-in 200ms ease;
+}
+
+.mc-copy-pop {
+  animation: mc-copy-pop 200ms ease;
+}
+
+.mc-toast-enter {
+  animation: mc-toast-enter 200ms ease-out;
+}
+
+@keyframes mc-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes mc-wave {
+  0%, 100% { height: 4px; }
+  50% { height: 14px; }
+}
+
+@keyframes mc-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes mc-copy-pop {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes mc-toast-enter {
+  from { opacity: 0; transform: translate(-50%, -8px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}

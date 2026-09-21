@@ -1,4 +1,4 @@
-import type { TranslationStatus } from "./constants";
+import type { TranslationStatus } from "@content/constants";
 
 export type Caption = {
   id: number;
