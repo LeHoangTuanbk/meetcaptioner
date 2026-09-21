@@ -10,21 +10,33 @@ const formatBytes = (bytes: number): string => {
 };
 
 export const StorageIndicator = ({ bytesUsed, quota }: StorageIndicatorProps) => {
-  const percentage = (bytesUsed / quota) * 100;
-  const isWarning = percentage >= 80;
+  const percentage = quota > 0 ? (bytesUsed / quota) * 100 : 0;
+  const isWarning = percentage >= STORAGE_WARNING_RATIO * 100;
+  const isCritical = percentage >= 95;
+  const statusClass = isCritical
+    ? "text-red-400"
+    : isWarning
+      ? "text-amber-400"
+      : "text-slate-400";
 
   return (
     <div className="flex items-center gap-3">
       <div className="text-right">
-        <p className={`text-sm font-medium ${isWarning ? "text-amber-400" : "text-slate-400"}`}>
+        <p className={`text-sm font-medium ${statusClass}`}>
           {formatBytes(bytesUsed)} / {formatBytes(quota)}
         </p>
-        <p className="text-xs text-slate-500">Storage used</p>
+        <p className={`text-xs ${isWarning ? statusClass : "text-slate-500"}`}>
+          {isWarning ? "Storage almost full" : "Storage used"}
+        </p>
       </div>
       <div className="w-24 h-2 bg-slate-700 rounded-full overflow-hidden">
         <div
           className={`h-full rounded-full transition-all ${
-            isWarning ? "bg-amber-500" : "bg-emerald-500"
+            isCritical
+              ? "bg-red-500"
+              : isWarning
+                ? "bg-amber-500"
+                : "bg-emerald-500"
           }`}
           style={{ width: `${Math.min(percentage, 100)}%` }}
         />
@@ -32,3 +44,4 @@ export const StorageIndicator = ({ bytesUsed, quota }: StorageIndicatorProps) =>
     </div>
   );
 };
+import { STORAGE_WARNING_RATIO } from "../constants";
