@@ -5,23 +5,35 @@ let currentSession: MeetingSession | null = null;
 
 const allCaptions = new Map<number, SavedCaption>();
 
-function generateId(): string {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2);
-}
+const MEETING_TITLE_SELECTOR =
+  '[role="heading"][aria-level="1"] [jsname="NeC6gb"]';
 
-function getMeetingCodeFromUrl(): string {
+const generateId = (): string =>
+  Date.now().toString(36) + Math.random().toString(36).slice(2);
+
+const getMeetingCodeFromUrl = (): string => {
   const match = window.location.pathname.match(
-    /\/([a-z]{3}-[a-z]{4}-[a-z]{3})/
+    /\/([a-z]{3}-[a-z]{4}-[a-z]{3})/,
   );
   return match ? match[1] : "unknown";
-}
+};
 
-function getMeetingTitle(): string | undefined {
-  const el = document.querySelector("[data-meeting-title]");
-  return el?.getAttribute("data-meeting-title") || undefined;
-}
+/** Reads the visible meeting title from the current Google Meet layout. */
+const getMeetingTitle = (): string | undefined => {
+  const titleElement = document.querySelector<HTMLElement>(
+    MEETING_TITLE_SELECTOR,
+  );
+  const title = titleElement?.textContent?.trim();
+  if (title) return title;
 
-export function initMeetingSession(): void {
+  // Keep compatibility with older Google Meet layouts.
+  const legacyElement = document.querySelector<HTMLElement>(
+    "[data-meeting-title]",
+  );
+  return legacyElement?.dataset.meetingTitle?.trim() || undefined;
+};
+
+export const initMeetingSession = (): void => {
   if (currentSession) return;
 
   currentSession = {
@@ -32,9 +44,9 @@ export function initMeetingSession(): void {
     startTime: Date.now(),
     captions: [],
   };
-}
+};
 
-export function addCaptionToHistory(caption: Caption): void {
+export const addCaptionToHistory = (caption: Caption): void => {
   const saved: SavedCaption = {
     speaker: caption.speaker,
     text: caption.text,
@@ -43,21 +55,21 @@ export function addCaptionToHistory(caption: Caption): void {
     timestamp: Date.now(),
   };
   allCaptions.set(caption.id, saved);
-}
+};
 
-export function updateCaptionInHistory(
+export const updateCaptionInHistory = (
   captionId: number,
-  updates: Partial<Pick<SavedCaption, "text" | "translation">>
-): void {
+  updates: Partial<Pick<SavedCaption, "text" | "translation">>,
+): void => {
   const existing = allCaptions.get(captionId);
   if (existing) {
     if (updates.text !== undefined) existing.text = updates.text;
     if (updates.translation !== undefined)
       existing.translation = updates.translation;
   }
-}
+};
 
-async function saveToStorage(): Promise<void> {
+const saveToStorage = async (): Promise<void> => {
   if (!currentSession) return;
 
   if (!currentSession.title) {
@@ -75,16 +87,16 @@ async function saveToStorage(): Promise<void> {
   } catch {
     // Session save failed silently
   }
-}
+};
 
 export const saveCaptionsDebounced = debounce(saveToStorage, 500);
 
-export function updateSessionEndTime(): void {
+export const updateSessionEndTime = (): void => {
   if (!currentSession) return;
   currentSession.endTime = Date.now();
   saveToStorage();
-}
+};
 
-export function getCurrentSessionId(): string | null {
+export const getCurrentSessionId = (): string | null => {
   return currentSession?.id || null;
-}
+};
