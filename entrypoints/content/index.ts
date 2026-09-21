@@ -1,8 +1,7 @@
 import type { ContentScriptContext } from "wxt/utils/content-script-context";
-import { DEFAULT_CUSTOM_PROMPT } from "@content/constants";
-import { updateSettings } from "@content/state";
 import { createOverlay } from "@content/overlay";
 import { startObserver } from "@content/observer";
+import { loadSettings, startSettingsSync } from "@content/settings-sync";
 import {
   initMeetingSession,
   updateSessionEndTime,
@@ -41,27 +40,9 @@ export default defineContentScript({
   },
 });
 
-async function loadSettings(): Promise<void> {
-  try {
-    const response = await chrome.runtime.sendMessage({
-      action: "getSettings",
-    });
-    if (response?.success && response.settings) {
-      const saved = response.settings;
-      updateSettings(saved);
-      if (saved.customPrompt !== undefined) {
-        updateSettings({ customPrompt: saved.customPrompt });
-      } else {
-        updateSettings({ customPrompt: DEFAULT_CUSTOM_PROMPT });
-      }
-    }
-  } catch {
-    // Settings could not be loaded, using defaults
-  }
-}
-
-async function init(ctx: ContentScriptContext): Promise<void> {
+const init = async (ctx: ContentScriptContext): Promise<void> => {
   await createOverlay(ctx);
+  startSettingsSync(ctx);
   await loadSettings();
   startObserver();
 
@@ -70,4 +51,4 @@ async function init(ctx: ContentScriptContext): Promise<void> {
   window.addEventListener("beforeunload", () => {
     updateSessionEndTime();
   });
-}
+};

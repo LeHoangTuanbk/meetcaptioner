@@ -27,6 +27,8 @@ export let settings: Settings = {
   anthropicApiKey: "",
   openaiApiKey: "",
   geminiApiKey: "",
+  ollamaBaseUrl: "http://localhost:11434",
+  ollamaApiKey: "",
   model: "gpt-4.1-nano",
   targetLanguage: "en",
   translationEnabled: false,
@@ -38,16 +40,22 @@ export function updateSettings(newSettings: Partial<Settings>) {
   notifyStateChange();
 }
 
-export function getActiveApiKey(): string {
+export const hasActiveProviderCredentials = (): boolean => {
   switch (settings.provider) {
     case "anthropic":
-      return settings.anthropicApiKey;
+      return Boolean(settings.anthropicApiKey);
     case "gemini":
-      return settings.geminiApiKey;
+      return Boolean(settings.geminiApiKey);
+    case "ollama":
+      return (
+        Boolean(settings.ollamaBaseUrl) &&
+        (!settings.ollamaBaseUrl.includes("ollama.com") ||
+          Boolean(settings.ollamaApiKey))
+      );
     default:
-      return settings.openaiApiKey;
+      return Boolean(settings.openaiApiKey);
   }
-}
+};
 
 export let captionIdCounter = 0;
 export function getNextCaptionId() {

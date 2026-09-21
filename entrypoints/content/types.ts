@@ -18,6 +18,8 @@ export type Settings = {
   anthropicApiKey: string;
   openaiApiKey: string;
   geminiApiKey: string;
+  ollamaBaseUrl: string;
+  ollamaApiKey: string;
   model: string;
   targetLanguage: string;
   translationEnabled: boolean;
