@@ -1,9 +1,8 @@
+import { LANGUAGES } from "@/shared/constants";
 import type { TranslateRequest } from "./types";
-import { LANGUAGES } from "./constants";
 
-export function getLanguageName(code: string): string {
-  return LANGUAGES[code] || code;
-}
+export const getLanguageName = (code: string): string =>
+  LANGUAGES.find((language) => language.code === code)?.name ?? code;
 
 export function buildPrompt(request: TranslateRequest): string {
   const langName = getLanguageName(request.targetLang);

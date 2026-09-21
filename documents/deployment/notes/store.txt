@@ -3,7 +3,7 @@ MeetCaptioner captures live captions and translates them instantly using AI — 
 🎯 KEY FEATURES
 
 • Real-time Caption Capture — Automatically captures every word spoken in your Google Meet with speaker identification
-• AI-Powered Translation — Translate to 18+ languages using OpenAI, Anthropic, Google Gemini, DeepSeek, or Ollama (local/cloud)
+• AI-Powered Translation — Translate to 40+ languages using OpenAI, Anthropic, Google Gemini, DeepSeek, or Ollama (local/cloud)
 • Floating Overlay — Draggable, resizable panel that stays out of your way
 • Meeting History — All your captions are auto-saved locally for later review
 • Export Options — Download captions and translations as text files
@@ -14,7 +14,7 @@ MeetCaptioner captures live captions and translates them instantly using AI — 
 
 🌍 SUPPORTED LANGUAGES
 
-Vietnamese, English, Chinese, Japanese, Korean, Spanish, French, German, Portuguese, Russian, Arabic, Hindi, Italian, Thai, Indonesian, Dutch, Polish, Turkish
+Tiếng Việt (Vietnamese), English (English), 中文 (Chinese), 日本語 (Japanese), 한국어 (Korean), Español (Spanish), Français (French), Deutsch (German), Português (Portuguese), Русский (Russian), العربية (Arabic), हिन्दी (Hindi), Italiano (Italian), ไทย (Thai), Bahasa Indonesia (Indonesian), Nederlands (Dutch), Polski (Polish), Türkçe (Turkish), বাংলা (Bengali), اردو (Urdu), Bahasa Melayu (Malay), Filipino (Filipino), தமிழ் (Tamil), తెలుగు (Telugu), मराठी (Marathi), ગુજરાતી (Gujarati), ਪੰਜਾਬੀ (Punjabi), Українська (Ukrainian), Čeština (Czech), Română (Romanian), Magyar (Hungarian), Ελληνικά (Greek), Svenska (Swedish), Dansk (Danish), Norsk (Norwegian), Suomi (Finnish), עברית (Hebrew), فارسی (Persian), Kiswahili (Swahili), Català (Catalan), Български (Bulgarian), Српски (Serbian)
 
 🤖 AI PROVIDERS
 
