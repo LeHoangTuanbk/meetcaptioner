@@ -1,7 +1,18 @@
 export const LANGUAGES = [
   { code: "vi", name: "Tiếng Việt (Vietnamese)" },
   { code: "en", name: "English (English)" },
-  { code: "zh", name: "中文 (Chinese)" },
+  {
+    code: "yue-Hant",
+    name: "廣東話（繁體） (Chinese, Cantonese (Traditional))",
+  },
+  {
+    code: "zh",
+    name: "普通话（简体中文） (Chinese, Mandarin (Simplified))",
+  },
+  {
+    code: "zh-Hant",
+    name: "國語（繁體中文） (Chinese, Mandarin (Traditional))",
+  },
   { code: "ja", name: "日本語 (Japanese)" },
   { code: "ko", name: "한국어 (Korean)" },
   { code: "es", name: "Español (Spanish)" },
@@ -13,6 +24,8 @@ export const LANGUAGES = [
   { code: "hi", name: "हिन्दी (Hindi)" },
   { code: "it", name: "Italiano (Italian)" },
   { code: "th", name: "ไทย (Thai)" },
+  { code: "mn", name: "Монгол (Mongolian)" },
+  { code: "my", name: "မြန်မာ (Burmese)" },
   { code: "id", name: "Bahasa Indonesia (Indonesian)" },
   { code: "nl", name: "Nederlands (Dutch)" },
   { code: "pl", name: "Polski (Polish)" },
