@@ -1,0 +1,1 @@
+export const DEFAULT_CAPTION_FONT_SIZE = 16;

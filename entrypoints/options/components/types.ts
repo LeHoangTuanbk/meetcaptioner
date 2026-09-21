@@ -1,3 +1,5 @@
+import { DEFAULT_CAPTION_FONT_SIZE } from "@/shared/constants";
+
 export type Settings = {
   provider: "anthropic" | "openai" | "gemini" | "ollama";
   anthropicApiKey: string;
@@ -8,6 +10,7 @@ export type Settings = {
   model: string;
   targetLanguage: string;
   translationEnabled: boolean;
+  captionFontSize: number;
   customPrompt: string;
 };
 
@@ -24,5 +27,6 @@ export const DEFAULT_SETTINGS: Settings = {
   model: "gpt-4.1-nano",
   targetLanguage: "en",
   translationEnabled: false,
+  captionFontSize: DEFAULT_CAPTION_FONT_SIZE,
   customPrompt: DEFAULT_CUSTOM_PROMPT,
 };

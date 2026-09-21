@@ -1,3 +1,4 @@
+import { DEFAULT_CAPTION_FONT_SIZE } from "@/shared/constants";
 import type { Settings } from "../types";
 import { PROVIDERS } from "../types";
 
@@ -36,6 +37,7 @@ export const DEFAULT_SETTINGS: Settings = {
   model: "gpt-4.1-nano",
   targetLanguage: "en",
   translationEnabled: false,
+  captionFontSize: DEFAULT_CAPTION_FONT_SIZE,
   customPrompt: DEFAULT_CUSTOM_PROMPT,
 };
 
