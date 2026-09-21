@@ -1,14 +1,3 @@
-# Chrome Web Store Description
-
-## Short Summary (from manifest)
-Capture and translate Google Meet captions in real-time
-
-## Full Description (copy below for store listing)
-
----
-
-Never miss a word in your Google Meet calls again.
-
 MeetCaptioner captures live captions and translates them instantly using AI — perfect for international meetings, language learners, or anyone who needs accurate meeting notes.
 
 🎯 KEY FEATURES
@@ -19,6 +8,7 @@ MeetCaptioner captures live captions and translates them instantly using AI — 
 • Meeting History — All your captions are auto-saved locally for later review
 • Export Options — Download captions and translations as text files
 • Editable Translations — Click to edit any translation manually
+• Smart Translation Queue — Prioritizes captions on your screen first, then translates the rest as you scroll
 • Smart Fallback — Automatic model switching when rate limits hit
 • Privacy First — All data stored locally on your device, never sent to external servers
 
@@ -58,34 +48,7 @@ Your API keys and meeting data stay on your device. We don't collect, store, or 
 ---
 
 Questions or feedback? Visit our GitHub repository.
+https://github.com/LeHoangTuanbk/MeetCaptioner
+
 
 Made with ❤️ for better communication across languages.
-
-
-## Privacy & Permissions (for Chrome Web Store form)
-
-### Single Purpose Description
-```
-MeetCaptioner captures and displays real-time captions from Google Meet meetings with AI-powered translation. It provides a floating overlay showing original captions alongside translations, helping users understand multilingual conversations and save meeting transcripts. Users can choose from cloud AI providers (OpenAI, Anthropic, Google Gemini) or run local LLMs via Ollama for privacy-focused translation.
-```
-
-### Storage Permission Justification
-```
-The storage permission is required to:
-1. Save user preferences (API provider, model selection, target language)
-2. Store API keys locally for translation services
-3. Auto-save meeting captions and translations for later review in Meeting History
-4. Preserve custom translation prompts configured by the user
-All data is stored locally on the user's device and never transmitted to external servers.
-```
-
-### Host Permission Justification (meet.google.com)
-1. meet.google.com - Inject content script to capture live captions, read speaker names/timestamps, and render translation overlay on Meet page.
-
-2. api.anthropic.com, api.openai.com & generativelanguage.googleapis.com - Send caption text for AI translation using user's own API key. No data sent without user configuration.
-
-3. localhost/127.0.0.1 - Support local Ollama LLM for privacy-focused translation without external servers.
-
-4. ollama.com - Support Ollama Cloud service for users preferring hosted option.
-
-All API keys stored locally. Users choose their provider and must configure before any data is sent.
