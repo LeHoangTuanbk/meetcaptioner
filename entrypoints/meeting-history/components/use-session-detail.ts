@@ -1,5 +1,8 @@
+import { toast } from "sonner";
 import { exportMeetingSession } from "./export-session";
 import type { ExportFormat } from "./export-session";
+import { buildSummaryPrompt } from "./summary-prompt";
+import type { SummaryAction } from "./summary-prompt";
 import type { MeetingSession } from "./types";
 
 export const formatDateTime = (timestamp: number): string => {
@@ -29,6 +32,24 @@ export function useSessionDetail(session: MeetingSession) {
   const exportSession = (format: ExportFormat) =>
     exportMeetingSession(session, "both", format);
 
+  const handleSummaryAction = (action: SummaryAction) => {
+    const prompt = buildSummaryPrompt(session);
+
+    if (action === "copy") {
+      void navigator.clipboard
+        .writeText(prompt)
+        .then(() => toast.success("Summary prompt copied"))
+        .catch(() => toast.error("Failed to copy summary prompt"));
+      return;
+    }
+
+    const url = new URL("https://chatgpt.com/");
+    url.searchParams.set("q", prompt);
+    void chrome.tabs
+      .create({ url: url.toString() })
+      .catch(() => toast.error("Failed to open ChatGPT"));
+  };
+
   const handleDelete = (onDelete: () => void) => {
     if (confirm("Delete this session?")) {
       onDelete();
@@ -40,6 +61,7 @@ export function useSessionDetail(session: MeetingSession) {
     formattedStartTime,
     formattedEndTime,
     exportSession,
+    handleSummaryAction,
     handleDelete,
   };
 }
