@@ -1,5 +1,7 @@
 # MeetCaptioner
 
+English | [Tiếng Việt](README-vi.md) | [简体中文](README-zh-CN.md) | [繁體中文](README-zh-TW.md) | [日本語](README-ja.md) | [한국어](README-ko.md) | [Español](README-es.md) | [Русский](README-ru.md) | [ไทย](README-th.md)
+
 A powerful Chrome extension that captures Google Meet captions in real-time with live translation support powered by AI.
 
 ![Chrome Extension](https://img.shields.io/badge/Platform-Chrome%20Extension-4285F4?logo=googlechrome&logoColor=white)
