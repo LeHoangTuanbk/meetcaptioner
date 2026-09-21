@@ -17,6 +17,9 @@ export const MODELS: Record<string, readonly { id: string; name: string }[]> = {
     { id: "gemini-3.5-flash", name: "Gemini 3.5 Flash" },
     { id: "gemini-3.1-pro-preview", name: "Gemini 3.1 Pro (Preview)" },
   ],
+  deepseek: [
+    { id: "deepseek-flash", name: "DeepSeek Flash" },
+  ],
   ollama: [],
 };
 

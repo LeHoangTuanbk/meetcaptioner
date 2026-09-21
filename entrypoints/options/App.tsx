@@ -5,6 +5,7 @@ import {
   Select,
   TextArea,
   MODELS,
+  type Provider,
 } from "./components";
 import { useSettings } from "./use-settings";
 
@@ -12,6 +13,7 @@ const PROVIDERS = [
   { id: "openai", name: "OpenAI (GPT)" },
   { id: "anthropic", name: "Anthropic (Claude)" },
   { id: "gemini", name: "Google (Gemini)" },
+  { id: "deepseek", name: "DeepSeek" },
   { id: "ollama", name: "Ollama (Local/Cloud)" },
 ];
 
@@ -74,7 +76,7 @@ export default function App() {
             onChange={(v) =>
               updateSetting(
                 "provider",
-                v as "anthropic" | "openai" | "gemini" | "ollama"
+                v as Provider
               )
             }
             options={PROVIDERS}

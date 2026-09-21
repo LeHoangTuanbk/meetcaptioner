@@ -4,9 +4,7 @@ import { MODELS } from "./constants";
 import { RateLimitError } from "./errors";
 import { sanitizeError } from "./utils";
 import { getSettings } from "./settings";
-import { translateWithAnthropic } from "./providers/anthropic";
-import { translateWithOpenAI } from "./providers/openai";
-import { translateWithGemini } from "./providers/gemini";
+import { translateWithProvider } from "./providers";
 import { translateWithOllama } from "./providers/ollama";
 
 function getApiKey(settings: Settings): string {
@@ -15,6 +13,8 @@ function getApiKey(settings: Settings): string {
       return settings.anthropicApiKey;
     case PROVIDERS.gemini:
       return settings.geminiApiKey;
+    case PROVIDERS.deepseek:
+      return settings.deepseekApiKey;
     default:
       return settings.openaiApiKey;
   }
@@ -80,6 +80,13 @@ export async function translate(
   const apiKey = getApiKey(settings);
 
   const modelList = MODELS[settings.provider];
+  if (!modelList?.length) {
+    return {
+      success: false,
+      id: request.id,
+      error: `No models configured for ${settings.provider}`,
+    };
+  }
   const startIndex = modelList.indexOf(settings.model);
   const modelsToTry =
     startIndex >= 0
@@ -90,12 +97,12 @@ export async function translate(
 
   for (const model of modelsToTry) {
     try {
-      const translation =
-        settings.provider === PROVIDERS.anthropic
-          ? await translateWithAnthropic(request, apiKey, model)
-          : settings.provider === PROVIDERS.gemini
-            ? await translateWithGemini(request, apiKey, model)
-            : await translateWithOpenAI(request, apiKey, model);
+      const translation = await translateWithProvider(
+        settings,
+        request,
+        apiKey,
+        model
+      );
 
       return {
         success: true,
