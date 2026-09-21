@@ -1,6 +1,6 @@
 # MeetCaptioner
 
-[English](README.md) | [Tiếng Việt](README-vi.md) | [简体中文](README-zh-CN.md) | [繁體中文](README-zh-TW.md) | [日本語](README-ja.md) | [한국어](README-ko.md) | Español | [Русский](README-ru.md) | [ไทย](README-th.md)
+[English](README.md) | [Tiếng Việt](README-vi.md) | [简体中文](README-zh-CN.md) | [繁體中文](README-zh-TW.md) | [日本語](README-ja.md) | [한국어](README-ko.md) | Español | [Português](README-pt.md) | [Русский](README-ru.md) | [ไทย](README-th.md)
 
 Una potente extensión de Chrome que captura los subtítulos de Google Meet en tiempo real y ofrece traducción en directo mediante IA.
 

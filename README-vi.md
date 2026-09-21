@@ -1,6 +1,6 @@
 # MeetCaptioner
 
-[English](README.md) | Tiếng Việt | [简体中文](README-zh-CN.md) | [繁體中文](README-zh-TW.md) | [日本語](README-ja.md) | [한국어](README-ko.md) | [Español](README-es.md) | [Русский](README-ru.md) | [ไทย](README-th.md)
+[English](README.md) | Tiếng Việt | [简体中文](README-zh-CN.md) | [繁體中文](README-zh-TW.md) | [日本語](README-ja.md) | [한국어](README-ko.md) | [Español](README-es.md) | [Português](README-pt.md) | [Русский](README-ru.md) | [ไทย](README-th.md)
 
 Tiện ích Chrome mạnh mẽ giúp thu thập phụ đề Google Meet theo thời gian thực và dịch trực tiếp bằng AI.
 

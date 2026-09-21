@@ -1,6 +1,6 @@
 # MeetCaptioner
 
-[English](README.md) | [Tiếng Việt](README-vi.md) | [简体中文](README-zh-CN.md) | [繁體中文](README-zh-TW.md) | [日本語](README-ja.md) | 한국어 | [Español](README-es.md) | [Русский](README-ru.md) | [ไทย](README-th.md)
+[English](README.md) | [Tiếng Việt](README-vi.md) | [简体中文](README-zh-CN.md) | [繁體中文](README-zh-TW.md) | [日本語](README-ja.md) | 한국어 | [Español](README-es.md) | [Português](README-pt.md) | [Русский](README-ru.md) | [ไทย](README-th.md)
 
 Google Meet 자막을 실시간으로 캡처하고 AI 기반 실시간 번역을 제공하는 강력한 Chrome 확장 프로그램입니다.
 

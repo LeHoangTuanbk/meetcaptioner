@@ -1,6 +1,6 @@
 # MeetCaptioner
 
-[English](README.md) | [Tiếng Việt](README-vi.md) | 简体中文 | [繁體中文](README-zh-TW.md) | [日本語](README-ja.md) | [한국어](README-ko.md) | [Español](README-es.md) | [Русский](README-ru.md) | [ไทย](README-th.md)
+[English](README.md) | [Tiếng Việt](README-vi.md) | 简体中文 | [繁體中文](README-zh-TW.md) | [日本語](README-ja.md) | [한국어](README-ko.md) | [Español](README-es.md) | [Português](README-pt.md) | [Русский](README-ru.md) | [ไทย](README-th.md)
 
 一款强大的 Chrome 扩展，可实时捕获 Google Meet 字幕，并通过 AI 提供实时翻译。
 

@@ -1,6 +1,6 @@
 # MeetCaptioner
 
-[English](README.md) | [Tiếng Việt](README-vi.md) | [简体中文](README-zh-CN.md) | [繁體中文](README-zh-TW.md) | [日本語](README-ja.md) | [한국어](README-ko.md) | [Español](README-es.md) | Русский | [ไทย](README-th.md)
+[English](README.md) | [Tiếng Việt](README-vi.md) | [简体中文](README-zh-CN.md) | [繁體中文](README-zh-TW.md) | [日本語](README-ja.md) | [한국어](README-ko.md) | [Español](README-es.md) | [Português](README-pt.md) | Русский | [ไทย](README-th.md)
 
 Мощное расширение Chrome для захвата субтитров Google Meet в реальном времени и их перевода с помощью ИИ.
 
