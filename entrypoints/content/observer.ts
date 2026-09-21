@@ -170,6 +170,7 @@ export function startObserver(): void {
         observer = null;
       }
       finalizePendingCaptions();
+      setCCEnabled(false);
     }
   }
 
