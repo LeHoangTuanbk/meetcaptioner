@@ -68,12 +68,12 @@ export const Header = ({
   }
 
   return (
-    <div ref={headerRef} className="flex shrink-0 cursor-grab items-center gap-3 rounded-t-xl bg-[#252540] px-3.5 py-2.5 select-none active:cursor-grabbing">
-      <div className="flex flex-1 items-center">
+    <div ref={headerRef} className="flex min-w-max shrink-0 cursor-grab items-center gap-3 rounded-t-xl bg-[#252540] px-3.5 py-2.5 select-none active:cursor-grabbing">
+      <div className="mr-auto flex shrink-0 items-center">
         <span className="text-sm font-semibold whitespace-nowrap text-white">Captions</span>
       </div>
 
-      <div className="flex flex-1 items-center justify-end gap-3">
+      <div className="flex shrink-0 items-center justify-end gap-3">
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold whitespace-nowrap text-white">Translations</span>
           <button
@@ -100,9 +100,9 @@ export const Header = ({
           value={settings.targetLanguage}
           disabled={!settings.translationEnabled}
           onChange={handleTargetLanguageChange}
-          className={`cursor-pointer rounded-md bg-white/8 text-xs text-white outline-none transition-all hover:bg-white/12 ${
+          className={`cursor-pointer rounded-md bg-white/8 text-xs text-white outline-none transition-all [field-sizing:content] hover:bg-white/12 ${
             settings.translationEnabled
-              ? "min-w-[100px] border border-white/15 px-2.5 py-1.5 opacity-100 hover:border-white/25"
+              ? "w-fit border border-white/15 px-2.5 py-1.5 opacity-100 hover:border-white/25"
               : "pointer-events-none w-0 min-w-0 border-0 p-0 opacity-0"
           }`}
         >
