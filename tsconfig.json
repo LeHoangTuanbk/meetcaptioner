@@ -1,6 +1,19 @@
 {
   "extends": "./.wxt/tsconfig.json",
   "compilerOptions": {
+    "types": ["chrome"],
+    "baseUrl": ".",
+    "paths": {
+      "@content/*": ["entrypoints/content/*"],
+      "@": ["."],
+      "@/*": ["*"],
+      "~": ["."],
+      "~/*": ["*"],
+      "@@": ["."],
+      "@@/*": ["*"],
+      "~~": ["."],
+      "~~/*": ["*"]
+    },
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "allowImportingTsExtensions": true,
     "isolatedModules": true,

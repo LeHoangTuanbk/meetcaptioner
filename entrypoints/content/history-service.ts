@@ -1,5 +1,5 @@
-import type { MeetingSession, SavedCaption, Caption } from "./types";
-import { debounce } from "./libs";
+import type { MeetingSession, SavedCaption, Caption } from "@content/types";
+import { debounce } from "@content/libs";
 
 let currentSession: MeetingSession | null = null;
 

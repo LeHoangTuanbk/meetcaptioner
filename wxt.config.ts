@@ -1,13 +1,26 @@
 import { defineConfig } from "wxt";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import { randomUUID } from "node:crypto";
+import { fileURLToPath } from "node:url";
 import pkg from "./package.json";
 
 const version = (process.env.VERSION || pkg.version).replace(/^v/, "");
+const contentAppId = `meetcaptioner-app-${randomUUID()}`;
 
 export default defineConfig({
   vite: () => ({
     plugins: [react(), tailwindcss()],
+    resolve: {
+      alias: {
+        "@content": fileURLToPath(
+          new URL("./entrypoints/content", import.meta.url)
+        ),
+      },
+    },
+    define: {
+      __MEETCAPTIONER_APP_ID__: JSON.stringify(contentAppId),
+    },
   }),
   manifest: {
     name: "MeetCaptioner",
