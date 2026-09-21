@@ -3,6 +3,7 @@ import { SCROLL_PREFETCH_MARGIN } from "@content/constants";
 import { enqueueNearbyCaptions } from "@content/translation-queue";
 import {
   CaptionList,
+  CaptionsStatusToast,
   Header,
   ResizeHandles,
   ScrollToBottomButton,
@@ -121,6 +122,9 @@ export default function OverlayApp() {
               contentRef={contentRef}
               contentVersion={version}
             />
+            {captions.length > 0 && (
+              <CaptionsStatusToast isCCEnabled={isCCEnabled} />
+            )}
             <ResizeHandles
               bottomRightRef={bottomRightRef}
               bottomLeftRef={bottomLeftRef}

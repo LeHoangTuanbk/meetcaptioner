@@ -25,7 +25,9 @@ export const CaptionList = ({
           <>
             Waiting for captions...
             <br />
-            Please, turn on CC in Google Meet
+            Please, turn on CC in Google Meet.
+            <br />
+            Press C to toggle captions in Google Meet.
           </>
         )}
       </div>
