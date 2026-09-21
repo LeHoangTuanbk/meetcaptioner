@@ -1,4 +1,5 @@
 import { ExportSelect } from "./export-select";
+import { SummarySelect } from "./summary-select";
 import type { MeetingSession } from "./types";
 import { useSessionDetail } from "./use-session-detail";
 
@@ -18,6 +19,7 @@ export const SessionDetail = ({
     formattedStartTime,
     formattedEndTime,
     exportSession,
+    handleSummaryAction,
     handleDelete,
   } = useSessionDetail(session);
 
@@ -40,6 +42,10 @@ export const SessionDetail = ({
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <SummarySelect
+            isDisabled={session.captions.length === 0}
+            onSelect={handleSummaryAction}
+          />
           <ExportSelect onExport={exportSession} />
           <button
             onClick={() => handleDelete(onDelete)}
