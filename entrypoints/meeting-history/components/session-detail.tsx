@@ -1,3 +1,4 @@
+import { ExportSelect } from "./export-select";
 import type { MeetingSession } from "./types";
 import { useSessionDetail } from "./use-session-detail";
 
@@ -13,7 +14,6 @@ export const SessionDetail = ({
   onDelete,
 }: SessionDetailProps) => {
   const {
-    hasTranslations,
     displayTitle,
     formattedStartTime,
     formattedEndTime,
@@ -40,35 +40,7 @@ export const SessionDetail = ({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <div className="relative group">
-            <button className="px-4 py-2 text-sm bg-emerald-600 hover:bg-emerald-500 rounded-lg transition-colors cursor-pointer">
-              Export
-            </button>
-            <div className="absolute right-0 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
-              <button
-                onClick={() => exportSession("captions")}
-                className="w-full px-4 py-2 text-left text-sm hover:bg-slate-700 rounded-t-lg cursor-pointer"
-              >
-                Export Captions
-              </button>
-              {hasTranslations && (
-                <button
-                  onClick={() => exportSession("translations")}
-                  className="w-full px-4 py-2 text-left text-sm hover:bg-slate-700"
-                >
-                  Export Translations
-                </button>
-              )}
-              {hasTranslations && (
-                <button
-                  onClick={() => exportSession("both")}
-                  className="w-full px-4 py-2 text-left text-sm hover:bg-slate-700 rounded-b-lg"
-                >
-                  Export Both
-                </button>
-              )}
-            </div>
-          </div>
+          <ExportSelect onExport={exportSession} />
           <button
             onClick={() => handleDelete(onDelete)}
             className="px-4 py-2 text-sm bg-red-900/50 hover:bg-red-800/50 text-red-300 rounded-lg transition-colors cursor-pointer"
