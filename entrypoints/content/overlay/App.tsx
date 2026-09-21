@@ -24,6 +24,25 @@ type SavedPosition = {
   height: string;
 };
 
+const MIN_OVERLAY_WIDTH = 520;
+
+const getHeaderContentWidth = (header: HTMLDivElement): number => {
+  const style = window.getComputedStyle(header);
+  const children = Array.from(header.children);
+  const childrenWidth = children.reduce(
+    (width, child) => width + child.getBoundingClientRect().width,
+    0
+  );
+  const gapsWidth = Number.parseFloat(style.columnGap) * (children.length - 1);
+
+  return Math.ceil(
+    childrenWidth +
+      gapsWidth +
+      Number.parseFloat(style.paddingLeft) +
+      Number.parseFloat(style.paddingRight)
+  );
+};
+
 export default function OverlayApp() {
   const { captions, isCCEnabled, isWaveActive, settings, version } = useOverlayState();
   const isMinimized = settings.isOverlayMinimized;
@@ -69,6 +88,26 @@ export default function OverlayApp() {
     overlay.style.width = "auto";
     overlay.style.height = "auto";
   }, [isMinimized]);
+
+  useLayoutEffect(() => {
+    const overlay = overlayRef.current;
+    const header = headerRef.current;
+    if (!overlay || !header) return;
+
+    if (isMinimized) {
+      overlay.style.minWidth = "0";
+      return;
+    }
+
+    overlay.style.width = `${MIN_OVERLAY_WIDTH}px`;
+    overlay.style.minWidth = `${MIN_OVERLAY_WIDTH}px`;
+    const headerWidth = Math.max(
+      MIN_OVERLAY_WIDTH,
+      getHeaderContentWidth(header)
+    );
+    overlay.style.width = `${headerWidth}px`;
+    overlay.style.minWidth = `${headerWidth}px`;
+  }, [isMinimized, settings.targetLanguage, settings.translationEnabled]);
 
   const minimize = () => {
     const overlay = overlayRef.current;
