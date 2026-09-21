@@ -15,7 +15,7 @@ const elementLastSpeaker = new WeakMap<Element, string>();
 
 const finalizationTimers = new Map<number, ReturnType<typeof setTimeout>>();
 
-const FINALIZE_DELAY = 1500;
+const FINALIZE_DELAY = 3000;
 
 function processCaption(entry: Element): void {
   const speakerEl = entry.querySelector(".NWpY1d");
