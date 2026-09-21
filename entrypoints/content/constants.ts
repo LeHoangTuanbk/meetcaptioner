@@ -3,6 +3,12 @@ import { DEFAULT_CAPTION_FONT_SIZE } from "@/shared/constants";
 export const MAX_CAPTIONS = 200;
 export const SEMANTIC_DELAY = 1500;
 
+// Keep long-running speech readable without relying on a source language.
+// Roughly equivalent to 500-600/700-900 English characters or 120/180 CJK
+// characters, depending on word and whitespace density.
+export const CAPTION_SEGMENT_SOFT_TOKEN_LIMIT = 120;
+export const CAPTION_SEGMENT_HARD_TOKEN_LIMIT = 180;
+
 // Smart translation scheduling
 // Max simultaneous translation requests (controls throughput & rate-limit risk)
 export const TRANSLATION_CONCURRENCY = 3;

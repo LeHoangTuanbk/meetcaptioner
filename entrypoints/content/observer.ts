@@ -1,9 +1,13 @@
 import { captions, isCCEnabled, setCCEnabled } from "@content/state";
-import { addOrUpdateCaption, finalizeCaption } from "@content/caption";
+import { finalizeCaption } from "@content/caption";
+import {
+  updateCaptionStream,
+  type CaptionStreamState,
+} from "@content/caption-stream";
 
 let currentCaptionRegion: HTMLElement | null = null;
 
-const elementToCaptionId = new WeakMap<Element, number>();
+const elementStreams = new WeakMap<Element, CaptionStreamState>();
 
 const elementLastText = new WeakMap<Element, string>();
 
@@ -38,38 +42,17 @@ function processCaption(entry: Element): void {
   elementLastText.set(entry, text);
   elementLastSpeaker.set(entry, speaker);
 
-  const existingCaptionId = elementToCaptionId.get(entry);
-
-  if (existingCaptionId !== undefined) {
-    const caption = captions.find((c) => c.id === existingCaptionId);
-
-    if (!caption) {
-      cancelFinalization(existingCaptionId);
-      const newId = addOrUpdateCaption(null, speaker, text);
-      elementToCaptionId.set(entry, newId);
-      scheduleFinalization(newId);
-      return;
-    }
-
-    if (caption.speaker === speaker) {
-      if (text !== caption.text) {
-        addOrUpdateCaption(existingCaptionId, speaker, text);
-        scheduleFinalization(existingCaptionId);
-      }
-    } else {
-      cancelFinalization(existingCaptionId);
-      finalizeCaption(existingCaptionId);
-
-      const newId = addOrUpdateCaption(null, speaker, text);
-      elementToCaptionId.set(entry, newId);
-      scheduleFinalization(newId);
-    }
-  } else {
+  const previousState = elementStreams.get(entry);
+  if (!previousState) {
     finalizePendingCaptions();
+  }
 
-    const newId = addOrUpdateCaption(null, speaker, text);
-    elementToCaptionId.set(entry, newId);
-    scheduleFinalization(newId);
+  const update = updateCaptionStream(previousState, speaker, text);
+  elementStreams.set(entry, update.state);
+
+  update.finalizedCaptionIds.forEach(cancelFinalization);
+  if (update.activeCaptionId !== null) {
+    scheduleFinalization(update.activeCaptionId);
   }
 }
 
