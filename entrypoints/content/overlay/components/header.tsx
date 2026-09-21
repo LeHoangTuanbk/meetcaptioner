@@ -3,7 +3,7 @@ import {
   LANGUAGES,
   MAX_AUTO_TRANSLATE_DISTANCE,
 } from "@content/constants";
-import { getActiveApiKey } from "@content/state";
+import { hasActiveProviderCredentials } from "@content/state";
 import {
   clearTranslationQueue,
   enqueueNearbyCaptions,
@@ -33,7 +33,7 @@ export function Header({
   onExpand,
 }: HeaderProps) {
   const toggleTranslation = async () => {
-    if (!settings.translationEnabled && !getActiveApiKey()) {
+    if (!settings.translationEnabled && !hasActiveProviderCredentials()) {
       chrome.runtime.sendMessage({ action: "openOptions" });
       return;
     }

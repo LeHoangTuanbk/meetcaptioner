@@ -2,7 +2,7 @@ import type { Caption, TranslateResponse } from "@content/types";
 import {
   captions,
   settings,
-  getActiveApiKey,
+  hasActiveProviderCredentials,
   notifyStateChange,
 } from "@content/state";
 import { scrollToBottomIfNeeded } from "@content/overlay/runtime";
@@ -36,21 +36,20 @@ function buildContext(currentCaption: Caption): string {
 export async function translateCaption(
   captionObj: Caption,
   mode: "optimistic" | "semantic" = "semantic",
-  force = false
+  force = false,
 ): Promise<void> {
   if (pendingTranslations.has(captionObj.id)) {
     return;
   }
 
-  const apiKey = getActiveApiKey();
-
   if (!force && !settings.translationEnabled) {
     return;
   }
 
-  if (!apiKey) {
+  if (!hasActiveProviderCredentials()) {
     captionObj.translationStatus = TranslationStatus.Error;
-    captionObj.translationError = "No API key configured";
+    captionObj.translationError =
+      "Provider credentials are not configured correctly";
     refreshCaption();
     return;
   }
