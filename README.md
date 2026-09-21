@@ -10,7 +10,7 @@ A powerful Chrome extension that captures Google Meet captions in real-time with
 ## Features
 
 - **Real-time Caption Capture** - Automatically captures captions from Google Meet with speaker identification
-- **Live AI Translation** - Translate captions to 18+ languages using OpenAI, Anthropic, Google Gemini, DeepSeek, or Ollama (local/cloud)
+- **Live AI Translation** - Translate captions to 40+ languages using OpenAI, Anthropic, Google Gemini, DeepSeek, or Ollama (local/cloud)
 - **Floating Overlay** - Draggable, resizable overlay that doesn't interfere with your meeting
 - **Meeting History** - Auto-saves all your meeting captions locally for later review
 - **Export Options** - Export captions and translations to text files
@@ -87,7 +87,7 @@ _Real-time caption capture and AI translation in Google Meet_
 
 ### Supported Languages
 
-Vietnamese, English, Chinese, Japanese, Korean, Spanish, French, German, Portuguese, Russian, Arabic, Hindi, Italian, Thai, Indonesian, Dutch, Polish, Turkish
+Tiếng Việt (Vietnamese), English (English), 中文 (Chinese), 日本語 (Japanese), 한국어 (Korean), Español (Spanish), Français (French), Deutsch (German), Português (Portuguese), Русский (Russian), العربية (Arabic), हिन्दी (Hindi), Italiano (Italian), ไทย (Thai), Bahasa Indonesia (Indonesian), Nederlands (Dutch), Polski (Polish), Türkçe (Turkish), বাংলা (Bengali), اردو (Urdu), Bahasa Melayu (Malay), Filipino (Filipino), தமிழ் (Tamil), తెలుగు (Telugu), मराठी (Marathi), ગુજરાતી (Gujarati), ਪੰਜਾਬੀ (Punjabi), Українська (Ukrainian), Čeština (Czech), Română (Romanian), Magyar (Hungarian), Ελληνικά (Greek), Svenska (Swedish), Dansk (Danish), Norsk (Norwegian), Suomi (Finnish), עברית (Hebrew), فارسی (Persian), Kiswahili (Swahili), Català (Catalan), Български (Bulgarian), Српски (Serbian)
 
 ## Tech Stack
 

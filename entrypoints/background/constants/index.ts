@@ -42,24 +42,3 @@ export const DEFAULT_SETTINGS: Settings = {
   captionFontSize: DEFAULT_CAPTION_FONT_SIZE,
   customPrompt: DEFAULT_CUSTOM_PROMPT,
 };
-
-export const LANGUAGES: Record<string, string> = {
-  vi: "Vietnamese",
-  en: "English",
-  zh: "Chinese",
-  ja: "Japanese",
-  ko: "Korean",
-  es: "Spanish",
-  fr: "French",
-  de: "German",
-  pt: "Portuguese",
-  ru: "Russian",
-  ar: "Arabic",
-  hi: "Hindi",
-  it: "Italian",
-  th: "Thai",
-  id: "Indonesian",
-  nl: "Dutch",
-  pl: "Polish",
-  tr: "Turkish",
-};
