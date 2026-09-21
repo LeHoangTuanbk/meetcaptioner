@@ -1,20 +1,49 @@
 import type { Caption } from "@content/types";
-import { CaptionItemView } from "./caption-item-view";
+import { CaptionItem } from "./caption-item";
 import { useCaptionItem } from "./use-caption-item";
 
-type CaptionItemProps = {
+type Props = {
   caption: Caption;
-  translationEnabled: boolean;
+  isTranslationEnabled: boolean;
 };
 
-export function CaptionItem({ caption, translationEnabled }: CaptionItemProps) {
-  const viewModel = useCaptionItem(caption);
+export const CaptionItemContainer = ({
+  caption,
+  isTranslationEnabled,
+}: Props) => {
+  const {
+    isEditing,
+    copiedTarget,
+    translationText,
+    translationTone,
+    isLoading,
+    isReloadVisible,
+    handleCancelEditing,
+    handleCopyOriginal,
+    handleCopyTranslation,
+    handleManualTranslate,
+    handleRetranslate,
+    handleSaveTranslation,
+    handleStartEditing,
+  } = useCaptionItem(caption);
 
   return (
-    <CaptionItemView
+    <CaptionItem
       caption={caption}
-      translationEnabled={translationEnabled}
-      viewModel={viewModel}
+      isTranslationEnabled={isTranslationEnabled}
+      isEditing={isEditing}
+      copiedTarget={copiedTarget}
+      translationText={translationText}
+      translationTone={translationTone}
+      isLoading={isLoading}
+      isReloadVisible={isReloadVisible}
+      onCancelEditing={handleCancelEditing}
+      onCopyOriginal={handleCopyOriginal}
+      onCopyTranslation={handleCopyTranslation}
+      onManualTranslate={handleManualTranslate}
+      onRetranslate={handleRetranslate}
+      onSaveTranslation={handleSaveTranslation}
+      onStartEditing={handleStartEditing}
     />
   );
-}
+};

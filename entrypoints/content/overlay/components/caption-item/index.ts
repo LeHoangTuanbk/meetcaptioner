@@ -1,1 +1,1 @@
-export { CaptionItem } from "./caption-item-container";
+export { CaptionItemContainer } from "./caption-item-container";

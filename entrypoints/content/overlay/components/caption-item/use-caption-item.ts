@@ -12,12 +12,12 @@ import {
 } from "@content/translation";
 import type { Caption } from "@content/types";
 
-type CopyTarget = "original" | "translation";
-type TranslationTone = "default" | "refining" | "error";
+export type CopyTarget = "original" | "translation";
+export type TranslationTone = "default" | "refining" | "error";
 
-export function useCaptionItem(caption: Caption) {
-  const [editing, setEditing] = useState(false);
-  const [copied, setCopied] = useState<CopyTarget | null>(null);
+export const useCaptionItem = (caption: Caption) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [copiedTarget, setCopiedTarget] = useState<CopyTarget | null>(null);
   const editTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -29,16 +29,16 @@ export function useCaptionItem(caption: Caption) {
     []
   );
 
-  const copy = async (value: string, target: CopyTarget) => {
+  const handleCopy = async (value: string, target: CopyTarget) => {
     if (!value || !(await copyToClipboard(value))) return;
 
-    setCopied(target);
+    setCopiedTarget(target);
     if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
-    copyTimerRef.current = setTimeout(() => setCopied(null), 2000);
+    copyTimerRef.current = setTimeout(() => setCopiedTarget(null), 2000);
   };
 
-  const saveTranslation = (value: string) => {
-    setEditing(false);
+  const handleSaveTranslation = (value: string) => {
+    setIsEditing(false);
     if (value === caption.translation) return;
 
     caption.translation = value;
@@ -48,7 +48,7 @@ export function useCaptionItem(caption: Caption) {
     notifyStateChange();
   };
 
-  const startEditing = () => {
+  const handleStartEditing = () => {
     if (
       caption.translationStatus === TranslationStatus.Translating ||
       caption.translationStatus === TranslationStatus.Refining
@@ -57,12 +57,12 @@ export function useCaptionItem(caption: Caption) {
     }
 
     if (editTimerRef.current) clearTimeout(editTimerRef.current);
-    editTimerRef.current = setTimeout(() => setEditing(true), 220);
+    editTimerRef.current = setTimeout(() => setIsEditing(true), 220);
   };
 
-  const copyTranslation = () => {
+  const handleCopyTranslation = () => {
     if (editTimerRef.current) clearTimeout(editTimerRef.current);
-    void copy(caption.translation, "translation");
+    void handleCopy(caption.translation, "translation");
   };
 
   let translationText = caption.translation;
@@ -85,23 +85,21 @@ export function useCaptionItem(caption: Caption) {
   }
 
   return {
-    editing,
-    copied,
+    isEditing,
+    copiedTarget,
     translationText,
     translationTone,
-    showLoadingDots,
-    showReload:
+    isLoading: showLoadingDots,
+    isReloadVisible:
       Boolean(caption.translation) &&
       caption.translationStatus !== TranslationStatus.Translating &&
       caption.translationStatus !== TranslationStatus.Refining,
-    cancelEditing: () => setEditing(false),
-    copyOriginal: () => void copy(caption.text, "original"),
-    copyTranslation,
-    manualTranslate: () => manualTranslate(caption),
-    retranslate: () => retranslateCaption(caption),
-    saveTranslation,
-    startEditing,
+    handleCancelEditing: () => setIsEditing(false),
+    handleCopyOriginal: () => void handleCopy(caption.text, "original"),
+    handleCopyTranslation,
+    handleManualTranslate: () => manualTranslate(caption),
+    handleRetranslate: () => retranslateCaption(caption),
+    handleSaveTranslation,
+    handleStartEditing,
   };
-}
-
-export type CaptionItemViewModel = ReturnType<typeof useCaptionItem>;
+};
