@@ -114,7 +114,7 @@ export default function OverlayApp() {
               <CaptionList
                 captions={captions}
                 isCCEnabled={isCCEnabled}
-                translationEnabled={settings.translationEnabled}
+                isTranslationEnabled={settings.translationEnabled}
               />
             </div>
             <ScrollToBottomButton

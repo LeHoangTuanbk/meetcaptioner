@@ -1,13 +1,17 @@
 import type { Caption } from "@content/types";
-import { CaptionItem } from "./caption-item";
+import { CaptionItemContainer } from "./caption-item";
 
-type CaptionListProps = {
+type Props = {
   captions: Caption[];
   isCCEnabled: boolean;
-  translationEnabled: boolean;
+  isTranslationEnabled: boolean;
 };
 
-export function CaptionList({ captions, isCCEnabled, translationEnabled }: CaptionListProps) {
+export const CaptionList = ({
+  captions,
+  isCCEnabled,
+  isTranslationEnabled,
+}: Props) => {
   if (captions.length === 0) {
     return (
       <div className="px-4 py-8 text-center text-xs leading-6 text-slate-500">
@@ -31,8 +35,12 @@ export function CaptionList({ captions, isCCEnabled, translationEnabled }: Capti
   return (
     <div className="flex flex-col gap-3">
       {captions.map((caption) => (
-        <CaptionItem key={caption.id} caption={caption} translationEnabled={translationEnabled} />
+        <CaptionItemContainer
+          key={caption.id}
+          caption={caption}
+          isTranslationEnabled={isTranslationEnabled}
+        />
       ))}
     </div>
   );
-}
+};
