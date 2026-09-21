@@ -1,13 +1,16 @@
 import { useState } from "react";
+import type { Provider } from "./types";
 
-type ApiKeyInputProps = {
+type ApiProvider = Exclude<Provider, "ollama">;
+
+type Props = {
   value: string;
   onChange: (value: string) => void;
-  provider: "anthropic" | "openai" | "gemini" | "ollama";
+  provider: ApiProvider;
 };
 
 const PROVIDER_META: Record<
-  "anthropic" | "openai" | "gemini",
+  ApiProvider,
   { placeholder: string; name: string; guideUrl: string }
 > = {
   anthropic: {
@@ -27,12 +30,17 @@ const PROVIDER_META: Record<
     name: "Gemini",
     guideUrl: "https://aistudio.google.com/app/apikey",
   },
+  deepseek: {
+    placeholder: "sk-...",
+    name: "DeepSeek",
+    guideUrl: "https://platform.deepseek.com/api_keys",
+  },
 };
 
-export function ApiKeyInput({ value, onChange, provider }: ApiKeyInputProps) {
+export function ApiKeyInput({ value, onChange, provider }: Props) {
   const [showKey, setShowKey] = useState(false);
 
-  const meta = PROVIDER_META[provider as keyof typeof PROVIDER_META] ?? PROVIDER_META.openai;
+  const meta = PROVIDER_META[provider];
   const { placeholder, name: providerName, guideUrl } = meta;
 
   return (
