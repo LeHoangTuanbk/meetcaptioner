@@ -41,9 +41,9 @@ export default defineContentScript({
 });
 
 const init = async (ctx: ContentScriptContext): Promise<void> => {
+  await loadSettings();
   await createOverlay(ctx);
   startSettingsSync(ctx);
-  await loadSettings();
   startObserver();
 
   initMeetingSession();

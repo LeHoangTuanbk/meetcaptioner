@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { SCROLL_PREFETCH_MARGIN } from "@content/constants";
 import { enqueueNearbyCaptions } from "@content/translation-queue";
 import {
@@ -12,6 +12,7 @@ import {
 import { useDrag, useResize } from "@content/overlay/hooks";
 import {
   registerContentElement,
+  saveOverlaySettings,
   useOverlayState,
 } from "@content/overlay/shared";
 
@@ -25,7 +26,7 @@ type SavedPosition = {
 
 export default function OverlayApp() {
   const { captions, isCCEnabled, isWaveActive, settings, version } = useOverlayState();
-  const [isMinimized, setIsMinimized] = useState(false);
+  const isMinimized = settings.isOverlayMinimized;
   const savedPositionRef = useRef<SavedPosition | null>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
@@ -52,9 +53,27 @@ export default function OverlayApp() {
     []
   );
 
+  useLayoutEffect(() => {
+    const overlay = overlayRef.current;
+    if (!overlay) return;
+
+    if (!isMinimized) {
+      const savedPosition = savedPositionRef.current;
+      if (savedPosition) Object.assign(overlay.style, savedPosition);
+      return;
+    }
+
+    const rect = overlay.getBoundingClientRect();
+    overlay.style.left = "auto";
+    overlay.style.right = `${Math.max(20, window.innerWidth - rect.right)}px`;
+    overlay.style.width = "auto";
+    overlay.style.height = "auto";
+  }, [isMinimized]);
+
   const minimize = () => {
     const overlay = overlayRef.current;
     if (!overlay) return;
+
     savedPositionRef.current = {
       left: overlay.style.left,
       top: overlay.style.top,
@@ -62,20 +81,11 @@ export default function OverlayApp() {
       width: overlay.style.width,
       height: overlay.style.height,
     };
-    const rect = overlay.getBoundingClientRect();
-    overlay.style.left = "auto";
-    overlay.style.right = `${Math.max(20, window.innerWidth - rect.right)}px`;
-    overlay.style.width = "auto";
-    overlay.style.height = "auto";
-    setIsMinimized(true);
+    void saveOverlaySettings({ isOverlayMinimized: true });
   };
 
   const expand = () => {
-    const overlay = overlayRef.current;
-    const saved = savedPositionRef.current;
-    if (overlay && saved) Object.assign(overlay.style, saved);
-    savedPositionRef.current = null;
-    setIsMinimized(false);
+    void saveOverlaySettings({ isOverlayMinimized: false });
   };
 
   return (

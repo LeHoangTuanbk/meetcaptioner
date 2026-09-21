@@ -39,6 +39,7 @@ export const DEFAULT_SETTINGS: Settings = {
   model: "gpt-4.1-nano",
   targetLanguage: "en",
   translationEnabled: false,
+  isOverlayMinimized: false,
   captionFontSize: DEFAULT_CAPTION_FONT_SIZE,
   customPrompt: DEFAULT_CUSTOM_PROMPT,
 };
