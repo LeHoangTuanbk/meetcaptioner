@@ -1,72 +1,39 @@
-import { useState, useEffect, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import type { MeetingSession } from "./components";
-
-type StorageInfo = {
-  bytesUsed: number;
-  quota: number;
-};
+import {
+  requestHistoryClear,
+  requestSessionDelete,
+  requestTitleUpdate,
+} from "./history-api";
+import { useHistoryStorage } from "./use-history-storage";
 
 export function useHistory() {
-  const [sessions, setSessions] = useState<MeetingSession[]>([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    sessions,
+    setSessions,
+    isLoading,
+    historyError,
+    storageInfo,
+    loadHistory,
+    loadStorageInfo,
+    exportAllHistory,
+    restoreHistoryBackup,
+  } = useHistoryStorage();
   const [selectedSession, setSelectedSession] = useState<MeetingSession | null>(
     null
   );
   const [searchQuery, setSearchQuery] = useState("");
-  const [storageInfo, setStorageInfo] = useState<StorageInfo>({
-    bytesUsed: 0,
-    quota: 5242880,
-  });
-
-  useEffect(() => {
-    loadHistory();
-    loadStorageInfo();
-  }, []);
-
-  const loadHistory = async () => {
-    try {
-      const response = await chrome.runtime.sendMessage({
-        action: "getMeetingHistory",
-      });
-      if (response?.success) {
-        setSessions(response.sessions || []);
-      }
-    } catch {
-      toast.error("Failed to load meeting history");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadStorageInfo = async () => {
-    try {
-      const response = await chrome.runtime.sendMessage({
-        action: "getStorageUsage",
-      });
-      if (response?.success) {
-        setStorageInfo({
-          bytesUsed: response.bytesUsed,
-          quota: response.quota,
-        });
-      }
-    } catch {
-      // Storage info load failed silently
-    }
-  };
 
   const deleteSession = async (sessionId: string) => {
     try {
-      await chrome.runtime.sendMessage({
-        action: "deleteMeetingSession",
-        sessionId,
-      });
+      await requestSessionDelete(sessionId);
       setSessions((prev) => prev.filter((s) => s.id !== sessionId));
       if (selectedSession?.id === sessionId) {
         setSelectedSession(null);
       }
       toast.success("Session deleted");
-      loadStorageInfo();
+      void loadStorageInfo();
     } catch {
       toast.error("Failed to delete session");
     }
@@ -81,11 +48,11 @@ export function useHistory() {
       return;
     }
     try {
-      await chrome.runtime.sendMessage({ action: "clearMeetingHistory" });
+      await requestHistoryClear();
       setSessions([]);
       setSelectedSession(null);
       toast.success("All history cleared");
-      loadStorageInfo();
+      void loadStorageInfo();
     } catch {
       toast.error("Failed to clear history");
     }
@@ -93,11 +60,7 @@ export function useHistory() {
 
   const updateSessionTitle = async (sessionId: string, title: string) => {
     try {
-      await chrome.runtime.sendMessage({
-        action: "updateMeetingSession",
-        sessionId,
-        updates: { title: title || undefined },
-      });
+      await requestTitleUpdate(sessionId, title);
       setSessions((prev) =>
         prev.map((s) =>
           s.id === sessionId ? { ...s, title: title || undefined } : s
@@ -132,7 +95,8 @@ export function useHistory() {
 
   return {
     sessions,
-    loading,
+    loading: isLoading,
+    historyError,
     selectedSession,
     setSelectedSession,
     searchQuery,
@@ -141,6 +105,9 @@ export function useHistory() {
     filteredSessions,
     deleteSession,
     clearAllHistory,
+    exportAllHistory,
+    restoreHistoryBackup,
+    retryHistory: loadHistory,
     updateSessionTitle,
   };
 }

@@ -7,6 +7,7 @@ import {
   deleteMeetingSession,
   updateMeetingSession,
   clearMeetingHistory,
+  importMeetingHistory,
   getStorageUsage,
 } from "./history";
 
@@ -60,6 +61,11 @@ async function handleMessage(message: Record<string, unknown>): Promise<unknown>
 
     case "clearMeetingHistory":
       return clearMeetingHistory();
+
+    case "importMeetingHistory":
+      return importMeetingHistory(
+        message.sessions as Parameters<typeof importMeetingHistory>[0]
+      );
 
     case "getStorageUsage":
       return getStorageUsage();

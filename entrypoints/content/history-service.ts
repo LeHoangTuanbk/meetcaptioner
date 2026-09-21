@@ -1,9 +1,11 @@
 import type { MeetingSession, SavedCaption, Caption } from "@content/types";
 import { debounce } from "@content/libs";
+import { showErrorToast } from "@content/overlay/shared";
 
 let currentSession: MeetingSession | null = null;
 
 const allCaptions = new Map<number, SavedCaption>();
+let isSaveFailureNotified = false;
 
 const MEETING_TITLE_SELECTOR =
   '[role="heading"][aria-level="1"] [jsname="NeC6gb"]';
@@ -79,12 +81,18 @@ const saveToStorage = async (): Promise<void> => {
   currentSession.endTime = Date.now();
 
   try {
-    await chrome.runtime.sendMessage({
+    const response = await chrome.runtime.sendMessage({
       action: "saveMeetingSession",
       session: currentSession,
     });
+    if (!response?.success) throw new Error(response?.error);
+    isSaveFailureNotified = false;
   } catch {
-    // Session save failed silently
+    if (isSaveFailureNotified) return;
+    isSaveFailureNotified = true;
+    showErrorToast(
+      "Captions couldn't be saved. Your existing meeting history is safe."
+    );
   }
 };
 
