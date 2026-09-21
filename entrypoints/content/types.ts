@@ -24,6 +24,7 @@ export type Settings = {
   model: string;
   targetLanguage: string;
   translationEnabled: boolean;
+  isOverlayMinimized: boolean;
   captionFontSize: number;
   customPrompt: string;
 };
