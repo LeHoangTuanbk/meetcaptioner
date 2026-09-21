@@ -110,6 +110,7 @@ export default function OverlayApp() {
                   250
                 );
               }}
+              style={{ fontSize: `${settings.captionFontSize}px` }}
               className="mc-content-scroll min-h-0 flex-1 cursor-text overflow-x-hidden overflow-y-auto p-3 select-text"
             >
               <CaptionList

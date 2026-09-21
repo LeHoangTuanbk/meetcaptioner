@@ -1,4 +1,4 @@
-import type { RefObject } from "react";
+import type { ChangeEvent, RefObject } from "react";
 import {
   LANGUAGES,
   MAX_AUTO_TRANSLATE_DISTANCE,
@@ -10,9 +10,10 @@ import {
 } from "@content/translation-queue";
 import type { Settings } from "@content/types";
 import { saveOverlaySettings } from "@content/overlay/shared";
+import { FontSizeControlContainer } from "./font-size-control";
 import { WaveIndicator } from "./wave-indicator";
 
-type HeaderProps = {
+type Props = {
   headerRef: RefObject<HTMLDivElement | null>;
   isMinimized: boolean;
   isWaveActive: boolean;
@@ -24,15 +25,15 @@ type HeaderProps = {
 const iconButtonClass =
   "flex size-7 shrink-0 items-center justify-center rounded-lg border-0 bg-transparent text-base text-white/60 transition hover:bg-white/10 hover:text-white";
 
-export function Header({
+export const Header = ({
   headerRef,
   isMinimized,
   isWaveActive,
   settings,
   onMinimize,
   onExpand,
-}: HeaderProps) {
-  const toggleTranslation = async () => {
+}: Props) => {
+  const handleToggleTranslation = async () => {
     if (!settings.translationEnabled && !hasActiveProviderCredentials()) {
       chrome.runtime.sendMessage({ action: "openOptions" });
       return;
@@ -43,6 +44,16 @@ export function Header({
     if (!saved) return;
     if (enabled) enqueueNearbyCaptions(MAX_AUTO_TRANSLATE_DISTANCE);
     else clearTranslationQueue();
+  };
+
+  const handleTargetLanguageChange = (
+    event: ChangeEvent<HTMLSelectElement>
+  ) => {
+    void saveOverlaySettings({ targetLanguage: event.target.value });
+  };
+
+  const handleOpenSettings = () => {
+    void chrome.runtime.sendMessage({ action: "openOptions" });
   };
 
   if (isMinimized) {
@@ -70,7 +81,7 @@ export function Header({
             role="switch"
             aria-checked={settings.translationEnabled}
             title={settings.translationEnabled ? "Translation ON" : "Translation OFF"}
-            onClick={toggleTranslation}
+            onClick={handleToggleTranslation}
             className={`relative h-5 w-9 cursor-pointer rounded-full border-0 transition-colors ${
               settings.translationEnabled ? "bg-emerald-500" : "bg-white/20"
             }`}
@@ -88,7 +99,7 @@ export function Header({
           title="Target language"
           value={settings.targetLanguage}
           disabled={!settings.translationEnabled}
-          onChange={(event) => saveOverlaySettings({ targetLanguage: event.target.value })}
+          onChange={handleTargetLanguageChange}
           className={`cursor-pointer rounded-md bg-white/8 text-xs text-white outline-none transition-all hover:bg-white/12 ${
             settings.translationEnabled
               ? "min-w-[100px] border border-white/15 px-2.5 py-1.5 opacity-100 hover:border-white/25"
@@ -102,8 +113,15 @@ export function Header({
           ))}
         </select>
 
+        <FontSizeControlContainer fontSize={settings.captionFontSize} />
+
         <div className="flex items-center gap-0.5 opacity-50 transition-opacity hover:opacity-100">
-          <button className={iconButtonClass} type="button" title="Settings" onClick={() => chrome.runtime.sendMessage({ action: "openOptions" })}>
+          <button
+            className={iconButtonClass}
+            type="button"
+            title="Settings"
+            onClick={handleOpenSettings}
+          >
             ⚙
           </button>
           <button className={iconButtonClass} type="button" title="Minimize" onClick={onMinimize}>
@@ -113,4 +131,4 @@ export function Header({
       </div>
     </div>
   );
-}
+};

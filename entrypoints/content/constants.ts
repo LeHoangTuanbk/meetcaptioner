@@ -1,3 +1,5 @@
+import { DEFAULT_CAPTION_FONT_SIZE } from "@/shared/constants";
+
 export const MAX_CAPTIONS = 200;
 export const SEMANTIC_DELAY = 1500;
 
@@ -9,6 +11,13 @@ export const TRANSLATION_CONCURRENCY = 3;
 export const MAX_AUTO_TRANSLATE_DISTANCE = 1500;
 // When scrolling, prefetch captions this close to the viewport.
 export const SCROLL_PREFETCH_MARGIN = 300;
+export const CAPTION_FONT_SIZES = [
+  14,
+  DEFAULT_CAPTION_FONT_SIZE,
+  18,
+  24,
+  30,
+] as const;
 // TODO: Refining, Semantic, Optimistic has not been used yet. Consider refactor code
 export const TranslationStatus = {
   Pending: "pending",

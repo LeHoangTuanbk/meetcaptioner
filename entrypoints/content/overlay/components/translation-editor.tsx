@@ -46,7 +46,7 @@ export function TranslationEditor({ initialValue, onSave, onCancel }: Translatio
       }}
       onClick={(event) => event.stopPropagation()}
       onMouseDown={(event) => event.stopPropagation()}
-      className="min-h-6 w-full resize-none overflow-hidden rounded border border-blue-400 bg-white/8 px-2 py-1 font-[inherit] text-[13px] leading-[1.45] text-blue-400 outline-none select-text"
+      className="min-h-6 w-full resize-none overflow-hidden rounded border border-blue-400 bg-white/8 px-2 py-1 font-[inherit] leading-[1.45] text-blue-400 outline-none select-text"
     />
   );
 }

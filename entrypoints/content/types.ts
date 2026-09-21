@@ -23,6 +23,7 @@ export type Settings = {
   model: string;
   targetLanguage: string;
   translationEnabled: boolean;
+  captionFontSize: number;
   customPrompt: string;
 };
 

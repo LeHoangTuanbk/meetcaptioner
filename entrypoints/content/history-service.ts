@@ -40,7 +40,6 @@ export const initMeetingSession = (): void => {
     id: generateId(),
     meetingUrl: window.location.href,
     meetingCode: getMeetingCodeFromUrl(),
-    title: getMeetingTitle(),
     startTime: Date.now(),
     captions: [],
   };
@@ -70,7 +69,7 @@ export const updateCaptionInHistory = (
 };
 
 const saveToStorage = async (): Promise<void> => {
-  if (!currentSession) return;
+  if (!currentSession || allCaptions.size === 0) return;
 
   if (!currentSession.title) {
     currentSession.title = getMeetingTitle();

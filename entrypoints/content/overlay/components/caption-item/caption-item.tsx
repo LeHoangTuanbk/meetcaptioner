@@ -63,7 +63,7 @@ export const CaptionItem = ({
         type="button"
         title="Double-click to copy"
         onDoubleClick={onCopyOriginal}
-        className={`cursor-pointer rounded border-0 bg-transparent p-0 text-left text-[13px] leading-[1.45] text-zinc-200 transition hover:bg-white/5 ${
+        className={`cursor-pointer rounded border-0 bg-transparent p-0 text-left leading-[1.45] text-zinc-200 transition hover:bg-white/5 ${
           copiedTarget === "original" ? "bg-green-400/15" : ""
         }`}
       >
@@ -87,7 +87,7 @@ export const CaptionItem = ({
               }
               onClick={onStartEditing}
               onDoubleClick={onCopyTranslation}
-              className={`min-w-0 flex-1 cursor-pointer rounded border-0 bg-transparent p-0 text-left text-[13px] leading-[1.45] transition hover:bg-white/5 ${
+              className={`min-w-0 flex-1 cursor-pointer rounded border-0 bg-transparent p-0 text-left leading-[1.45] transition hover:bg-white/5 ${
                 translationToneClass[translationTone]
               } ${copiedTarget === "translation" ? "bg-green-400/15" : ""}`}
             >
