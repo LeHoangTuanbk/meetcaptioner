@@ -18,12 +18,7 @@ Tiếng Việt (Vietnamese), English (English), 廣東話（繁體） (Chinese, 
 
 🤖 AI PROVIDERS
 
-Choose your preferred AI provider:
-• OpenAI (GPT-4.1 Nano, GPT-4.1 Mini, GPT-4.1, GPT-5 Nano, GPT-5 Mini, GPT-5)
-• Anthropic (Claude Haiku 4.5, Claude Sonnet 4.5, Claude Opus 4.5)
-• Google Gemini (Gemini 3.1 Flash-Lite, Gemini 3.5 Flash, Gemini 3.1 Pro)
-• DeepSeek (DeepSeek Flash)
-• Ollama (Local LLM or Ollama Cloud) — Run models like Qwen, Llama, Gemma locally for free
+Connect your own OpenAI, Anthropic, Google Gemini, DeepSeek, or Ollama account. 
 
 💡 PERFECT FOR
 
