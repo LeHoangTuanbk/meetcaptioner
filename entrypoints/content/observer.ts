@@ -6,15 +6,15 @@ import {
   setMeetingEnded,
 } from "@content/state";
 import { finalizeCaption } from "@content/caption";
+import { updateCaptionStream } from "@content/caption-stream";
 import {
-  updateCaptionStream,
-  type CaptionStreamState,
-} from "@content/caption-stream";
+  findTrackedCaptionStream,
+  refreshTrackedCaptionStreams,
+  setTrackedCaptionStream,
+} from "@content/caption-stream-tracker";
 import { isMeetingEndedPage } from "@content/meeting-status";
 
 let currentCaptionRegion: HTMLElement | null = null;
-
-const elementStreams = new WeakMap<Element, CaptionStreamState>();
 
 const elementLastText = new WeakMap<Element, string>();
 
@@ -49,13 +49,14 @@ function processCaption(entry: Element): void {
   elementLastText.set(entry, text);
   elementLastSpeaker.set(entry, speaker);
 
-  const previousState = elementStreams.get(entry);
+  const previousState = findTrackedCaptionStream(entry, speaker, text);
+
   if (!previousState) {
     finalizePendingCaptions();
   }
 
   const update = updateCaptionStream(previousState, speaker, text);
-  elementStreams.set(entry, update.state);
+  setTrackedCaptionStream(entry, update.state);
 
   update.finalizedCaptionIds.forEach(cancelFinalization);
   if (update.activeCaptionId !== null) {
@@ -106,6 +107,7 @@ function extractCaptions(): void {
     return;
   }
 
+  refreshTrackedCaptionStreams(new Set(Array.from(captionEntries)));
   captionEntries.forEach(processCaption);
 }
 
