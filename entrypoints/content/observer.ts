@@ -1,9 +1,16 @@
-import { captions, isCCEnabled, setCCEnabled } from "@content/state";
+import {
+  captions,
+  isCCEnabled,
+  isMeetingEnded,
+  setCCEnabled,
+  setMeetingEnded,
+} from "@content/state";
 import { finalizeCaption } from "@content/caption";
 import {
   updateCaptionStream,
   type CaptionStreamState,
 } from "@content/caption-stream";
+import { isMeetingEndedPage } from "@content/meeting-status";
 
 let currentCaptionRegion: HTMLElement | null = null;
 
@@ -117,6 +124,21 @@ export function startObserver(): void {
     const captionRegion = document.querySelector(
       '[role="region"].vNKgIf.UDinHf'
     ) as HTMLElement | null;
+    const hasMeetingEnded = isMeetingEndedPage();
+
+    if (hasMeetingEnded) {
+      if (!isMeetingEnded) setMeetingEnded(true);
+      if (observer) {
+        observer.disconnect();
+        observer = null;
+      }
+      currentCaptionRegion = null;
+      finalizePendingCaptions();
+      if (isCCEnabled) setCCEnabled(false);
+      return;
+    }
+
+    if (isMeetingEnded) setMeetingEnded(false);
 
     const needsReobserve =
       captionRegion &&

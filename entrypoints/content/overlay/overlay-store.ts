@@ -3,6 +3,7 @@ import {
   captions,
   getStateVersion,
   isCCEnabled,
+  isMeetingEnded,
   isWaveActive,
   settings,
   subscribe,
@@ -14,6 +15,7 @@ export function useOverlayState() {
   return {
     captions,
     isCCEnabled,
+    isMeetingEnded,
     isWaveActive,
     settings,
     version,

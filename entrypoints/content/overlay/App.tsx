@@ -44,7 +44,14 @@ const getHeaderContentWidth = (header: HTMLDivElement): number => {
 };
 
 export default function OverlayApp() {
-  const { captions, isCCEnabled, isWaveActive, settings, version } = useOverlayState();
+  const {
+    captions,
+    isCCEnabled,
+    isMeetingEnded,
+    isWaveActive,
+    settings,
+    version,
+  } = useOverlayState();
   const isMinimized = settings.isOverlayMinimized;
   const savedPositionRef = useRef<SavedPosition | null>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -165,6 +172,7 @@ export default function OverlayApp() {
               <CaptionList
                 captions={captions}
                 isCCEnabled={isCCEnabled}
+                isMeetingEnded={isMeetingEnded}
                 isTranslationEnabled={settings.translationEnabled}
               />
             </div>
@@ -173,7 +181,10 @@ export default function OverlayApp() {
               contentVersion={version}
             />
             {captions.length > 0 && (
-              <CaptionsStatusToast isCCEnabled={isCCEnabled} />
+              <CaptionsStatusToast
+                isCCEnabled={isCCEnabled}
+                isMeetingEnded={isMeetingEnded}
+              />
             )}
             <ResizeHandles
               bottomRightRef={bottomRightRef}
