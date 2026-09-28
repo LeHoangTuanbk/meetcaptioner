@@ -1,5 +1,6 @@
 import { addOrUpdateCaption, finalizeCaption } from "@content/caption";
 import { splitLongCaption } from "@content/caption-segmenter";
+import { findCaptionContinuation } from "@content/caption-text-alignment";
 import { captions } from "@content/state";
 
 export type CaptionStreamState = {
@@ -24,6 +25,9 @@ const findCommittedEnd = (
 ): number | null => {
   if (!committedText) return 0;
   if (rawText.startsWith(committedText)) return committedText.length;
+
+  const continuation = findCaptionContinuation(committedText, rawText);
+  if (continuation) return continuation.boundary;
 
   const maxLength = Math.min(
     committedText.length,
@@ -123,9 +127,10 @@ export const updateCaptionStream = (
     } else {
       state.committedText = rawText.slice(0, committedEnd);
       const activeText = rawText.slice(committedEnd).trim();
-      if (activeText && state.activeCaptionId === null) {
+      const hasMeaningfulText = /[\p{Letter}\p{Number}]/u.test(activeText);
+      if (hasMeaningfulText && state.activeCaptionId === null) {
         state.activeCaptionId = addOrUpdateCaption(null, speaker, activeText);
-      } else if (activeText && state.activeCaptionId !== null) {
+      } else if (hasMeaningfulText && state.activeCaptionId !== null) {
         state.activeCaptionId = addOrUpdateCaption(
           state.activeCaptionId,
           speaker,
