@@ -9,7 +9,11 @@ import {
   ScrollToBottomButton,
   Toast,
 } from "@content/overlay/components";
-import { useDrag, useResize } from "@content/overlay/hooks";
+import {
+  useDrag,
+  useResize,
+  useStickToBottom,
+} from "@content/overlay/hooks";
 import {
   registerContentElement,
   saveOverlaySettings,
@@ -85,7 +89,11 @@ export default function OverlayApp() {
 
     if (!isMinimized) {
       const savedPosition = savedPositionRef.current;
-      if (savedPosition) Object.assign(overlay.style, savedPosition);
+      if (savedPosition) {
+        Object.assign(overlay.style, savedPosition);
+      } else {
+        overlay.style.height = "";
+      }
       return;
     }
 
@@ -116,6 +124,8 @@ export default function OverlayApp() {
     overlay.style.minWidth = `${headerWidth}px`;
   }, [isMinimized, settings.targetLanguage, settings.translationEnabled]);
 
+  useStickToBottom(contentRef, version, !isMinimized);
+
   const minimize = () => {
     const overlay = overlayRef.current;
     if (!overlay) return;
@@ -142,7 +152,7 @@ export default function OverlayApp() {
         className={`fixed top-20 right-5 z-[999999] flex overflow-hidden rounded-xl bg-[#1a1a2e] font-sans text-white shadow-[0_4px_24px_rgba(0,0,0,0.5)] ${
           isMinimized
             ? "h-auto w-auto min-w-0 flex-row"
-            : "h-[400px] w-[480px] min-h-[200px] min-w-[520px] flex-col"
+            : "h-[400px] max-h-[calc(100vh-40px)] w-[480px] min-h-[200px] min-w-[520px] flex-col"
         }`}
       >
         <Header
