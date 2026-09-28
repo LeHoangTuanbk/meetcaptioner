@@ -4,18 +4,26 @@ import { CaptionItemContainer } from "./caption-item";
 type Props = {
   captions: Caption[];
   isCCEnabled: boolean;
+  isMeetingEnded: boolean;
   isTranslationEnabled: boolean;
 };
 
 export const CaptionList = ({
   captions,
   isCCEnabled,
+  isMeetingEnded,
   isTranslationEnabled,
 }: Props) => {
   if (captions.length === 0) {
     return (
       <div className="px-4 py-8 text-center text-xs leading-6 text-slate-500">
-        {isCCEnabled ? (
+        {isMeetingEnded ? (
+          <>
+            Meeting ended.
+            <br />
+            Caption capturing has stopped.
+          </>
+        ) : isCCEnabled ? (
           <>
             You're all set!
             <br />

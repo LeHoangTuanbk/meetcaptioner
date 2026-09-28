@@ -74,6 +74,13 @@ export function setCCEnabled(enabled: boolean) {
   notifyStateChange();
 }
 
+export let isMeetingEnded = false;
+export function setMeetingEnded(ended: boolean): void {
+  if (isMeetingEnded === ended) return;
+  isMeetingEnded = ended;
+  notifyStateChange();
+}
+
 export let isWaveActive = false;
 export function setWaveActiveState(active: boolean): void {
   isWaveActive = active;
