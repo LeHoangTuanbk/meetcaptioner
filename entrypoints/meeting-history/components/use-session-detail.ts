@@ -1,4 +1,4 @@
-import { toast } from "sonner";
+import { appToast } from "../../shared/app-toast";
 import { exportMeetingSession } from "./export-session";
 import type { ExportFormat } from "./export-session";
 import { buildSummaryPrompt } from "./summary-prompt";
@@ -6,7 +6,7 @@ import type { SummaryAction } from "./summary-prompt";
 import type { MeetingSession } from "./types";
 
 export const formatDateTime = (timestamp: number): string => {
-  return new Date(timestamp).toLocaleString("en-US", {
+  const formatted = new Date(timestamp).toLocaleString("en-US", {
     weekday: "short",
     month: "short",
     day: "numeric",
@@ -14,6 +14,8 @@ export const formatDateTime = (timestamp: number): string => {
     hour: "2-digit",
     minute: "2-digit",
   });
+
+  return formatted.replace(" at ", ", ");
 };
 
 export const formatTime = (timestamp: number): string => {
@@ -38,8 +40,8 @@ export function useSessionDetail(session: MeetingSession) {
     if (action === "copy") {
       void navigator.clipboard
         .writeText(prompt)
-        .then(() => toast.success("Summary prompt copied"))
-        .catch(() => toast.error("Failed to copy summary prompt"));
+        .then(() => appToast.success("Summary prompt copied"))
+        .catch(() => appToast.error("Failed to copy summary prompt"));
       return;
     }
 
@@ -47,7 +49,7 @@ export function useSessionDetail(session: MeetingSession) {
     url.searchParams.set("q", prompt);
     void chrome.tabs
       .create({ url: url.toString() })
-      .catch(() => toast.error("Failed to open ChatGPT"));
+      .catch(() => appToast.error("Failed to open ChatGPT"));
   };
 
   const handleDelete = (onDelete: () => void) => {

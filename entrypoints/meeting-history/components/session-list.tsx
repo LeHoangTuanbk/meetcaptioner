@@ -112,11 +112,10 @@ const SessionTitle = ({
         setEditValue(session.title || "");
         setIsEditing(true);
       }}
-      className="font-medium text-white cursor-pointer hover:text-emerald-400 transition-colors"
+      className="cursor-pointer text-lg leading-5 font-medium transition-colors hover:text-(--mc-positive)"
       title="Click to edit title"
     >
       {displayTitle}
-      <span className="ml-2 text-slate-600 text-xs">✎</span>
     </h4>
   );
 };
@@ -155,27 +154,27 @@ export const SessionList = ({ sessions, onSelect, onDelete, onUpdateTitle }: Ses
     <div className="space-y-6">
       {Array.from(grouped.entries()).map(([date, dateSessions]) => (
         <div key={date}>
-          <h3 className="text-sm font-medium text-slate-500 mb-3">{date}</h3>
+          <h3 className="mb-3 text-sm font-medium text-(--mc-app-text-secondary)">{date}</h3>
           <div className="space-y-3">
             {dateSessions.map((session) => (
               <div
                 key={session.id}
                 onClick={() => onSelect(session)}
-                className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4 hover:bg-slate-800 transition-colors cursor-pointer"
+                className="cursor-pointer rounded-xl border border-(--mc-app-border) bg-(--mc-app-surface) p-4 transition-colors hover:border-(--mc-overlay-control-border) hover:bg-(--mc-overlay-control)"
               >
                 <div className="flex items-center justify-between mb-2">
                   <SessionTitle session={session} onUpdateTitle={onUpdateTitle} />
-                  <span className="text-xs text-slate-500">
+                  <span className="text-xs leading-4.5 text-(--mc-app-text-secondary)">
                     {session.captions.length} caption{session.captions.length !== 1 ? "s" : ""}
                     {(session.chatMessages?.length ?? 0) > 0 &&
                       ` · ${session.chatMessages?.length} chat`}
                   </span>
                 </div>
-                <p className="text-sm text-slate-400 mb-3">
+                <p className="mb-3 text-sm text-(--mc-app-text-secondary)">
                   {formatTime(session.startTime)}
                   {session.endTime && ` - ${formatTime(session.endTime)}`}
                   {session.endTime && (
-                    <span className="text-slate-500">
+                    <span>
                       {" "}({formatDuration(session.startTime, session.endTime)})
                     </span>
                   )}
@@ -188,7 +187,7 @@ export const SessionList = ({ sessions, onSelect, onDelete, onUpdateTitle }: Ses
                         onDelete(session.id);
                       }
                     }}
-                    className="px-3 py-1.5 text-sm text-red-400 hover:bg-red-900/30 rounded-lg transition-colors"
+                    className="cursor-pointer rounded-lg px-0 py-0 text-sm font-medium text-(--mc-danger-text) transition-colors hover:text-red-200"
                   >
                     Delete
                   </button>

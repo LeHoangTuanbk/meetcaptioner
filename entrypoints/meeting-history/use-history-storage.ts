@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { appToast } from "../shared/app-toast";
 import type { MeetingSession } from "./components";
 import { STORAGE_WARNING_RATIO } from "./constants";
 import { downloadHistoryBackup, parseHistoryBackup } from "./history-backup";
@@ -26,7 +26,7 @@ export const useHistoryStorage = () => {
       setSessions(await fetchMeetingHistory());
     } catch {
       setHistoryError("Your meeting history couldn't be loaded.");
-      toast.error("Failed to load meeting history");
+      appToast.error("Failed to load meeting history");
     } finally {
       setIsLoading(false);
     }
@@ -37,7 +37,7 @@ export const useHistoryStorage = () => {
       const info = await fetchStorageInfo();
       setStorageInfo(info);
       if (info.quota > 0 && info.bytesUsed / info.quota >= STORAGE_WARNING_RATIO) {
-        toast.warning("Meeting history storage is almost full. Back it up soon.", {
+        appToast.warning("Meeting history storage is almost full. Back it up soon.", {
           id: "storage-warning",
         });
       }
@@ -50,9 +50,9 @@ export const useHistoryStorage = () => {
     try {
       const latestSessions = await fetchMeetingHistory();
       downloadHistoryBackup(latestSessions);
-      toast.success("Meeting history backup downloaded");
+      appToast.success("Meeting history backup downloaded");
     } catch {
-      toast.error("Failed to export meeting history");
+      appToast.error("Failed to export meeting history");
     }
   };
 
@@ -61,10 +61,10 @@ export const useHistoryStorage = () => {
       const importedSessions = await parseHistoryBackup(file);
       await requestHistoryImport(importedSessions);
       await Promise.all([loadHistory(), loadStorageInfo()]);
-      toast.success("Meeting history restored from backup");
+      appToast.success("Meeting history restored from backup");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Restore failed";
-      toast.error(message);
+      appToast.error(message);
     }
   };
 

@@ -1,4 +1,4 @@
-import { Toaster } from "sonner";
+import { AppToaster } from "../shared/app-toaster";
 import {
   SessionList,
   SessionDetail,
@@ -29,29 +29,18 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="text-slate-400">Loading...</div>
+      <div className="flex min-h-screen items-center justify-center bg-(--mc-app-canvas)">
+        <div className="text-(--mc-app-text-secondary)">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100">
-      <Toaster
-        position="top-center"
-        theme="dark"
-        richColors
-        toastOptions={{
-          style: {
-            background: "#1e293b",
-            border: "1px solid #334155",
-          },
-        }}
-      />
+    <main className="min-h-screen bg-(--mc-app-canvas) text-(--mc-app-text)">
+      <AppToaster />
 
-      <div className="max-w-6xl mx-auto py-8 px-6">
+      <div className="mx-auto w-full max-w-225 px-6 py-6">
         <HistoryHeader
-          meetingCount={sessions.length}
           bytesUsed={storageInfo.bytesUsed}
           quota={storageInfo.quota}
           onOpenSettings={() =>
@@ -82,22 +71,36 @@ export default function App() {
               onClear={clearAllHistory}
             />
 
+            {sessions.length > 0 && (
+              <p className="mb-3 text-xs leading-4.5 text-(--mc-app-text-secondary)">
+                {sessions.length} meeting{sessions.length !== 1 ? "s" : ""}{" "}
+                saved
+              </p>
+            )}
+
             {historyError ? (
               <div className="py-16 text-center">
                 <p className="mb-4 text-red-300">{historyError}</p>
                 <button
                   type="button"
                   onClick={retryHistory}
-                  className="cursor-pointer rounded-lg bg-slate-700 px-4 py-2 text-sm hover:bg-slate-600"
+                  className="cursor-pointer rounded-lg bg-(--mc-secondary) px-4 py-2 text-sm hover:bg-(--mc-secondary-hover)"
                 >
                   Retry
                 </button>
               </div>
             ) : filteredSessions.length === 0 ? (
-              <div className="text-center py-16 text-slate-500">
-                {searchQuery
-                  ? "No meetings match your search"
-                  : "No meeting history yet"}
+              <div className="py-16 text-center">
+                <p className="text-sm font-medium text-(--mc-app-text-emphasis)">
+                  {searchQuery
+                    ? "No meetings match your search"
+                    : "No meeting history yet"}
+                </p>
+                <p className="mt-1 text-xs leading-4.5 text-(--mc-app-text-secondary)">
+                  {searchQuery
+                    ? "Try another meeting title or caption."
+                    : "Captured meetings will appear here."}
+                </p>
               </div>
             ) : (
               <SessionList
@@ -110,6 +113,6 @@ export default function App() {
           </>
         )}
       </div>
-    </div>
+    </main>
   );
 }
