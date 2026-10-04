@@ -1,5 +1,9 @@
 import { formatMeetingDateTime } from "./export-date-time";
-import type { MeetingSession, SavedCaption } from "./types";
+import type {
+  MeetingSession,
+  SavedCaption,
+  SavedChatMessage,
+} from "./types";
 
 export type ExportType = "captions" | "translations" | "both";
 export type ExportFormat = "csv" | "txt";
@@ -39,6 +43,14 @@ const buildTextContent = (
     lines.push("");
   }
 
+  if (type !== "translations" && (session.chatMessages?.length ?? 0) > 0) {
+    lines.push("Meeting chat", "------------");
+    for (const message of session.chatMessages ?? []) {
+      lines.push(`[${message.time}] ${message.author}: ${message.text}`);
+    }
+    lines.push("");
+  }
+
   return lines.join("\n");
 };
 
@@ -51,6 +63,7 @@ const getCsvHeaders = (type: ExportType): string[] => {
     "Meeting Code",
     "Started",
     "Ended",
+    "Content Type",
     "Caption Time",
     "Speaker",
   ];
@@ -69,6 +82,7 @@ const getCsvRow = (
     session.meetingCode,
     formatMeetingDateTime(session.startTime),
     formatMeetingDateTime(session.endTime),
+    "Caption",
     caption.time,
     caption.speaker,
   ];
@@ -79,15 +93,41 @@ const getCsvRow = (
   return [...metadata, caption.text, caption.translation ?? ""];
 };
 
+const getChatCsvRow = (
+  session: MeetingSession,
+  message: SavedChatMessage,
+  type: ExportType,
+): string[] => {
+  const metadata = [
+    session.title || `Meeting ${session.meetingCode}`,
+    session.meetingCode,
+    formatMeetingDateTime(session.startTime),
+    formatMeetingDateTime(session.endTime),
+    "Chat",
+    message.time,
+    message.author,
+  ];
+  if (type === "captions") return [...metadata, message.text];
+  return [...metadata, message.text, ""];
+};
+
 const buildCsvContent = (
   session: MeetingSession,
   type: ExportType
 ): string => {
+  const captionRows = getExportableCaptions(session.captions, type).map(
+    (caption) => getCsvRow(session, caption, type),
+  );
+  const chatRows =
+    type === "translations"
+      ? []
+      : (session.chatMessages ?? []).map((message) =>
+          getChatCsvRow(session, message, type),
+        );
   const rows = [
     getCsvHeaders(type),
-    ...getExportableCaptions(session.captions, type).map((caption) =>
-      getCsvRow(session, caption, type)
-    ),
+    ...captionRows,
+    ...chatRows,
   ];
 
   return rows

@@ -1,10 +1,16 @@
-import type { MeetingSession, SavedCaption, Caption } from "@content/types";
+import type {
+  Caption,
+  MeetingSession,
+  SavedCaption,
+  SavedChatMessage,
+} from "@content/types";
 import { debounce } from "@content/libs";
 import { showErrorToast } from "@content/overlay/shared";
 
 let currentSession: MeetingSession | null = null;
 
 const allCaptions = new Map<number, SavedCaption>();
+const allChatMessages = new Map<string, SavedChatMessage>();
 let isSaveFailureNotified = false;
 
 const MEETING_TITLE_SELECTOR =
@@ -44,7 +50,13 @@ export const initMeetingSession = (): void => {
     meetingCode: getMeetingCodeFromUrl(),
     startTime: Date.now(),
     captions: [],
+    chatMessages: [],
   };
+};
+
+export const addChatMessageToHistory = (message: SavedChatMessage): void => {
+  allChatMessages.set(message.id, message);
+  saveCaptionsDebounced();
 };
 
 export const addCaptionToHistory = (caption: Caption): void => {
@@ -71,13 +83,18 @@ export const updateCaptionInHistory = (
 };
 
 const saveToStorage = async (): Promise<void> => {
-  if (!currentSession || allCaptions.size === 0) return;
+  if (!currentSession || (allCaptions.size === 0 && allChatMessages.size === 0)) {
+    return;
+  }
 
   if (!currentSession.title) {
     currentSession.title = getMeetingTitle();
   }
 
   currentSession.captions = Array.from(allCaptions.values());
+  currentSession.chatMessages = Array.from(allChatMessages.values()).sort(
+    (first, second) => first.timestamp - second.timestamp,
+  );
   currentSession.endTime = Date.now();
 
   try {
@@ -91,7 +108,7 @@ const saveToStorage = async (): Promise<void> => {
     if (isSaveFailureNotified) return;
     isSaveFailureNotified = true;
     showErrorToast(
-      "Captions couldn't be saved. Your existing meeting history is safe."
+      "Meeting history couldn't be saved. Your existing history is safe."
     );
   }
 };

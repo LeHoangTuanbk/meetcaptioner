@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import type { ContentScriptContext } from "wxt/utils/content-script-context";
+import { startChatHistoryCapture } from "@content/chat-history";
 import OverlayApp from "./App";
 
 let overlayUi: Awaited<ReturnType<typeof createShadowRootUi<Root>>> | null = null;
@@ -35,4 +36,5 @@ export async function createOverlay(ctx: ContentScriptContext): Promise<void> {
   });
 
   overlayUi.mount();
+  startChatHistoryCapture(ctx);
 }

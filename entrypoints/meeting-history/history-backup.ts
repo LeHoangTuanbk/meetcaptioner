@@ -13,6 +13,10 @@ export const downloadHistoryBackup = (sessions: MeetingSession[]): void => {
       (total, session) => total + session.captions.length,
       0
     ),
+    chatMessageCount: sessions.reduce(
+      (total, session) => total + (session.chatMessages?.length ?? 0),
+      0,
+    ),
     sessions,
   };
   const blob = new Blob([JSON.stringify(backup, null, 2)], {
