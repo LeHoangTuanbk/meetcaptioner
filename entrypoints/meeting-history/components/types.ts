@@ -6,6 +6,14 @@ export interface SavedCaption {
   timestamp: number;
 }
 
+export interface SavedChatMessage {
+  id: string;
+  author: string;
+  time: string;
+  text: string;
+  timestamp: number;
+}
+
 export interface MeetingSession {
   id: string;
   meetingUrl: string;
@@ -14,4 +22,5 @@ export interface MeetingSession {
   startTime: number;
   endTime?: number;
   captions: SavedCaption[];
+  chatMessages?: SavedChatMessage[];
 }

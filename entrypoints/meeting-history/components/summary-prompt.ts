@@ -3,7 +3,7 @@ import type { MeetingSession } from "./types";
 
 export type SummaryAction = "copy" | "chatgpt";
 
-const buildTranscript = (session: MeetingSession): string =>
+const buildCaptionTranscript = (session: MeetingSession): string =>
   session.captions
     .map((caption) => {
       const lines = [`[${caption.time}] ${caption.speaker}: ${caption.text}`];
@@ -13,6 +13,18 @@ const buildTranscript = (session: MeetingSession): string =>
       return lines.join("\n");
     })
     .join("\n\n");
+
+const buildChatTranscript = (session: MeetingSession): string =>
+  (session.chatMessages ?? [])
+    .map((message) => `[${message.time}] ${message.author}: ${message.text}`)
+    .join("\n");
+
+const buildMeetingRecord = (session: MeetingSession): string => {
+  const captions = buildCaptionTranscript(session) || "No captions captured.";
+  const chat = buildChatTranscript(session) || "No chat messages captured.";
+
+  return `Spoken transcript:\n${captions}\n\nMeeting chat:\n${chat}`;
+};
 
 export const buildSummaryPrompt = (session: MeetingSession): string => {
   const title = session.title || `Meeting ${session.meetingCode}`;
@@ -34,7 +46,7 @@ Meeting code: ${session.meetingCode}
 Started: ${formatMeetingDateTime(session.startTime)}
 Ended: ${formatMeetingDateTime(session.endTime)}
 
-Below is the complete meeting transcript:
+Below is the complete meeting record, including spoken captions and chat messages:
 
-${buildTranscript(session)}`;
+${buildMeetingRecord(session)}`;
 };

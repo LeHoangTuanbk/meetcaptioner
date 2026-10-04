@@ -1,4 +1,5 @@
 import { ExportSelect } from "./export-select";
+import { ChatMessageList } from "./chat-message-list";
 import { SummarySelect } from "./summary-select";
 import type { MeetingSession } from "./types";
 import { useSessionDetail } from "./use-session-detail";
@@ -43,7 +44,10 @@ export const SessionDetail = ({
         </div>
         <div className="flex items-center gap-2">
           <SummarySelect
-            isDisabled={session.captions.length === 0}
+            isDisabled={
+              session.captions.length === 0 &&
+              (session.chatMessages?.length ?? 0) === 0
+            }
             onSelect={handleSummaryAction}
           />
           <ExportSelect onExport={exportSession} />
@@ -94,11 +98,14 @@ export const SessionDetail = ({
         </div>
       </div>
 
-      {session.captions.length === 0 && (
-        <div className="text-center py-16 text-slate-500">
-          No captions in this session
-        </div>
-      )}
+      <ChatMessageList messages={session.chatMessages ?? []} />
+
+      {session.captions.length === 0 &&
+        (session.chatMessages?.length ?? 0) === 0 && (
+          <div className="text-center py-16 text-slate-500">
+            No captions or chat messages in this session
+          </div>
+        )}
     </div>
   );
 };

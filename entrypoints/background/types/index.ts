@@ -74,4 +74,11 @@ export type MeetingSession = {
     time: string;
     timestamp: number;
   }>;
+  chatMessages?: Array<{
+    id: string;
+    author: string;
+    time: string;
+    text: string;
+    timestamp: number;
+  }>;
 };

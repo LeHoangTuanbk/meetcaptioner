@@ -167,6 +167,8 @@ export const SessionList = ({ sessions, onSelect, onDelete, onUpdateTitle }: Ses
                   <SessionTitle session={session} onUpdateTitle={onUpdateTitle} />
                   <span className="text-xs text-slate-500">
                     {session.captions.length} caption{session.captions.length !== 1 ? "s" : ""}
+                    {(session.chatMessages?.length ?? 0) > 0 &&
+                      ` · ${session.chatMessages?.length} chat`}
                   </span>
                 </div>
                 <p className="text-sm text-slate-400 mb-3">

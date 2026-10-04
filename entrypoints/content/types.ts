@@ -43,6 +43,14 @@ export type SavedCaption = {
   timestamp: number;
 };
 
+export type SavedChatMessage = {
+  id: string;
+  author: string;
+  time: string;
+  text: string;
+  timestamp: number;
+};
+
 export type MeetingSession = {
   id: string;
   meetingUrl: string;
@@ -51,4 +59,5 @@ export type MeetingSession = {
   startTime: number;
   endTime?: number;
   captions: SavedCaption[];
+  chatMessages: SavedChatMessage[];
 };
