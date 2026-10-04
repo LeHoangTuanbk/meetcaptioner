@@ -54,7 +54,6 @@ export function addOrUpdateCaption(
       }
 
       caption.text = text;
-      caption.time = new Date().toLocaleTimeString();
 
       const needsRetranslate = caption.isFinalized && textChanged;
       if (needsRetranslate) {
