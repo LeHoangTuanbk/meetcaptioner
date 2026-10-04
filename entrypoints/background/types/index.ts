@@ -81,4 +81,5 @@ export type MeetingSession = {
     text: string;
     timestamp: number;
   }>;
+  notes?: string;
 };

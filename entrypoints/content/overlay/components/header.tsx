@@ -1,5 +1,5 @@
 import type { ChangeEvent, RefObject } from "react";
-import { GearIcon, MinusIcon, PlusIcon } from "@phosphor-icons/react";
+import { GearIcon, MinusIcon, NotePencilIcon, PlusIcon } from "@phosphor-icons/react";
 import {
   LANGUAGES,
   MAX_AUTO_TRANSLATE_DISTANCE,
@@ -18,9 +18,11 @@ type Props = {
   headerRef: RefObject<HTMLDivElement | null>;
   isMinimized: boolean;
   isWaveActive: boolean;
+  isNotesOpen: boolean;
   settings: Settings;
   onMinimize: () => void;
   onExpand: () => void;
+  onToggleNotes: () => void;
 };
 
 const iconButtonClass =
@@ -30,9 +32,11 @@ export const Header = ({
   headerRef,
   isMinimized,
   isWaveActive,
+  isNotesOpen,
   settings,
   onMinimize,
   onExpand,
+  onToggleNotes,
 }: Props) => {
   const handleToggleTranslation = async () => {
     if (!settings.translationEnabled && !hasActiveProviderCredentials()) {
@@ -119,6 +123,15 @@ export const Header = ({
         <FontSizeControlContainer fontSize={settings.captionFontSize} />
 
         <div className="flex items-center gap-0.5">
+          <button
+            className={`${iconButtonClass} text-white ${isNotesOpen ? "bg-(--mc-overlay-control)" : ""}`}
+            type="button"
+            title={isNotesOpen ? "Hide notes" : "Notes"}
+            aria-pressed={isNotesOpen}
+            onClick={onToggleNotes}
+          >
+            <NotePencilIcon className="size-5" weight="regular" />
+          </button>
           <button
             className={`${iconButtonClass} text-white`}
             type="button"

@@ -23,4 +23,5 @@ export interface MeetingSession {
   endTime?: number;
   captions: SavedCaption[];
   chatMessages?: SavedChatMessage[];
+  notes?: string;
 }

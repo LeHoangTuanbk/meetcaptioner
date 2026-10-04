@@ -1,10 +1,11 @@
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { SCROLL_PREFETCH_MARGIN } from "@content/constants";
 import { enqueueNearbyCaptions } from "@content/translation-queue";
 import {
   CaptionList,
   CaptionsStatusToast,
   Header,
+  NotesPanel,
   ResizeHandles,
   ScrollToBottomButton,
   Toast,
@@ -53,6 +54,7 @@ export default function OverlayApp() {
     version,
   } = useOverlayState();
   const isMinimized = settings.isOverlayMinimized;
+  const [isNotesOpen, setIsNotesOpen] = useState(false);
   const savedPositionRef = useRef<SavedPosition | null>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
@@ -166,44 +168,51 @@ export default function OverlayApp() {
           headerRef={headerRef}
           isMinimized={isMinimized}
           isWaveActive={isWaveActive}
+          isNotesOpen={isNotesOpen}
           settings={settings}
           onMinimize={minimize}
           onExpand={expand}
+          onToggleNotes={() => setIsNotesOpen((open) => !open)}
         />
 
         {!isMinimized && (
           <>
-            <div
-              ref={contentRef}
-              onScroll={() => {
-                if (!settings.translationEnabled) return;
-                if (scrollTimerRef.current)
-                  clearTimeout(scrollTimerRef.current);
-                scrollTimerRef.current = setTimeout(
-                  () => enqueueNearbyCaptions(SCROLL_PREFETCH_MARGIN),
-                  250,
-                );
-              }}
-              style={{ fontSize: `${settings.captionFontSize}px` }}
-              className="mc-content-scroll min-h-0 flex-1 cursor-text overflow-x-hidden overflow-y-auto select-text"
-            >
-              <CaptionList
-                captions={captions}
-                isCCEnabled={isCCEnabled}
-                isMeetingEnded={isMeetingEnded}
-                isTranslationEnabled={settings.translationEnabled}
-              />
+            <div className="flex min-h-0 flex-1">
+              <div className="relative flex min-w-0 flex-1 flex-col">
+                <div
+                  ref={contentRef}
+                  onScroll={() => {
+                    if (!settings.translationEnabled) return;
+                    if (scrollTimerRef.current)
+                      clearTimeout(scrollTimerRef.current);
+                    scrollTimerRef.current = setTimeout(
+                      () => enqueueNearbyCaptions(SCROLL_PREFETCH_MARGIN),
+                      250,
+                    );
+                  }}
+                  style={{ fontSize: `${settings.captionFontSize}px` }}
+                  className="mc-content-scroll min-h-0 flex-1 cursor-text overflow-x-hidden overflow-y-auto select-text"
+                >
+                  <CaptionList
+                    captions={captions}
+                    isCCEnabled={isCCEnabled}
+                    isMeetingEnded={isMeetingEnded}
+                    isTranslationEnabled={settings.translationEnabled}
+                  />
+                </div>
+                <ScrollToBottomButton
+                  contentRef={contentRef}
+                  contentVersion={version}
+                />
+                {captions.length > 0 && (
+                  <CaptionsStatusToast
+                    isCCEnabled={isCCEnabled}
+                    isMeetingEnded={isMeetingEnded}
+                  />
+                )}
+              </div>
+              {isNotesOpen && <NotesPanel />}
             </div>
-            <ScrollToBottomButton
-              contentRef={contentRef}
-              contentVersion={version}
-            />
-            {captions.length > 0 && (
-              <CaptionsStatusToast
-                isCCEnabled={isCCEnabled}
-                isMeetingEnded={isMeetingEnded}
-              />
-            )}
             <ResizeHandles
               bottomRightRef={bottomRightRef}
               bottomLeftRef={bottomLeftRef}

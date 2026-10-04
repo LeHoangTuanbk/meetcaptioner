@@ -22,8 +22,9 @@ const buildChatTranscript = (session: MeetingSession): string =>
 const buildMeetingRecord = (session: MeetingSession): string => {
   const captions = buildCaptionTranscript(session) || "No captions captured.";
   const chat = buildChatTranscript(session) || "No chat messages captured.";
+  const notes = session.notes?.trim() || "No notes taken.";
 
-  return `Spoken transcript:\n${captions}\n\nMeeting chat:\n${chat}`;
+  return `Spoken transcript:\n${captions}\n\nMeeting chat:\n${chat}\n\nMy meeting notes:\n${notes}`;
 };
 
 export const buildSummaryPrompt = (session: MeetingSession): string => {
@@ -40,13 +41,14 @@ Return a clear, concise report with these sections:
 4. Open questions and follow-ups
 
 Do not invent facts, decisions, owners, or deadlines. Respond in the predominant language used in the meeting.
+Use my meeting notes as extra context and highlight anything I noted as important.
 
 Meeting: ${title}
 Meeting code: ${session.meetingCode}
 Started: ${formatMeetingDateTime(session.startTime)}
 Ended: ${formatMeetingDateTime(session.endTime)}
 
-Below is the complete meeting record, including spoken captions and chat messages:
+Below is the complete meeting record, including spoken captions, chat messages, and my notes:
 
 ${buildMeetingRecord(session)}`;
 };

@@ -1,20 +1,9 @@
+import { buildCsvContent, getExportableCaptions } from "./export-csv";
 import { formatMeetingDateTime } from "./export-date-time";
-import type {
-  MeetingSession,
-  SavedCaption,
-  SavedChatMessage,
-} from "./types";
+import type { MeetingSession } from "./types";
 
 export type ExportType = "captions" | "translations" | "both";
 export type ExportFormat = "csv" | "txt";
-
-const getExportableCaptions = (
-  captions: SavedCaption[],
-  type: ExportType
-) =>
-  type === "translations"
-    ? captions.filter((caption) => caption.translation)
-    : captions;
 
 const buildTextContent = (
   session: MeetingSession,
@@ -29,6 +18,11 @@ const buildTextContent = (
     `Ended: ${formatMeetingDateTime(session.endTime)}`,
     "",
   ];
+
+  const notes = session.notes?.trim();
+  if (type !== "translations" && notes) {
+    lines.push("Meeting notes", "-------------", notes, "");
+  }
 
   for (const caption of getExportableCaptions(session.captions, type)) {
     lines.push(`[${caption.time}] ${caption.speaker}:`);
@@ -52,87 +46,6 @@ const buildTextContent = (
   }
 
   return lines.join("\n");
-};
-
-const escapeCsvCell = (value: string): string =>
-  `"${value.replaceAll('"', '""')}"`;
-
-const getCsvHeaders = (type: ExportType): string[] => {
-  const meetingHeaders = [
-    "Meeting",
-    "Meeting Code",
-    "Started",
-    "Ended",
-    "Content Type",
-    "Caption Time",
-    "Speaker",
-  ];
-  if (type === "captions") return [...meetingHeaders, "Caption"];
-  if (type === "translations") return [...meetingHeaders, "Translation"];
-  return [...meetingHeaders, "Caption", "Translation"];
-};
-
-const getCsvRow = (
-  session: MeetingSession,
-  caption: SavedCaption,
-  type: ExportType
-): string[] => {
-  const metadata = [
-    session.title || `Meeting ${session.meetingCode}`,
-    session.meetingCode,
-    formatMeetingDateTime(session.startTime),
-    formatMeetingDateTime(session.endTime),
-    "Caption",
-    caption.time,
-    caption.speaker,
-  ];
-  if (type === "captions") return [...metadata, caption.text];
-  if (type === "translations") {
-    return [...metadata, caption.translation ?? ""];
-  }
-  return [...metadata, caption.text, caption.translation ?? ""];
-};
-
-const getChatCsvRow = (
-  session: MeetingSession,
-  message: SavedChatMessage,
-  type: ExportType,
-): string[] => {
-  const metadata = [
-    session.title || `Meeting ${session.meetingCode}`,
-    session.meetingCode,
-    formatMeetingDateTime(session.startTime),
-    formatMeetingDateTime(session.endTime),
-    "Chat",
-    message.time,
-    message.author,
-  ];
-  if (type === "captions") return [...metadata, message.text];
-  return [...metadata, message.text, ""];
-};
-
-const buildCsvContent = (
-  session: MeetingSession,
-  type: ExportType
-): string => {
-  const captionRows = getExportableCaptions(session.captions, type).map(
-    (caption) => getCsvRow(session, caption, type),
-  );
-  const chatRows =
-    type === "translations"
-      ? []
-      : (session.chatMessages ?? []).map((message) =>
-          getChatCsvRow(session, message, type),
-        );
-  const rows = [
-    getCsvHeaders(type),
-    ...captionRows,
-    ...chatRows,
-  ];
-
-  return rows
-    .map((row) => row.map(escapeCsvCell).join(","))
-    .join("\r\n");
 };
 
 const downloadFile = (
