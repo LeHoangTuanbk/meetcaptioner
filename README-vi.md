@@ -15,6 +15,8 @@ Tiện ích Chrome mạnh mẽ giúp thu thập phụ đề Google Meet theo th�
 - **Dịch trực tiếp bằng AI** - Dịch sang hơn 40 ngôn ngữ với OpenAI, Anthropic, Google Gemini, DeepSeek hoặc Ollama (local/cloud)
 - **Overlay nổi** - Có thể kéo thả và thay đổi kích thước mà không cản trở cuộc họp
 - **Lịch sử cuộc họp** - Tự động lưu toàn bộ phụ đề trên thiết bị để xem lại
+- **Tự động lưu meeting chat** - Tự động lưu tin nhắn chat Google Meet kèm tên người gửi và thời gian để xem lại
+- **Ghi chú cuộc họp** - Thêm ghi chú nhanh về cuộc họp ngay trong extension
 - **Xuất dữ liệu** - Xuất phụ đề và bản dịch thành file văn bản
 - **Chỉnh sửa bản dịch** - Nhấn vào bản dịch để chỉnh sửa thủ công
 - **Fallback thông minh** - Tự động chuyển model khi gặp giới hạn request

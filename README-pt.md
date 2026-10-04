@@ -15,6 +15,8 @@ Uma poderosa extensão para Chrome que captura legendas do Google Meet em tempo 
 - **Tradução ao vivo com IA** - Traduza para mais de 40 idiomas usando OpenAI, Anthropic, Google Gemini, DeepSeek ou Ollama (local/nuvem)
 - **Painel flutuante** - Pode ser movido e redimensionado sem atrapalhar a reunião
 - **Histórico de reuniões** - Salva automaticamente todas as legendas localmente para consulta posterior
+- **Histórico automático do chat da reunião** - Salva automaticamente as mensagens do chat do Google Meet com o nome do remetente e o horário para consulta posterior
+- **Notas da reunião** - Adicione notas rápidas sobre a reunião diretamente na extensão
 - **Opções de exportação** - Exporte legendas e traduções para arquivos de texto
 - **Traduções editáveis** - Clique em qualquer tradução para editá-la manualmente
 - **Fallback inteligente** - Alterna automaticamente o modelo quando os limites de uso são atingidos

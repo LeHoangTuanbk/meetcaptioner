@@ -1,6 +1,6 @@
 {
   "name": "meet-captioner",
-  "version": "2.2.2",
+  "version": "2.2.3",
   "description": "Capture Google Meet captions with floating overlay, translate real-time wih LLMs",
   "type": "module",
   "scripts": {

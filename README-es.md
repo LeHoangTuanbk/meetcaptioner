@@ -15,6 +15,8 @@ Una potente extensión de Chrome que captura los subtítulos de Google Meet en t
 - **Traducción con IA en directo** - Traduce a más de 40 idiomas con OpenAI, Anthropic, Google Gemini, DeepSeek u Ollama (local/nube)
 - **Panel flotante** - Se puede mover y redimensionar sin interferir con la reunión
 - **Historial de reuniones** - Guarda automáticamente todos los subtítulos de forma local
+- **Historial automático del chat de la reunión** - Guarda automáticamente los mensajes del chat de Google Meet con el nombre del remitente y la hora para consultarlos más tarde
+- **Notas de la reunión** - Añade notas rápidas sobre la reunión directamente en la extensión
 - **Opciones de exportación** - Exporta subtítulos y traducciones a archivos de texto
 - **Traducciones editables** - Haz clic en cualquier traducción para editarla
 - **Cambio inteligente de modelo** - Cambia automáticamente de modelo al alcanzar límites de uso

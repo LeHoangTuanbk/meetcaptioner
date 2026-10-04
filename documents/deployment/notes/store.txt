@@ -10,6 +10,8 @@ MeetCaptioner captures live captions and translates them instantly using AI — 
 • Editable Translations — Click to edit any translation manually
 • Smart Translation Queue — Prioritizes captions on your screen first, then translates the rest as you scroll
 • Smart Fallback — Automatic model switching when rate limits hit
+• Automatic Meeting Chat History — Automatically saves Google Meet chat messages with sender names and timestamps for later review
+• Meeting Notes — Add quick notes about a meeting directly in the extension
 • Privacy First — All data stored locally on your device, never sent to external servers
 
 🌍 SUPPORTED LANGUAGES
