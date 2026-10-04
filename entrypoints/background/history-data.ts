@@ -36,7 +36,10 @@ export const isMeetingSession = (value: unknown): value is MeetingSession =>
   value.captions.every(isSavedCaption) &&
   (!("chatMessages" in value) ||
     (Array.isArray(value.chatMessages) &&
-      value.chatMessages.every(isSavedChatMessage)));
+      value.chatMessages.every(isSavedChatMessage))) &&
+  (!("notes" in value) ||
+    value.notes === undefined ||
+    typeof value.notes === "string");
 
 export const parseStoredSessions = (stored: unknown): MeetingSession[] => {
   if (stored === undefined) return [];
@@ -74,5 +77,6 @@ export const mergeMeetingSession = (
     chatMessages: Array.from(chatMessages.values()).sort(
       (first, second) => first.timestamp - second.timestamp,
     ),
+    notes: incoming.notes ?? existing.notes,
   };
 };

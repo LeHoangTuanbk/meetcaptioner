@@ -11,6 +11,7 @@ let currentSession: MeetingSession | null = null;
 
 const allCaptions = new Map<number, SavedCaption>();
 const allChatMessages = new Map<string, SavedChatMessage>();
+let meetingNotes = "";
 let isSaveFailureNotified = false;
 
 const MEETING_TITLE_SELECTOR =
@@ -59,6 +60,14 @@ export const addChatMessageToHistory = (message: SavedChatMessage): void => {
   saveCaptionsDebounced();
 };
 
+/** Stores the user's notes for the current meeting and schedules a save. */
+export const updateMeetingNotes = (notes: string): void => {
+  meetingNotes = notes;
+  saveCaptionsDebounced();
+};
+
+export const getMeetingNotes = (): string => meetingNotes;
+
 export const addCaptionToHistory = (caption: Caption): void => {
   const saved: SavedCaption = {
     speaker: caption.speaker,
@@ -83,9 +92,12 @@ export const updateCaptionInHistory = (
 };
 
 const saveToStorage = async (): Promise<void> => {
-  if (!currentSession || (allCaptions.size === 0 && allChatMessages.size === 0)) {
-    return;
-  }
+  const hasContent =
+    allCaptions.size > 0 ||
+    allChatMessages.size > 0 ||
+    meetingNotes !== "" ||
+    Boolean(currentSession?.notes);
+  if (!currentSession || !hasContent) return;
 
   if (!currentSession.title) {
     currentSession.title = getMeetingTitle();
@@ -95,6 +107,7 @@ const saveToStorage = async (): Promise<void> => {
   currentSession.chatMessages = Array.from(allChatMessages.values()).sort(
     (first, second) => first.timestamp - second.timestamp,
   );
+  currentSession.notes = meetingNotes;
   currentSession.endTime = Date.now();
 
   try {

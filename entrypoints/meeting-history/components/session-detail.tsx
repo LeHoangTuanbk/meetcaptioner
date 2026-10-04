@@ -1,6 +1,7 @@
 import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { ExportSelect } from "./export-select";
 import { ChatMessageList } from "./chat-message-list";
+import { MeetingNotes } from "./meeting-notes";
 import { SummarySelect } from "./summary-select";
 import type { MeetingSession } from "./types";
 import { useSessionDetail } from "./use-session-detail";
@@ -40,7 +41,8 @@ export const SessionDetail = ({
           <SummarySelect
             isDisabled={
               session.captions.length === 0 &&
-              (session.chatMessages?.length ?? 0) === 0
+              (session.chatMessages?.length ?? 0) === 0 &&
+              !session.notes?.trim()
             }
             onSelect={handleSummaryAction}
           />
@@ -111,6 +113,7 @@ export const SessionDetail = ({
       </div>
 
       <ChatMessageList messages={session.chatMessages ?? []} />
+      <MeetingNotes notes={session.notes} />
     </div>
   );
 };
