@@ -1,4 +1,4 @@
-MeetCaptioner captures live captions and translates them instantly using AI — perfect for international meetings, language learners, or anyone who needs accurate meeting notes.
+Meet Captioner captures live captions and translates them instantly using AI — perfect for international meetings, language learners, or anyone who needs accurate meeting notes.
 
 🎯 KEY FEATURES
 
