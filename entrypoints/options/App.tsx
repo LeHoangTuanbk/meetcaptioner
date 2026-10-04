@@ -45,7 +45,7 @@ export default function App() {
         <header className="mb-8 flex items-center justify-between gap-8">
           <div>
             <h1 className="mb-2 text-[30px] leading-8 font-semibold">
-              MeetCaptioner Settings
+              Meet Captioner Settings
             </h1>
             <p className="text-sm leading-5 text-(--mc-app-text-secondary)">
               Configure translation settings for Google Meet captions

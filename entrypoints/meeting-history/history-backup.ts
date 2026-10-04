@@ -48,7 +48,7 @@ export const parseHistoryBackup = async (
     !("sessions" in parsed) ||
     !Array.isArray(parsed.sessions)
   ) {
-    throw new Error("Invalid MeetCaptioner backup file");
+    throw new Error("Invalid Meet Captioner backup file");
   }
   return parsed.sessions;
 };

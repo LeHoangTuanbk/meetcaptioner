@@ -23,7 +23,7 @@ export default defineConfig({
     },
   }),
   manifest: {
-    name: "MeetCaptioner",
+    name: "Meet Captioner",
     description: "Capture and translate Google Meet captions in real-time",
     version,
     permissions: ["storage"],
@@ -46,7 +46,7 @@ export default defineConfig({
       128: "icon-128.png",
     },
     action: {
-      default_title: "MeetCaptioner",
+      default_title: "Meet Captioner",
       default_icon: {
         16: "icon-16.png",
         32: "icon-32.png",
