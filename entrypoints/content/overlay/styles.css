@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "../../shared/design-tokens.css";
 @source "./**/*.{ts,tsx}";
 
 .mc-content-scroll *::selection {
@@ -45,8 +46,8 @@
 }
 
 @keyframes mc-wave {
-  0%, 100% { height: 4px; }
-  50% { height: 14px; }
+  0%, 100% { transform: scaleY(0.55); }
+  50% { transform: scaleY(1); }
 }
 
 @keyframes mc-fade-in {

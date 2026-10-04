@@ -1,17 +1,23 @@
 import { useCallback, useEffect, useState, type RefObject } from "react";
+import { ArrowDownIcon } from "@phosphor-icons/react";
 
 type ScrollToBottomButtonProps = {
   contentRef: RefObject<HTMLDivElement | null>;
   contentVersion: number;
 };
 
-export function ScrollToBottomButton({ contentRef, contentVersion }: ScrollToBottomButtonProps) {
+export function ScrollToBottomButton({
+  contentRef,
+  contentVersion,
+}: ScrollToBottomButtonProps) {
   const [visible, setVisible] = useState(false);
 
   const updateVisibility = useCallback(() => {
     const content = contentRef.current;
     if (!content) return;
-    setVisible(content.scrollHeight - content.scrollTop - content.clientHeight >= 100);
+    setVisible(
+      content.scrollHeight - content.scrollTop - content.clientHeight >= 100,
+    );
   }, [contentRef]);
 
   useEffect(() => {
@@ -37,12 +43,17 @@ export function ScrollToBottomButton({ contentRef, contentVersion }: ScrollToBot
       title="Scroll to bottom"
       aria-hidden={!visible}
       tabIndex={visible ? 0 : -1}
-      onClick={() => contentRef.current?.scrollTo({ top: contentRef.current.scrollHeight, behavior: "smooth" })}
+      onClick={() =>
+        contentRef.current?.scrollTo({
+          top: contentRef.current.scrollHeight,
+          behavior: "smooth",
+        })
+      }
       className={`absolute right-4 bottom-4 z-10 flex size-5 items-center justify-center rounded-full border-0 bg-white/15 text-[8px] text-white/70 transition hover:bg-white/25 hover:text-white/90 ${
         visible ? "cursor-pointer opacity-100" : "pointer-events-none opacity-0"
       }`}
     >
-      ↓
+      <ArrowDownIcon className="size-3" />
     </button>
   );
 }

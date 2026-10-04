@@ -75,12 +75,10 @@ export const useCaptionItem = (caption: Caption) => {
   ) {
     showLoadingDots = true;
   } else if (caption.translationStatus === TranslationStatus.Refining) {
-    translationText = caption.translation ? `${caption.translation} ↻` : "...";
+    translationText = caption.translation || "...";
     translationTone = "refining";
   } else if (caption.translationStatus === TranslationStatus.Error) {
-    translationText = caption.translation
-      ? `${caption.translation} ⚠`
-      : `⚠ ${caption.translationError || "Error"}`;
+    translationText = caption.translation || caption.translationError || "Error";
     translationTone = "error";
   }
 

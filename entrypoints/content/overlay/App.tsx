@@ -9,11 +9,7 @@ import {
   ScrollToBottomButton,
   Toast,
 } from "@content/overlay/components";
-import {
-  useDrag,
-  useResize,
-  useStickToBottom,
-} from "@content/overlay/hooks";
+import { useDrag, useResize, useStickToBottom } from "@content/overlay/hooks";
 import {
   registerContentElement,
   saveOverlaySettings,
@@ -35,7 +31,7 @@ const getHeaderContentWidth = (header: HTMLDivElement): number => {
   const children = Array.from(header.children);
   const childrenWidth = children.reduce(
     (width, child) => width + child.getBoundingClientRect().width,
-    0
+    0,
   );
   const gapsWidth = Number.parseFloat(style.columnGap) * (children.length - 1);
 
@@ -43,7 +39,7 @@ const getHeaderContentWidth = (header: HTMLDivElement): number => {
     childrenWidth +
       gapsWidth +
       Number.parseFloat(style.paddingLeft) +
-      Number.parseFloat(style.paddingRight)
+      Number.parseFloat(style.paddingRight),
   );
 };
 
@@ -66,7 +62,7 @@ export default function OverlayApp() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useDrag(overlayRef, headerRef, !isMinimized);
+  useDrag(overlayRef, headerRef, true);
   useResize(overlayRef, bottomRightRef, "br", !isMinimized);
   useResize(overlayRef, bottomLeftRef, "bl", !isMinimized);
   useResize(overlayRef, bottomRef, "b", !isMinimized);
@@ -80,7 +76,7 @@ export default function OverlayApp() {
     () => () => {
       if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current);
     },
-    []
+    [],
   );
 
   useLayoutEffect(() => {
@@ -114,14 +110,25 @@ export default function OverlayApp() {
       return;
     }
 
-    overlay.style.width = `${MIN_OVERLAY_WIDTH}px`;
     overlay.style.minWidth = `${MIN_OVERLAY_WIDTH}px`;
-    const headerWidth = Math.max(
-      MIN_OVERLAY_WIDTH,
-      getHeaderContentWidth(header)
-    );
-    overlay.style.width = `${headerWidth}px`;
-    overlay.style.minWidth = `${headerWidth}px`;
+    const syncOverlayWidth = () => {
+      const requiredWidth = Math.max(
+        MIN_OVERLAY_WIDTH,
+        getHeaderContentWidth(header),
+      );
+      overlay.style.width = `${requiredWidth}px`;
+      overlay.style.minWidth = `${requiredWidth}px`;
+    };
+
+    syncOverlayWidth();
+    const frameId = requestAnimationFrame(syncOverlayWidth);
+    const observer = new ResizeObserver(syncOverlayWidth);
+    Array.from(header.children).forEach((child) => observer.observe(child));
+
+    return () => {
+      cancelAnimationFrame(frameId);
+      observer.disconnect();
+    };
   }, [isMinimized, settings.targetLanguage, settings.translationEnabled]);
 
   useStickToBottom(contentRef, version, !isMinimized);
@@ -149,10 +156,10 @@ export default function OverlayApp() {
       <Toast />
       <div
         ref={overlayRef}
-        className={`fixed top-20 right-5 z-[999999] flex overflow-hidden rounded-xl bg-[#1a1a2e] font-sans text-white shadow-[0_4px_24px_rgba(0,0,0,0.5)] ${
+        className={`fixed top-20 right-5 z-999999 flex overflow-hidden rounded-xl bg-(--mc-overlay-bg) font-sans text-white shadow-[0_4px_24px_rgba(0,0,0,0.5)] ${
           isMinimized
             ? "h-auto w-auto min-w-0 flex-row"
-            : "h-[400px] max-h-[calc(100vh-40px)] w-[480px] min-h-[200px] min-w-[520px] flex-col"
+            : "h-94.75 max-h-[calc(100vh-40px)] w-144.25 min-h-50 min-w-144.25 flex-col"
         }`}
       >
         <Header
@@ -170,14 +177,15 @@ export default function OverlayApp() {
               ref={contentRef}
               onScroll={() => {
                 if (!settings.translationEnabled) return;
-                if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current);
+                if (scrollTimerRef.current)
+                  clearTimeout(scrollTimerRef.current);
                 scrollTimerRef.current = setTimeout(
                   () => enqueueNearbyCaptions(SCROLL_PREFETCH_MARGIN),
-                  250
+                  250,
                 );
               }}
               style={{ fontSize: `${settings.captionFontSize}px` }}
-              className="mc-content-scroll min-h-0 flex-1 cursor-text overflow-x-hidden overflow-y-auto p-3 select-text"
+              className="mc-content-scroll min-h-0 flex-1 cursor-text overflow-x-hidden overflow-y-auto select-text"
             >
               <CaptionList
                 captions={captions}

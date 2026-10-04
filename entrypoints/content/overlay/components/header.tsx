@@ -1,4 +1,5 @@
 import type { ChangeEvent, RefObject } from "react";
+import { GearIcon, MinusIcon, PlusIcon } from "@phosphor-icons/react";
 import {
   LANGUAGES,
   MAX_AUTO_TRANSLATE_DISTANCE,
@@ -23,7 +24,7 @@ type Props = {
 };
 
 const iconButtonClass =
-  "flex size-7 shrink-0 items-center justify-center rounded-lg border-0 bg-transparent text-base text-white/60 transition hover:bg-white/10 hover:text-white";
+  "flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-lg border-0 bg-transparent transition hover:bg-(--mc-overlay-control-hover) hover:text-white";
 
 export const Header = ({
   headerRef,
@@ -58,17 +59,17 @@ export const Header = ({
 
   if (isMinimized) {
     return (
-      <div ref={headerRef} className="flex cursor-grab items-center gap-2 rounded-xl bg-[#252540] px-3 py-2 select-none active:cursor-grabbing">
+      <div ref={headerRef} className="flex h-12 w-27 cursor-grab items-center justify-center gap-5 rounded-3xl bg-(--mc-overlay-header) select-none active:cursor-grabbing">
         <WaveIndicator active={isWaveActive} />
-        <button className={iconButtonClass} type="button" title="Expand" onClick={onExpand}>
-          +
+        <button className="flex size-8 cursor-pointer items-center justify-center rounded-lg text-white transition-colors hover:bg-white/15" type="button" title="Expand" aria-label="Expand" onClick={onExpand}>
+          <PlusIcon className="size-5" weight="regular" />
         </button>
       </div>
     );
   }
 
   return (
-    <div ref={headerRef} className="flex min-w-max shrink-0 cursor-grab items-center gap-3 rounded-t-xl bg-[#252540] px-3.5 py-2.5 select-none active:cursor-grabbing">
+    <div ref={headerRef} className="flex h-14.5 min-w-max shrink-0 cursor-grab items-center gap-3 rounded-t-xl bg-(--mc-overlay-header) px-3.5 select-none active:cursor-grabbing">
       <div className="mr-auto flex shrink-0 items-center">
         <span className="text-sm font-semibold whitespace-nowrap text-white">Captions</span>
       </div>
@@ -83,12 +84,14 @@ export const Header = ({
             title={settings.translationEnabled ? "Translation ON" : "Translation OFF"}
             onClick={handleToggleTranslation}
             className={`relative h-5 w-9 cursor-pointer rounded-full border-0 transition-colors ${
-              settings.translationEnabled ? "bg-emerald-500" : "bg-white/20"
+              settings.translationEnabled
+                ? "bg-(--mc-primary)"
+                : "bg-white/20"
             }`}
           >
             <span
               className={`absolute top-0.5 size-4 rounded-full bg-white transition-[left] ${
-                settings.translationEnabled ? "left-[18px]" : "left-0.5"
+                settings.translationEnabled ? "left-4.5" : "left-0.5"
               }`}
             />
           </button>
@@ -100,9 +103,9 @@ export const Header = ({
           value={settings.targetLanguage}
           disabled={!settings.translationEnabled}
           onChange={handleTargetLanguageChange}
-          className={`cursor-pointer rounded-md bg-white/8 text-xs text-white outline-none transition-all [field-sizing:content] hover:bg-white/12 ${
+          className={`h-8 cursor-pointer rounded-md bg-(--mc-overlay-control) text-xs text-white outline-none transition-colors field-sizing-content hover:bg-(--mc-overlay-control-hover) ${
             settings.translationEnabled
-              ? "w-fit border border-white/15 px-2.5 py-1.5 opacity-100 hover:border-white/25"
+              ? "w-fit border border-(--mc-overlay-control-border) px-2.5 opacity-100"
               : "pointer-events-none w-0 min-w-0 border-0 p-0 opacity-0"
           }`}
         >
@@ -115,17 +118,17 @@ export const Header = ({
 
         <FontSizeControlContainer fontSize={settings.captionFontSize} />
 
-        <div className="flex items-center gap-0.5 opacity-50 transition-opacity hover:opacity-100">
+        <div className="flex items-center gap-0.5">
           <button
-            className={iconButtonClass}
+            className={`${iconButtonClass} text-white`}
             type="button"
             title="Settings"
             onClick={handleOpenSettings}
           >
-            ⚙
+            <GearIcon className="size-6" weight="regular" />
           </button>
-          <button className={iconButtonClass} type="button" title="Minimize" onClick={onMinimize}>
-            −
+          <button className={`${iconButtonClass} text-white`} type="button" title="Minimize" onClick={onMinimize}>
+            <MinusIcon className="size-4" weight="regular" />
           </button>
         </div>
       </div>
