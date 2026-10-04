@@ -18,7 +18,7 @@ export function ResizeHandles({ bottomRightRef, bottomLeftRef, bottomRef }: Resi
         <span className="absolute bottom-0.5 left-0.5 h-2 w-0.5 rounded bg-white/50" />
       </div>
       <div ref={bottomRef} className="absolute bottom-1 left-1/2 h-4 w-10 -translate-x-1/2 cursor-ns-resize opacity-40 hover:opacity-90">
-        <span className="absolute bottom-1 left-1/2 h-[3px] w-6 -translate-x-1/2 rounded bg-white/40" />
+        <span className="absolute bottom-1 left-1/2 h-0.75 w-6 -translate-x-1/2 rounded bg-white/40" />
       </div>
     </>
   );

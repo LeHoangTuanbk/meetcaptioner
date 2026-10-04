@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { toast } from "sonner";
+import { appToast } from "../shared/app-toast";
 import type { MeetingSession } from "./components";
 import {
   requestHistoryClear,
@@ -32,10 +32,10 @@ export function useHistory() {
       if (selectedSession?.id === sessionId) {
         setSelectedSession(null);
       }
-      toast.success("Session deleted");
+      appToast.success("Session deleted");
       void loadStorageInfo();
     } catch {
-      toast.error("Failed to delete session");
+      appToast.error("Failed to delete session");
     }
   };
 
@@ -51,10 +51,10 @@ export function useHistory() {
       await requestHistoryClear();
       setSessions([]);
       setSelectedSession(null);
-      toast.success("All history cleared");
+      appToast.success("All history cleared");
       void loadStorageInfo();
     } catch {
-      toast.error("Failed to clear history");
+      appToast.error("Failed to clear history");
     }
   };
 
@@ -71,9 +71,9 @@ export function useHistory() {
           prev ? { ...prev, title: title || undefined } : null
         );
       }
-      toast.success("Title updated");
+      appToast.success("Title updated");
     } catch {
-      toast.error("Failed to update title");
+      appToast.error("Failed to update title");
     }
   };
 

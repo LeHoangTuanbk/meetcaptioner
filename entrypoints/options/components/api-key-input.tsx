@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ArrowRightIcon, EyeIcon, EyeSlashIcon } from "@phosphor-icons/react";
 import type { Provider } from "./types";
 
 type ApiProvider = Exclude<Provider, "ollama">;
@@ -44,10 +45,10 @@ export function ApiKeyInput({ value, onChange, provider }: Props) {
   const { placeholder, name: providerName, guideUrl } = meta;
 
   return (
-    <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700/50">
-      <label className="block text-sm font-medium text-slate-300 mb-3">
+    <div className="rounded-xl border border-(--mc-app-border) bg-(--mc-app-surface) p-6">
+      <label className="mb-3 flex items-baseline gap-1.5 text-lg leading-5 font-medium text-(--mc-app-text-emphasis)">
         API Key <span className="text-red-400">*</span>
-        <span className="text-slate-500 font-normal ml-2">
+        <span className="text-xs font-normal text-(--mc-app-text-secondary)">
           ({providerName})
         </span>
       </label>
@@ -57,25 +58,29 @@ export function ApiKeyInput({ value, onChange, provider }: Props) {
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none pr-12"
+          className="h-12 w-full rounded-lg border border-(--mc-app-field-border) bg-(--mc-app-canvas) px-4 pr-12 text-sm text-(--mc-app-text) placeholder:text-(--mc-app-text-secondary) hover:border-(--mc-app-field-hover) focus:border-blue-400 focus:outline-none"
         />
         <button
           type="button"
           onClick={() => setShowKey(!showKey)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white cursor-pointer"
+          aria-label={showKey ? "Hide API key" : "Show API key"}
+          className="absolute top-1/2 right-3 flex size-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-md text-white hover:bg-white/10"
         >
-          {showKey ? "🙈" : "👁️"}
+          {showKey ? <EyeSlashIcon className="size-6" /> : <EyeIcon className="size-6" />}
         </button>
       </div>
-      <p className="text-xs text-slate-500 mt-2 flex flex-col gap-1">
+      <p className="mt-3 flex flex-col gap-1 text-xs leading-4.5 text-(--mc-app-text-secondary)">
         <span>Your API key is stored locally and never shared. </span>
         <a
           href={guideUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-emerald-400 hover:text-emerald-300 underline"
+          className="text-(--mc-positive) hover:underline"
         >
-          How to get your {providerName} API key →
+          <span className="inline-flex items-center gap-1">
+            How to get your {providerName} API key
+            <ArrowRightIcon className="size-3.5" />
+          </span>
         </a>
       </p>
     </div>

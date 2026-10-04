@@ -1,4 +1,9 @@
 import type { Caption } from "@content/types";
+import {
+  ArrowsClockwiseIcon,
+  CheckIcon,
+  WarningCircleIcon,
+} from "@phosphor-icons/react";
 import { TranslationEditor } from "../translation-editor";
 import type { CopyTarget, TranslationTone } from "./use-caption-item";
 
@@ -48,7 +53,7 @@ export const CaptionItem = ({
 }: Props) => (
   <article
     data-caption-id={caption.id}
-    className="mc-caption-enter relative flex flex-col gap-1 border-b border-white/6 pb-2 last:border-b-0"
+    className="mc-caption-enter relative flex flex-col gap-2 border-b border-(--mc-overlay-border) px-2 py-2.5 last:border-b-0"
   >
     <div className="text-[11px] font-semibold text-green-400">
       {caption.speaker}
@@ -93,17 +98,20 @@ export const CaptionItem = ({
             >
               {translationText}
               {isLoading && <span className="mc-dots">...</span>}
+              {translationTone === "error" && (
+                <WarningCircleIcon className="ml-1 inline size-3.5" />
+              )}
             </button>
           )}
 
           {isReloadVisible && (
             <button
               type="button"
-              className={`${actionClass} text-violet-400`}
+            className={`${actionClass} flex size-6 items-center justify-center text-violet-400`}
               title="Re-translate"
               onClick={onRetranslate}
             >
-              ↻
+              <ArrowsClockwiseIcon className="size-3.5" />
             </button>
           )}
         </div>
@@ -126,7 +134,7 @@ export const CaptionItem = ({
 
     {copiedTarget && (
       <span className="mc-copy-pop pointer-events-none absolute top-1/2 left-1/2 z-10 -translate-x-1/2 -translate-y-1/2 rounded-md bg-black/85 px-3 py-1.5 text-xs font-semibold whitespace-nowrap text-green-400">
-        ✓ Copied!
+        <CheckIcon className="mr-1 inline size-3.5" /> Copied!
       </span>
     )}
   </article>

@@ -17,19 +17,19 @@ export const StorageIndicator = ({ bytesUsed, quota }: StorageIndicatorProps) =>
     ? "text-red-400"
     : isWarning
       ? "text-amber-400"
-      : "text-slate-400";
+      : "text-(--mc-app-text-secondary)";
 
   return (
     <div className="flex items-center gap-3">
       <div className="text-right">
-        <p className={`text-sm font-medium ${statusClass}`}>
+        <p className={`text-base leading-5 font-medium ${statusClass}`}>
           {formatBytes(bytesUsed)} / {formatBytes(quota)}
         </p>
-        <p className={`text-xs ${isWarning ? statusClass : "text-slate-500"}`}>
+        <p className={`text-xs ${isWarning ? statusClass : "text-(--mc-app-text-secondary)"}`}>
           {isWarning ? "Storage almost full" : "Storage used"}
         </p>
       </div>
-      <div className="w-24 h-2 bg-slate-700 rounded-full overflow-hidden">
+      <div className="h-2 w-24 overflow-hidden rounded-full bg-(--mc-secondary)">
         <div
           className={`h-full rounded-full transition-all ${
             isCritical

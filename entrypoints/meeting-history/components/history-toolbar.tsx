@@ -20,19 +20,19 @@ export const HistoryToolbar = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className="mb-6 flex items-center gap-3">
+    <div className="mb-4 flex items-center gap-3">
       <input
         type="text"
         placeholder="Search captions..."
         value={searchQuery}
         onChange={(event) => onSearchChange(event.target.value)}
-        className="flex-1 rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-slate-100 placeholder-slate-500 focus:border-slate-600 focus:outline-none"
+        className="flex-1 rounded-lg border border-(--mc-app-field-border) bg-(--mc-app-surface-solid) px-4 py-2 text-sm text-(--mc-app-text) placeholder:text-(--mc-app-text-secondary) hover:border-(--mc-app-field-hover) focus:border-blue-400 focus:outline-none"
       />
       {isHistoryAvailable && (
         <button
           type="button"
           onClick={onBackup}
-          className="cursor-pointer rounded-lg bg-emerald-600 px-4 py-2 text-sm hover:bg-emerald-500"
+          className="cursor-pointer rounded-lg bg-(--mc-primary) px-4 py-2 text-sm font-medium hover:bg-(--mc-primary-hover)"
         >
           Backup JSON
         </button>
@@ -40,7 +40,7 @@ export const HistoryToolbar = ({
       <button
         type="button"
         onClick={() => fileInputRef.current?.click()}
-        className="cursor-pointer rounded-lg bg-slate-700 px-4 py-2 text-sm hover:bg-slate-600"
+        className="cursor-pointer rounded-lg bg-(--mc-secondary) px-4 py-2 text-sm font-medium hover:bg-(--mc-secondary-hover)"
       >
         Restore JSON
       </button>
@@ -59,7 +59,7 @@ export const HistoryToolbar = ({
         <button
           type="button"
           onClick={onClear}
-          className="cursor-pointer rounded-lg bg-red-900/50 px-4 py-2 text-sm text-red-300 hover:bg-red-800/50"
+          className="cursor-pointer rounded-lg bg-(--mc-danger) px-4 py-2 text-sm font-medium text-white hover:bg-red-600"
         >
           Clear All
         </button>
