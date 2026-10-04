@@ -1,4 +1,4 @@
-import { Toaster } from "sonner";
+import { AppToaster } from "../shared/app-toaster";
 import {
   ApiKeyInput,
   OllamaSettings,
@@ -31,41 +31,33 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="text-slate-400">Loading...</div>
+      <div className="flex min-h-screen items-center justify-center bg-(--mc-app-canvas)">
+        <div className="text-(--mc-app-text-secondary)">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100">
-      <Toaster
-        position="top-center"
-        theme="dark"
-        richColors
-        toastOptions={{
-          style: {
-            background: "#1e293b",
-            border: "1px solid #334155",
-          },
-        }}
-      />
+    <main className="min-h-screen bg-(--mc-app-canvas) text-(--mc-app-text)">
+      <AppToaster />
 
-      <div className="max-w-2xl mx-auto py-12 px-6">
-        <header className="mb-8 flex items-center justify-between">
+      <div className="mx-auto max-w-2xl px-6 py-12">
+        <header className="mb-8 flex items-center justify-between gap-8">
           <div>
-            <h1 className="text-2xl font-semibold text-white mb-2">
+            <h1 className="mb-2 text-[30px] leading-8 font-semibold">
               MeetCaptioner Settings
             </h1>
-            <p className="text-slate-400">
+            <p className="text-sm leading-5 text-(--mc-app-text-secondary)">
               Configure translation settings for Google Meet captions
             </p>
           </div>
           <button
             onClick={openHistory}
-            className="text-sm text-slate-400 hover:text-white transition-colors cursor-pointer"
+            className="shrink-0 cursor-pointer text-sm text-white transition-colors hover:text-(--mc-positive)"
           >
-            View Meeting Caption History →
+            <span className="inline-flex items-center gap-1.5">
+              View Meeting Caption History
+            </span>
           </button>
         </header>
 
@@ -73,12 +65,7 @@ export default function App() {
           <Select
             label="AI Provider"
             value={settings.provider}
-            onChange={(v) =>
-              updateSetting(
-                "provider",
-                v as Provider
-              )
-            }
+            onChange={(v) => updateSetting("provider", v as Provider)}
             options={PROVIDERS}
           />
 
@@ -119,12 +106,12 @@ export default function App() {
           <button
             onClick={saveSettings}
             disabled={saving}
-            className="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white font-medium rounded-lg transition-colors"
+            className="cursor-pointer rounded-lg bg-(--mc-primary) px-4 py-2 text-sm font-medium transition-colors hover:bg-(--mc-primary-hover) disabled:opacity-50"
           >
             {saving ? "Validating..." : "Save Settings"}
           </button>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

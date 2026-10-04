@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { toast } from "sonner";
+import { appToast } from "../shared/app-toast";
 import { MODELS, DEFAULT_SETTINGS, type Settings } from "./components";
 import { validateApiKey } from "./api-key-validation";
 import type { Provider } from "./components/types";
@@ -67,7 +67,7 @@ export function useSettings() {
             currentKey
           );
           if (!validation.valid) {
-            toast.error(validation.error || "Invalid API key");
+            appToast.error(validation.error || "Invalid API key");
             setSaving(false);
             return;
           }
@@ -76,9 +76,9 @@ export function useSettings() {
       }
 
       await chrome.runtime.sendMessage({ action: "saveSettings", settings });
-      toast.success("Settings saved!");
+      appToast.success("Settings saved!");
     } catch {
-      toast.error("Failed to save settings");
+      appToast.error("Failed to save settings");
     } finally {
       setSaving(false);
     }

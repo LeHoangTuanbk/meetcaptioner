@@ -1,3 +1,4 @@
+import { ArrowsClockwiseIcon, EyeIcon, EyeSlashIcon } from "@phosphor-icons/react";
 import { useOllamaSettings } from "./use-ollama-settings";
 
 type OllamaSettingsProps = {
@@ -65,8 +66,8 @@ type BaseUrlInputProps = {
 
 function BaseUrlInput({ baseUrl, isCloudUrl, onChange }: BaseUrlInputProps) {
   return (
-    <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700/50">
-      <label className="block text-sm font-medium text-slate-300 mb-3">
+    <div className="rounded-xl border border-(--mc-app-border) bg-(--mc-app-surface) p-6">
+      <label className="mb-3 block text-lg leading-5 font-medium text-(--mc-app-text-emphasis)">
         Ollama Server URL <span className="text-red-400">*</span>
       </label>
       <input
@@ -74,7 +75,7 @@ function BaseUrlInput({ baseUrl, isCloudUrl, onChange }: BaseUrlInputProps) {
         value={baseUrl}
         onChange={(e) => onChange(e.target.value)}
         placeholder="http://localhost:11434"
-        className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
+        className="h-12 w-full rounded-lg border border-(--mc-app-field-border) bg-(--mc-app-canvas) px-4 text-sm text-white placeholder:text-(--mc-app-text-secondary) hover:border-(--mc-app-field-hover) focus:border-blue-400 focus:outline-none"
       />
       <div className="text-xs text-slate-500 mt-2 space-y-1">
         <p>
@@ -114,11 +115,11 @@ function ApiKeyInput({
   onChange,
 }: ApiKeyInputProps) {
   return (
-    <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700/50">
+    <div className="rounded-xl border border-(--mc-app-border) bg-(--mc-app-surface) p-6">
       <div className="mb-3 p-2 bg-amber-500/10 border border-amber-500/30 rounded-lg text-xs text-amber-400">
         Ollama Cloud is currently in preview
       </div>
-      <label className="block text-sm font-medium text-slate-300 mb-3">
+      <label className="mb-3 block text-lg leading-5 font-medium text-(--mc-app-text-emphasis)">
         API Key <span className="text-red-400">*</span>
         <span className="text-slate-500 font-normal ml-2">
           (Required for Ollama Cloud)
@@ -130,14 +131,15 @@ function ApiKeyInput({
           value={apiKey}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Your Ollama Cloud API key"
-          className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none pr-12"
+          className="h-12 w-full rounded-lg border border-(--mc-app-field-border) bg-(--mc-app-canvas) px-4 pr-12 text-sm text-white placeholder:text-(--mc-app-text-secondary) hover:border-(--mc-app-field-hover) focus:border-blue-400 focus:outline-none"
         />
         <button
           type="button"
           onClick={onToggleShow}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+          aria-label={showApiKey ? "Hide API key" : "Show API key"}
+          className="absolute top-1/2 right-3 flex size-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-md text-white hover:bg-white/10"
         >
-          {showApiKey ? "Hide" : "Show"}
+          {showApiKey ? <EyeSlashIcon className="size-6" /> : <EyeIcon className="size-6" />}
         </button>
       </div>
       <p className="text-xs text-slate-500 mt-2">
@@ -180,17 +182,19 @@ function ModelSelector({
   onRefresh,
 }: ModelSelectorProps) {
   return (
-    <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700/50">
+    <div className="rounded-xl border border-(--mc-app-border) bg-(--mc-app-surface) p-6">
       <div className="flex items-center justify-between mb-3">
-        <label className="block text-sm font-medium text-slate-300">
+        <label className="block text-lg leading-5 font-medium text-(--mc-app-text-emphasis)">
           Model <span className="text-red-400">*</span>
         </label>
         <button
           type="button"
           onClick={onRefresh}
           disabled={loading}
-          className="text-xs text-emerald-400 hover:text-emerald-300 disabled:opacity-50"
+          aria-label="Refresh Ollama models"
+          className="inline-flex cursor-pointer items-center gap-1.5 text-xs text-(--mc-positive) hover:text-emerald-300 disabled:opacity-50"
         >
+          <ArrowsClockwiseIcon className={`size-3.5 ${loading ? "animate-spin" : ""}`} />
           {loading ? "Loading..." : "Refresh Models"}
         </button>
       </div>
@@ -201,7 +205,7 @@ function ModelSelector({
         <select
           value={selectedModel}
           onChange={(e) => onModelChange(e.target.value)}
-          className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white focus:border-emerald-500 focus:outline-none cursor-pointer"
+          className="h-12 w-full cursor-pointer rounded-lg border border-(--mc-app-field-border) bg-(--mc-app-canvas) px-4 text-sm text-white hover:border-(--mc-app-field-hover) focus:border-blue-400 focus:outline-none"
         >
           {models.map((model) => (
             <option key={model.id} value={model.id}>
@@ -210,17 +214,17 @@ function ModelSelector({
           ))}
         </select>
       ) : (
-        <div className="text-sm text-slate-500 p-3 bg-slate-900 rounded-lg border border-slate-700">
+        <div className="rounded-lg border border-(--mc-app-border) bg-(--mc-app-canvas) p-3 text-sm text-(--mc-app-text-secondary)">
           {loading
             ? "Fetching available models..."
             : "No models found. Make sure Ollama is running and has models installed."}
         </div>
       )}
 
-      <div className="text-xs text-slate-500 mt-2 space-y-1">
+      <div className="mt-2 space-y-1 text-xs text-(--mc-app-text-secondary)">
         <p>
           Install models with:{" "}
-          <code className="text-slate-400">ollama pull gemma3</code>
+          <code className="text-(--mc-app-text-emphasis)">ollama pull gemma3</code>
         </p>
         <p>
           Find translation models:{" "}
