@@ -1,9 +1,74 @@
 const CHAT_ROOT_SELECTOR = '[jsname="xySENc"][aria-live="polite"]';
-const CHAT_BUTTON_SELECTOR = 'button[jsname="A5il2e"][data-panel-id="2"]';
+const CHAT_ROOT_SELECTORS = [
+  CHAT_ROOT_SELECTOR,
+  '[jsname="iyUusd"]',
+  '[jsname="gkA7Yd"][role="main"]',
+] as const;
+const CHAT_BUTTON_SELECTORS = [
+  'button[jsname="A5il2e"][data-panel-id="2"]',
+  'button[data-panel-id="2"]',
+] as const;
 const CHAT_MOUNT_TIMEOUT = 1500;
+const attemptedPanelIds = new Set<string>();
+const attemptedButtons = new WeakSet<HTMLButtonElement>();
 
-export const findChatRoot = (): HTMLElement | null =>
-  document.querySelector<HTMLElement>(CHAT_ROOT_SELECTOR);
+const findChatButton = (): HTMLButtonElement | null => {
+  for (const selector of CHAT_BUTTON_SELECTORS) {
+    const button = document.querySelector<HTMLButtonElement>(selector);
+    if (button) return button;
+  }
+
+  const controlledButtons = Array.from(
+    document.querySelectorAll<HTMLButtonElement>("button[aria-controls]"),
+  );
+  return (
+    controlledButtons.find((button) => {
+      const panel = getControlledPanel(button);
+      return Boolean(
+        panel?.querySelector<HTMLElement>(
+          '[jsname="xySENc"], [jsname="iyUusd"], [jsname="gkA7Yd"]',
+        ),
+      );
+    }) ?? null
+  );
+};
+
+const getControlledPanel = (
+  button: HTMLButtonElement | null,
+): HTMLElement | null => {
+  const panelId = button?.getAttribute("aria-controls");
+  return panelId ? document.getElementById(panelId) : null;
+};
+
+const isVisible = (element: HTMLElement): boolean => {
+  const style = window.getComputedStyle(element);
+  return (
+    style.display !== "none" &&
+    style.visibility !== "hidden" &&
+    element.getClientRects().length > 0
+  );
+};
+
+const isChatOpen = (button: HTMLButtonElement): boolean => {
+  if (button.getAttribute("aria-expanded") === "true") return true;
+  const panel = getControlledPanel(button);
+  return panel ? isVisible(panel) : false;
+};
+
+export const findChatRoot = (): HTMLElement | null => {
+  for (const selector of CHAT_ROOT_SELECTORS) {
+    const root = document.querySelector<HTMLElement>(selector);
+    if (root) return root;
+  }
+
+  const panel = getControlledPanel(findChatButton());
+  if (!panel) return null;
+  return (
+    panel.querySelector<HTMLElement>(
+      '[aria-live="polite"], [jsname="Ypafjf"], [data-message-id]',
+    ) ?? panel
+  );
+};
 
 const waitForChatRoot = (): Promise<HTMLElement | null> =>
   new Promise((resolve) => {
@@ -54,12 +119,10 @@ export const primeChatHistory = async (): Promise<HTMLElement | null> => {
   const existingRoot = findChatRoot();
   if (existingRoot) return existingRoot;
 
-  const button = document.querySelector<HTMLButtonElement>(
-    CHAT_BUTTON_SELECTOR,
-  );
+  const button = findChatButton();
   if (!button) return null;
 
-  if (button.getAttribute("aria-expanded") === "true") {
+  if (isChatOpen(button)) {
     return waitForChatRoot();
   }
 
@@ -69,12 +132,28 @@ export const primeChatHistory = async (): Promise<HTMLElement | null> => {
     ),
   ).find((panelButton) => panelButton !== button);
   const panelMask = createPanelMask(button.getAttribute("aria-controls"));
-  button.click();
+  const openedByUs = !isChatOpen(button);
+  const panelId = button.getAttribute("aria-controls");
+  const hasAlreadyAttempted = panelId
+    ? attemptedPanelIds.has(panelId)
+    : attemptedButtons.has(button);
+
+  if (hasAlreadyAttempted) {
+    panelMask?.remove();
+    return waitForChatRoot();
+  }
+
+  if (openedByUs) {
+    if (panelId) attemptedPanelIds.add(panelId);
+    else attemptedButtons.add(button);
+    button.click();
+  }
   const root = await waitForChatRoot();
 
-  const currentChatButton =
-    document.querySelector<HTMLButtonElement>(CHAT_BUTTON_SELECTOR) ?? button;
-  currentChatButton.click();
+  const currentChatButton = findChatButton() ?? button;
+  if (root && openedByUs && isChatOpen(currentChatButton)) {
+    currentChatButton.click();
+  }
   if (
     previouslyExpandedPanel?.isConnected &&
     previouslyExpandedPanel.getAttribute("aria-expanded") !== "true"
