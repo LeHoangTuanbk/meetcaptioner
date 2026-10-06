@@ -1,7 +1,11 @@
 import type { ContentScriptContext } from "wxt/utils/content-script-context";
 import { addChatMessageToHistory } from "@content/history-service";
 import type { SavedChatMessage } from "@content/types";
-import { findChatRoot, primeChatHistory } from "@content/chat-history-primer";
+import {
+  findChatRoot,
+  isChatPanelOpen,
+  primeChatHistory,
+} from "@content/chat-history-primer";
 
 const GROUP_SELECTOR = '[jsname="Ypafjf"], .Ss4fHf';
 const MESSAGE_SELECTOR = "[data-message-id]";
@@ -109,7 +113,7 @@ export const startChatHistoryCapture = (ctx: ContentScriptContext): void => {
     if (!isActive || expectedActivation !== activationId) return;
 
     const existingRoot = findChatRoot();
-    if (existingRoot) {
+    if (existingRoot && isChatPanelOpen()) {
       attachRoot(existingRoot);
       return;
     }
@@ -136,8 +140,11 @@ export const startChatHistoryCapture = (ctx: ContentScriptContext): void => {
   const refreshRoot = (): void => {
     if (!isActive) return;
     const root = findChatRoot();
-    if (root) attachRoot(root);
-    else void ensureRoot(activationId);
+    if (root && (currentRoot || isChatPanelOpen())) attachRoot(root);
+    else if (!currentRoot?.isConnected) {
+      currentRoot = null;
+      void ensureRoot(activationId);
+    }
   };
 
   const deactivate = (): void => {

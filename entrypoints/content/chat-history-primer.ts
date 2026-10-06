@@ -1,9 +1,5 @@
 const CHAT_ROOT_SELECTOR = '[jsname="xySENc"][aria-live="polite"]';
-const CHAT_ROOT_SELECTORS = [
-  CHAT_ROOT_SELECTOR,
-  '[jsname="iyUusd"]',
-  '[jsname="gkA7Yd"][role="main"]',
-] as const;
+const CHAT_ROOT_SELECTORS = [CHAT_ROOT_SELECTOR, '[jsname="iyUusd"]'] as const;
 const CHAT_BUTTON_SELECTORS = [
   'button[jsname="A5il2e"][data-panel-id="2"]',
   'button[data-panel-id="2"]',
@@ -50,7 +46,9 @@ const isVisible = (element: HTMLElement): boolean => {
 };
 
 const isChatOpen = (button: HTMLButtonElement): boolean => {
-  if (button.getAttribute("aria-expanded") === "true") return true;
+  const expanded = button.getAttribute("aria-expanded");
+  if (expanded === "true") return true;
+  if (expanded === "false") return false;
   const panel = getControlledPanel(button);
   return panel ? isVisible(panel) : false;
 };
@@ -63,11 +61,15 @@ export const findChatRoot = (): HTMLElement | null => {
 
   const panel = getControlledPanel(findChatButton());
   if (!panel) return null;
-  return (
-    panel.querySelector<HTMLElement>(
-      '[aria-live="polite"], [jsname="Ypafjf"], [data-message-id]',
-    ) ?? panel
-  );
+  const root = panel.querySelector<HTMLElement>(
+      '[aria-live="polite"], [jsname="iyUusd"], [jsname="Ypafjf"], [data-message-id]',
+    ) ?? panel;
+  return root;
+};
+
+export const isChatPanelOpen = (): boolean => {
+  const button = findChatButton();
+  return button ? isChatOpen(button) : false;
 };
 
 const waitForChatRoot = (): Promise<HTMLElement | null> =>
@@ -97,6 +99,19 @@ const waitForChatRoot = (): Promise<HTMLElement | null> =>
     });
   });
 
+const waitForChatOpen = (button: HTMLButtonElement): Promise<void> =>
+  new Promise((resolve) => {
+    const deadline = Date.now() + 500;
+    const check = (): void => {
+      if (isChatOpen(button) || Date.now() >= deadline) {
+        resolve();
+        return;
+      }
+      setTimeout(check, 25);
+    };
+    check();
+  });
+
 const createPanelMask = (panelId: string | null): HTMLStyleElement | null => {
   if (!panelId) return null;
 
@@ -116,11 +131,11 @@ const createPanelMask = (panelId: string | null): HTMLStyleElement | null => {
 
 /** Mounts Meet chat once so its message DOM remains available after closing. */
 export const primeChatHistory = async (): Promise<HTMLElement | null> => {
-  const existingRoot = findChatRoot();
-  if (existingRoot) return existingRoot;
-
   const button = findChatButton();
   if (!button) return null;
+
+  const existingRoot = findChatRoot();
+  if (existingRoot && isChatOpen(button)) return existingRoot;
 
   if (isChatOpen(button)) {
     return waitForChatRoot();
@@ -147,6 +162,7 @@ export const primeChatHistory = async (): Promise<HTMLElement | null> => {
     if (panelId) attemptedPanelIds.add(panelId);
     else attemptedButtons.add(button);
     button.click();
+    await waitForChatOpen(button);
   }
   const root = await waitForChatRoot();
 
