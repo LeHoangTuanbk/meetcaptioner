@@ -11,14 +11,28 @@ const GROUP_SELECTOR = '[jsname="Ypafjf"], .Ss4fHf';
 const MESSAGE_SELECTOR = "[data-message-id]";
 const TEXT_SELECTOR = '[jsname="dTKtvb"]';
 const AUTHOR_SELECTOR = '.poVWob, [data-sender-name], [jsname="A9tUt"]';
-const TIME_SELECTOR = '[jsname="biJjHb"], .MuzmKe';
+const TIME_SELECTOR =
+  '[jsname="biJjHb"], .MuzmKe, time, [datetime], [aria-label*="AM"], [aria-label*="PM"]';
 const GROUP_HEADER_SELECTOR = ".HNucUd";
 const OWN_MESSAGE_GROUP_CLASS = "ydIQ1d";
 
 const capturedMessages = new Map<string, SavedChatMessage>();
+const capturedContent = new Set<string>();
 
 const readText = (element: Element | null): string =>
   element?.textContent?.trim() ?? "";
+
+const readTime = (element: Element | null): string =>
+  readText(element) ||
+  element?.getAttribute("aria-label")?.trim() ||
+  element?.getAttribute("datetime")?.trim() ||
+  "";
+
+const formatCapturedTime = (timestamp: number): string =>
+  new Intl.DateTimeFormat(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(timestamp);
 
 const readGroupAuthor = (group: HTMLElement, time: string): string => {
   const knownAuthor = readText(group.querySelector(AUTHOR_SELECTOR));
@@ -47,9 +61,8 @@ const hasMessageChanged = (
 
 const extractMessages = (root: HTMLElement): SavedChatMessage[] => {
   const messages: SavedChatMessage[] = [];
-
   root.querySelectorAll<HTMLElement>(GROUP_SELECTOR).forEach((group) => {
-    const time = readText(group.querySelector(TIME_SELECTOR));
+    const time = readTime(group.querySelector(TIME_SELECTOR));
     const groupAuthor = readGroupAuthor(group, time);
     const isOwnGroup = group.classList.contains(OWN_MESSAGE_GROUP_CLASS);
 
@@ -59,18 +72,21 @@ const extractMessages = (root: HTMLElement): SavedChatMessage[] => {
       if (!id || !text) return;
 
       const previous = capturedMessages.get(id);
-      const detectedAuthor =
-        groupAuthor || (isOwnGroup ? "You" : "Unknown");
+      const detectedAuthor = groupAuthor || (isOwnGroup ? "You" : "Unknown");
       const author =
         detectedAuthor === "Unknown" && previous?.author
           ? previous.author
           : detectedAuthor;
+      const contentKey = `${author}\u0000${text}`;
+      if (capturedContent.has(contentKey)) return;
+      capturedContent.add(contentKey);
+      const timestamp = previous?.timestamp ?? Date.now();
       const message = {
         id,
         author,
-        time: time || previous?.time || "",
+        time: time || previous?.time || formatCapturedTime(timestamp),
         text,
-        timestamp: previous?.timestamp ?? Date.now(),
+        timestamp,
       };
       if (!hasMessageChanged(previous, message)) return;
 

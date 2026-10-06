@@ -11,6 +11,9 @@ type MessageGroup = {
   messages: SavedChatMessage[];
 };
 
+const normalizeTime = (time: string): string =>
+  time.trim().replace(/\s+/g, " ").toLocaleLowerCase();
+
 const groupMessages = (messages: SavedChatMessage[]): MessageGroup[] => {
   const groups: MessageGroup[] = [];
 
@@ -18,7 +21,7 @@ const groupMessages = (messages: SavedChatMessage[]): MessageGroup[] => {
     const previousGroup = groups.at(-1);
     if (
       previousGroup?.author === message.author &&
-      previousGroup.time === message.time
+      normalizeTime(previousGroup.time) === normalizeTime(message.time)
     ) {
       previousGroup.messages.push(message);
       return;
