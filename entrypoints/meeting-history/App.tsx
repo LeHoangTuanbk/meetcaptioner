@@ -25,6 +25,7 @@ export default function App() {
     restoreHistoryBackup,
     retryHistory,
     updateSessionTitle,
+    updateSessionNotes,
   } = useHistory();
 
   if (loading) {
@@ -59,6 +60,7 @@ export default function App() {
             session={selectedSession}
             onBack={() => setSelectedSession(null)}
             onDelete={() => deleteSession(selectedSession.id)}
+            onUpdateNotes={updateSessionNotes}
           />
         ) : (
           <>

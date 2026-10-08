@@ -64,3 +64,15 @@ export const requestTitleUpdate = async (
   });
   ensureSuccess(response);
 };
+
+export const requestNotesUpdate = async (
+  sessionId: string,
+  notes: string,
+) => {
+  const response = await chrome.runtime.sendMessage({
+    action: "updateMeetingSession",
+    sessionId,
+    updates: { notes: notes.trim() || undefined },
+  });
+  ensureSuccess(response);
+};

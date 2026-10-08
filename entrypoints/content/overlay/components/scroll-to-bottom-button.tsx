@@ -49,11 +49,11 @@ export function ScrollToBottomButton({
           behavior: "smooth",
         })
       }
-      className={`absolute right-4 bottom-4 z-10 flex size-5 items-center justify-center rounded-full border-0 bg-white/15 text-[8px] text-white/70 transition hover:bg-white/25 hover:text-white/90 ${
-        visible ? "cursor-pointer opacity-100" : "pointer-events-none opacity-0"
+      className={`absolute right-4 bottom-4 z-10 flex size-7 items-center justify-center rounded-full border-0 bg-[#3a3a55] text-(--mc-overlay-caption) shadow-[0_2px_10px_rgba(0,0,0,0.5)] ring-1 ring-[#4d4d6b] transition hover:scale-105 hover:bg-[#46466a] hover:text-white ${
+        visible ? "cursor-pointer" : "pointer-events-none invisible"
       }`}
     >
-      <ArrowDownIcon className="size-3" />
+      <ArrowDownIcon className="size-4" weight="bold" />
     </button>
   );
 }

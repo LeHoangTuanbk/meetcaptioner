@@ -43,7 +43,12 @@ export function useDrag(
 
     const startDragging = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      if (target.closest("button, select, input, textarea")) return;
+      // Keep header controls fixed in place. The header itself is draggable,
+      // but interacting with the controls (including their gaps/labels) must
+      // never start moving the overlay.
+      if (target.closest("button, select, input, textarea, [data-no-drag]")) {
+        return;
+      }
 
       event.preventDefault();
       event.stopPropagation();

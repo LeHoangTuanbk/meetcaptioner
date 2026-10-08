@@ -62,12 +62,16 @@ export default function OverlayApp() {
   const bottomRightRef = useRef<HTMLDivElement>(null);
   const bottomLeftRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const leftRef = useRef<HTMLDivElement>(null);
+  const rightRef = useRef<HTMLDivElement>(null);
   const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useDrag(overlayRef, headerRef, true);
   useResize(overlayRef, bottomRightRef, "br", !isMinimized);
   useResize(overlayRef, bottomLeftRef, "bl", !isMinimized);
   useResize(overlayRef, bottomRef, "b", !isMinimized);
+  useResize(overlayRef, leftRef, "l", !isMinimized);
+  useResize(overlayRef, rightRef, "r", !isMinimized);
 
   useEffect(() => {
     registerContentElement(contentRef.current);
@@ -112,19 +116,26 @@ export default function OverlayApp() {
       return;
     }
 
-    overlay.style.minWidth = `${MIN_OVERLAY_WIDTH}px`;
     const syncOverlayWidth = () => {
       const requiredWidth = Math.max(
         MIN_OVERLAY_WIDTH,
         getHeaderContentWidth(header),
       );
-      overlay.style.width = `${requiredWidth}px`;
+      // The header must always fit every control, so its content width is
+      // the overlay's minimum width.
       overlay.style.minWidth = `${requiredWidth}px`;
+      if (overlay.getBoundingClientRect().width < requiredWidth) {
+        overlay.style.width = `${requiredWidth}px`;
+      }
     };
 
     syncOverlayWidth();
     const frameId = requestAnimationFrame(syncOverlayWidth);
     const observer = new ResizeObserver(syncOverlayWidth);
+    // Manual resizing changes the header width without changing the children.
+    // Observe the header itself so it cannot be shrunk past the controls and
+    // clip the settings/minimize buttons.
+    observer.observe(header);
     Array.from(header.children).forEach((child) => observer.observe(child));
 
     return () => {
@@ -158,10 +169,10 @@ export default function OverlayApp() {
       <Toast />
       <div
         ref={overlayRef}
-        className={`fixed top-20 right-5 z-999999 flex overflow-hidden rounded-xl bg-(--mc-overlay-bg) font-sans text-white shadow-[0_4px_24px_rgba(0,0,0,0.5)] ${
+        className={`fixed top-20 right-5 z-999999 flex font-sans text-white ${
           isMinimized
-            ? "h-auto w-auto min-w-0 flex-row"
-            : "h-94.75 max-h-[calc(100vh-40px)] w-144.25 min-h-50 min-w-144.25 flex-col"
+            ? "h-auto w-auto min-w-0 flex-row overflow-visible rounded-3xl bg-transparent shadow-none"
+            : "h-94.75 max-h-[calc(100vh-40px)] w-144.25 min-h-50 min-w-144.25 flex-col overflow-hidden rounded-xl bg-(--mc-overlay-bg) shadow-[0_4px_24px_rgba(0,0,0,0.5)]"
         }`}
       >
         <Header
@@ -217,6 +228,8 @@ export default function OverlayApp() {
               bottomRightRef={bottomRightRef}
               bottomLeftRef={bottomLeftRef}
               bottomRef={bottomRef}
+              leftRef={leftRef}
+              rightRef={rightRef}
             />
           </>
         )}
