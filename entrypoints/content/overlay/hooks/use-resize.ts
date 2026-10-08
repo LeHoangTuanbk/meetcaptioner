@@ -1,6 +1,6 @@
 import { useEffect, type RefObject } from "react";
 
-type ResizeDirection = "br" | "bl" | "b";
+type ResizeDirection = "br" | "bl" | "b" | "r" | "l";
 
 export function useResize(
   elementRef: RefObject<HTMLElement | null>,
@@ -26,12 +26,15 @@ export function useResize(
       const deltaX = event.clientX - startX;
       const deltaY = event.clientY - startY;
       element.style.height = `${Math.max(200, startHeight + deltaY)}px`;
+      const minWidth =
+        Number.parseFloat(window.getComputedStyle(element).minWidth) || 0;
 
-      if (direction === "br") {
-        element.style.width = `${Math.max(520, startWidth + deltaX)}px`;
-      } else if (direction === "bl") {
-        element.style.width = `${Math.max(520, startWidth - deltaX)}px`;
-        element.style.left = `${startLeft + deltaX}px`;
+      if (direction === "br" || direction === "r") {
+        element.style.width = `${Math.max(minWidth, startWidth + deltaX)}px`;
+      } else if (direction === "bl" || direction === "l") {
+        const width = Math.max(minWidth, startWidth - deltaX);
+        element.style.width = `${width}px`;
+        element.style.left = `${startLeft + startWidth - width}px`;
         element.style.right = "auto";
       }
     };
@@ -55,7 +58,13 @@ export function useResize(
       previousCursor = document.body.style.cursor;
       previousUserSelect = document.body.style.userSelect;
       document.body.style.cursor =
-        direction === "br" ? "nwse-resize" : direction === "bl" ? "nesw-resize" : "ns-resize";
+        direction === "br"
+          ? "nwse-resize"
+          : direction === "bl"
+            ? "nesw-resize"
+            : direction === "r" || direction === "l"
+              ? "ew-resize"
+              : "ns-resize";
       document.body.style.userSelect = "none";
       document.addEventListener("mousemove", resize);
       document.addEventListener("mouseup", stopResizing);

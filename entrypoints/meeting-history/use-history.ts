@@ -4,6 +4,7 @@ import type { MeetingSession } from "./components";
 import {
   requestHistoryClear,
   requestSessionDelete,
+  requestNotesUpdate,
   requestTitleUpdate,
 } from "./history-api";
 import { useHistoryStorage } from "./use-history-storage";
@@ -77,6 +78,25 @@ export function useHistory() {
     }
   };
 
+  const updateSessionNotes = async (sessionId: string, notes: string) => {
+    try {
+      const nextNotes = notes.trim() || undefined;
+      await requestNotesUpdate(sessionId, notes);
+      setSessions((prev) =>
+        prev.map((s) => (s.id === sessionId ? { ...s, notes: nextNotes } : s)),
+      );
+      if (selectedSession?.id === sessionId) {
+        setSelectedSession((prev) =>
+          prev ? { ...prev, notes: nextNotes } : null,
+        );
+      }
+      appToast.success("Notes saved");
+    } catch {
+      appToast.error("Failed to save notes");
+      throw new Error("Failed to save notes");
+    }
+  };
+
   const filteredSessions = useMemo(() => {
     if (!searchQuery) return sessions;
     const query = searchQuery.toLowerCase();
@@ -109,5 +129,6 @@ export function useHistory() {
     restoreHistoryBackup,
     retryHistory: loadHistory,
     updateSessionTitle,
+    updateSessionNotes,
   };
 }

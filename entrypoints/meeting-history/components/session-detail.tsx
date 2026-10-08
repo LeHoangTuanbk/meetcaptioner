@@ -10,12 +10,14 @@ type SessionDetailProps = {
   session: MeetingSession;
   onBack: () => void;
   onDelete: () => void;
+  onUpdateNotes: (sessionId: string, notes: string) => Promise<void>;
 };
 
 export const SessionDetail = ({
   session,
   onBack,
   onDelete,
+  onUpdateNotes,
 }: SessionDetailProps) => {
   const {
     displayTitle,
@@ -34,8 +36,8 @@ export const SessionDetail = ({
           aria-label="Back to meeting history"
           className="flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-(--mc-secondary) px-4 text-sm font-medium transition-colors hover:bg-(--mc-secondary-hover)"
         >
-          <span>Back</span>
           <ArrowLeftIcon className="size-4" />
+          <span>Back</span>
         </button>
         <div className="flex items-center gap-2">
           <SummarySelect
@@ -113,7 +115,10 @@ export const SessionDetail = ({
       </div>
 
       <ChatMessageList messages={session.chatMessages ?? []} />
-      <MeetingNotes notes={session.notes} />
+      <MeetingNotes
+        notes={session.notes}
+        onSave={(notes) => onUpdateNotes(session.id, notes)}
+      />
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import type { Caption } from "@content/types";
+import { CheckCircleIcon, ClosedCaptioningIcon } from "@phosphor-icons/react";
 import { CaptionItemContainer } from "./caption-item";
 
 type Props = {
@@ -26,19 +27,20 @@ export const CaptionList = ({
           </>
         ) : isCCEnabled ? (
           <>
-            <p className="text-[13px] leading-5">You're all set!</p>
-            <p className="text-xs leading-4.5">
-              Start speaking to see captions
-            </p>
+            <CheckCircleIcon className="size-6" weight="regular" aria-hidden="true" />
+            <p className="text-2xl leading-7 font-semibold">You're all set!</p>
+            <p className="text-xs leading-normal">Start speaking to see captions</p>
           </>
         ) : (
           <>
-            <p className="text-[13px] leading-5">Waiting for captions...</p>
-            <p className="text-xs leading-4.5">
-              Please, turn on CC in Google Meet.
-            </p>
-            <p className="text-xs leading-4.5">
-              Press C to toggle captions in Google Meet.
+            <p className="text-2xl leading-7 font-semibold">Waiting for captions...</p>
+            <div className="flex items-center justify-center gap-1.5 text-xs leading-normal">
+              <span>Please, turn on</span>
+              <ClosedCaptioningIcon className="size-6 shrink-0" weight="regular" aria-hidden="true" />
+              <span>in Google Meet.</span>
+            </div>
+            <p className="text-xs leading-normal">
+              Press <strong className="font-bold">C</strong> to toggle captions in Google Meet.
             </p>
           </>
         )}
