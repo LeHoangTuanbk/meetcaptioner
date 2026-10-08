@@ -138,7 +138,7 @@ export const Header = ({
             value={settings.targetLanguage}
             disabled={!settings.translationEnabled}
             onChange={handleTargetLanguageChange}
-            className="h-8 w-fit min-w-max cursor-pointer appearance-none rounded-md border border-(--mc-overlay-control-border) bg-(--mc-overlay-control) py-1 pl-2.5 pr-7 text-base font-medium leading-4 text-white outline-none transition-colors field-sizing-content hover:bg-(--mc-overlay-control-hover)"
+            className="h-8 w-fit min-w-max cursor-pointer appearance-none rounded-md border border-(--mc-overlay-control-border) bg-(--mc-overlay-control) pt-0 pb-0.5 pl-2.5 pr-7 text-base font-medium leading-none text-white outline-none transition-colors field-sizing-content hover:bg-(--mc-overlay-control-hover)"
           >
             {LANGUAGES.map((language) => (
               <option
