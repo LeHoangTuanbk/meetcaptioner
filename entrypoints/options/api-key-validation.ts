@@ -51,17 +51,10 @@ const requestValidation = (
     });
   }
 
-  return fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: "gpt-4.1-nano",
-      max_completion_tokens: 1,
-      messages: [{ role: "user", content: "Hi" }],
-    }),
+  // List models instead of calling a specific one, so validation keeps working
+  // when OpenAI deprecates a model (and costs no tokens).
+  return fetch("https://api.openai.com/v1/models", {
+    headers: { Authorization: `Bearer ${apiKey}` },
   });
 };
 

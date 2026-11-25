@@ -9,7 +9,6 @@ export const MODELS: Record<Provider, readonly string[]> = {
     "claude-opus-4-5-20251101",
   ],
   [PROVIDERS.openai]: [
-    "gpt-4.1-nano",
     "gpt-4.1-mini",
     "gpt-4.1",
     "gpt-5-nano",
@@ -36,7 +35,7 @@ export const DEFAULT_SETTINGS: Settings = {
   deepseekApiKey: "",
   ollamaBaseUrl: "http://localhost:11434",
   ollamaApiKey: "",
-  model: "gpt-4.1-nano",
+  model: "gpt-5-nano",
   targetLanguage: "en",
   translationEnabled: false,
   isOverlayMinimized: false,
