@@ -69,6 +69,11 @@ export const validateApiKey = async (
     if (response.ok) return { valid: true };
 
     const data = await response.json().catch(() => ({}));
+    // A restricted OpenAI key may allow chat completions but not model
+    // listing: /v1/models then returns 403 although the key is valid.
+    if (provider === "openai" && response.status === 403) {
+      return { valid: true };
+    }
     if ([400, 401, 403].includes(response.status)) {
       return {
         valid: false,
