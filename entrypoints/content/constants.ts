@@ -46,9 +46,8 @@ export const MODELS = {
     { id: "claude-opus-4-5-20251101", name: "Claude Opus 4.5" },
   ],
   openai: [
-    { id: "gpt-4.1-nano", name: "GPT-4.1 Nano (Fastest)" },
     { id: "gpt-4.1-mini", name: "GPT-4.1 Mini" },
-    { id: "gpt-5-nano", name: "GPT-5 Nano" },
+    { id: "gpt-5-nano", name: "GPT-5 Nano (Fastest)" },
   ],
 } as const;
 

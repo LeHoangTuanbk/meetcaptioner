@@ -29,7 +29,7 @@ export const DEFAULT_SETTINGS: Settings = {
   deepseekApiKey: "",
   ollamaBaseUrl: "http://localhost:11434",
   ollamaApiKey: "",
-  model: "gpt-4.1-nano",
+  model: "gpt-5-nano",
   targetLanguage: "en",
   translationEnabled: false,
   isOverlayMinimized: false,

@@ -2,6 +2,13 @@ import type { TranslateRequest } from "../types";
 import { RateLimitError } from "../errors";
 import { buildPrompt } from "../utils";
 
+/**
+ * GPT-5 models are reasoning models: reasoning tokens count against
+ * max_completion_tokens and can exhaust it, returning empty content.
+ * Translation needs no reasoning, so keep it minimal (also lowers latency).
+ */
+const isReasoningModel = (model: string): boolean => model.startsWith("gpt-5");
+
 export async function translateWithOpenAI(
   request: TranslateRequest,
   apiKey: string,
@@ -18,6 +25,7 @@ export async function translateWithOpenAI(
     body: JSON.stringify({
       model,
       max_completion_tokens: 1024,
+      ...(isReasoningModel(model) && { reasoning_effort: "minimal" }),
       messages: [{ role: "user", content: prompt }],
     }),
   });
@@ -31,5 +39,10 @@ export async function translateWithOpenAI(
   }
 
   const data = await response.json();
-  return data.choices[0].message.content.trim();
+  const content: string = data.choices?.[0]?.message?.content?.trim() ?? "";
+  // An empty reply (e.g. token budget exhausted) must not count as success.
+  if (!content) {
+    throw new Error("OpenAI returned an empty translation");
+  }
+  return content;
 }
